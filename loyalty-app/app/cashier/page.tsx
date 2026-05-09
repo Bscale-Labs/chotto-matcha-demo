@@ -1,12 +1,12 @@
-import { ArrowRight, KeyRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
-import { startCashierShift } from "@/app/cashier/actions";
 import { getCashierShiftCookie } from "@/lib/auth/shift";
 import { getBranchById } from "@/lib/data/branches";
 import { getStaffProfileById, listActiveCashiersWithBranches } from "@/lib/data/staff";
 import { Brand } from "@/components/shared/brand";
+import { StartShiftForm } from "@/components/cashier/start-shift-form";
 
 export default async function CashierPage({
   searchParams
@@ -43,46 +43,7 @@ export default async function CashierPage({
               This selector belongs to the cashier station. Pick your name and enter your PIN to unlock member lookup.
             </p>
 
-            <form action={startCashierShift} className="mt-7 grid gap-5">
-              <div className="grid gap-3">
-                {cashiers.map(({ profile, branch }) => (
-                  <label
-                    key={profile.id}
-                    className="flex cursor-pointer items-center justify-between gap-4 rounded-md border border-line-soft bg-stone/35 p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
-                  >
-                    <span>
-                      <span className="block font-medium text-charcoal">{profile.name}</span>
-                      <span className="mt-1 block text-xs text-ink-muted">{branch.name}</span>
-                    </span>
-                    <input
-                      type="radio"
-                      name="staffProfileId"
-                      value={profile.id}
-                      className="h-4 w-4 accent-[var(--matcha-deep)]"
-                      defaultChecked={profile.id === cashiers[0]?.profile.id}
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                <label className="grid gap-2 text-sm font-medium text-charcoal">
-                  PIN
-                  <input
-                    name="pin"
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="h-12 rounded-md border border-line bg-cream px-4 text-base focus:border-matcha-deep focus:outline-none focus:shadow-focus"
-                    placeholder="••••"
-                  />
-                </label>
-                <Button type="submit" icon={KeyRound} disabled={cashiers.length === 0}>
-                  Enter cashier
-                </Button>
-              </div>
-              {params.pin === "invalid" ? <p className="text-sm text-error-text">Select a cashier and enter a valid PIN.</p> : null}
-            </form>
+            <StartShiftForm cashiers={cashiers} showPinError={params.pin === "invalid"} />
           </section>
         </div>
       </main>
