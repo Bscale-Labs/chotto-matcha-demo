@@ -1,0 +1,9 @@
+{
+  "name": "Chotto Matcha Loyalty",
+  "short_name": "Chotto",
+  "start_url": "/customer",
+  "display": "standalone",
+  "background_color": "#fbf8ef",
+  "theme_color": "#6f8f45",
+  "icons": []
+}
