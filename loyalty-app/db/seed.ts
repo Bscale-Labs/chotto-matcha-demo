@@ -25,7 +25,10 @@ const demoUsers = [
     email: "lesmon@bscalelabs.com",
     name: "Lesmon Saluta",
     staffProfileId: "staff-lesmon",
-    roles: ["manager"] as const
+    customerId: "cust-lesmon",
+    phone: "+63 917 000 0000",
+    pointsBalance: 980,
+    roles: ["manager", "customer"] as const
   },
   {
     email: "mika@chottomatcha.ph",
