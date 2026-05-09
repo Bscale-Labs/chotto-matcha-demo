@@ -1,4 +1,24 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex
+} from "drizzle-orm/pg-core";
+
+export const appRole = pgEnum("app_role", ["customer", "cashier", "manager"]);
+export const rewardType = pgEnum("reward_type", ["item", "merch"]);
+export const transactionType = pgEnum("transaction_type", ["earn", "redeem", "manual"]);
+export const orgConfigValueType = pgEnum("org_config_value_type", [
+  "string",
+  "number",
+  "boolean",
+  "asset_id"
+]);
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -54,18 +74,160 @@ export const staffProfiles = pgTable(
   "staff_profiles",
   {
     id: text("id").primaryKey(),
-    userId: text("userId")
+    authUserId: text("auth_user_id")
       .notNull()
       .unique()
       .references(() => user.id, { onDelete: "cascade" }),
-    role: text("role", { enum: ["manager", "cashier"] }).notNull(),
-    branchId: text("branchId"),
-    pinHash: text("pinHash"),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
     active: boolean("active").notNull().default(true),
-    createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (t) => ({
-    roleActiveIdx: index("staff_profiles_role_active_idx").on(t.role, t.active)
+    emailIdx: index("staff_profiles_email_idx").on(t.email),
+    activeIdx: index("staff_profiles_active_idx").on(t.active)
   })
 );
+
+export const branches = pgTable(
+  "branches",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    address: text("address").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    activeIdx: index("branches_active_idx").on(t.active)
+  })
+);
+
+export const userRoles = pgTable(
+  "user_roles",
+  {
+    authUserId: text("auth_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: appRole("role").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.authUserId, t.role] }),
+    roleIdx: index("user_roles_role_idx").on(t.role)
+  })
+);
+
+export const staffRoleDetails = pgTable(
+  "staff_role_details",
+  {
+    staffProfileId: text("staff_profile_id")
+      .notNull()
+      .references(() => staffProfiles.id, { onDelete: "cascade" }),
+    role: appRole("role").notNull(),
+    branchId: text("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    pinHash: text("pin_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.staffProfileId, t.role] }),
+    roleBranchIdx: index("staff_role_details_role_branch_idx").on(t.role, t.branchId)
+  })
+);
+
+export const customers = pgTable(
+  "customers",
+  {
+    id: text("id").primaryKey(),
+    authUserId: text("auth_user_id")
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    pointsBalance: integer("points_balance").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    emailIdx: uniqueIndex("customers_email_idx").on(t.email),
+    phoneIdx: uniqueIndex("customers_phone_idx").on(t.phone),
+    activeIdx: index("customers_active_idx").on(t.active)
+  })
+);
+
+export const assets = pgTable(
+  "assets",
+  {
+    id: text("id").primaryKey(),
+    bucketKey: text("bucket_key").notNull().unique(),
+    filename: text("filename").notNull(),
+    contentType: text("content_type").notNull(),
+    size: integer("size").notNull(),
+    uploadedByStaffProfileId: text("uploaded_by_staff_profile_id").references(() => staffProfiles.id, {
+      onDelete: "set null"
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    uploadedByIdx: index("assets_uploaded_by_idx").on(t.uploadedByStaffProfileId)
+  })
+);
+
+export const rewards = pgTable(
+  "rewards",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    imageAssetId: text("image_asset_id").references(() => assets.id, { onDelete: "set null" }),
+    pointCost: integer("point_cost").notNull(),
+    type: rewardType("type").notNull(),
+    stockCount: integer("stock_count"),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    activeTypeIdx: index("rewards_active_type_idx").on(t.active, t.type)
+  })
+);
+
+export const transactions = pgTable(
+  "transactions",
+  {
+    id: text("id").primaryKey(),
+    customerId: text("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "restrict" }),
+    staffProfileId: text("staff_profile_id")
+      .notNull()
+      .references(() => staffProfiles.id, { onDelete: "restrict" }),
+    branchId: text("branch_id").references(() => branches.id, { onDelete: "restrict" }),
+    type: transactionType("type").notNull(),
+    pointsDelta: integer("points_delta").notNull(),
+    billTotalCents: integer("bill_total_cents"),
+    rewardId: text("reward_id").references(() => rewards.id, { onDelete: "restrict" }),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    customerDateIdx: index("transactions_customer_date_idx").on(t.customerId, t.createdAt),
+    branchDateIdx: index("transactions_branch_date_idx").on(t.branchId, t.createdAt),
+    staffDateIdx: index("transactions_staff_date_idx").on(t.staffProfileId, t.createdAt),
+    typeDateIdx: index("transactions_type_date_idx").on(t.type, t.createdAt),
+    rewardIdx: index("transactions_reward_idx").on(t.rewardId)
+  })
+);
+
+export const orgConfig = pgTable("org_config", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  valueType: orgConfigValueType("value_type").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});

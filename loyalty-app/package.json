@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file=.env.local db/migrate.ts",
-    "db:seed": "tsx --env-file=.env.local db/seed.ts"
+    "db:seed": "tsx --env-file=.env.local db/seed.ts",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.9",
