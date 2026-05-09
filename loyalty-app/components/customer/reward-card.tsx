@@ -1,15 +1,8 @@
-import { Coffee, Gift, Leaf } from "lucide-react";
-import type { ComponentType } from "react";
-import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
+import { RewardImage } from "@/components/customer/reward-image";
 import { formatPoints } from "@/lib/formatters";
 import { pointsNeeded } from "@/lib/points";
 import type { Customer, Reward } from "@/lib/types";
-
-const typeIcon: Record<Reward["type"], ComponentType<LucideProps>> = {
-  item: Coffee,
-  merch: Gift
-};
 
 export function RewardCard({
   reward,
@@ -29,7 +22,6 @@ export function RewardCard({
       : reward.stockCount === 0
       ? "Out for now"
       : `${reward.stockCount} left`;
-  const Icon = typeIcon[reward.type] ?? Leaf;
 
   return (
     <article
@@ -39,12 +31,7 @@ export function RewardCard({
       )}
     >
       <div className="flex gap-4">
-        <div
-          className="grid h-16 w-16 shrink-0 place-items-center rounded-md bg-gradient-to-br from-sage-wash to-sage-tint text-matcha-deep"
-          aria-hidden="true"
-        >
-          <Icon className="h-7 w-7" strokeWidth={1.5} />
-        </div>
+        <RewardImage imageUrl={reward.imageUrl} type={reward.type} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-display text-[18px] leading-6 text-charcoal">{reward.name}</h3>

@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/shared/button";
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
@@ -23,9 +24,14 @@ export default async function ManagerRewardsPage() {
         <DataTable
           headers={["Reward", "Type", "Cost", "Stock", "Status", "Stock adjust", "Actions"]}
           rows={rewards.map((reward) => [
-            <span key={`${reward.id}-name`} className="font-medium text-charcoal">
-              {reward.name}
-            </span>,
+            <div key={`${reward.id}-name`} className="flex items-center gap-3">
+              {reward.imageUrl ? (
+                <Image src={reward.imageUrl} alt="" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />
+              ) : null}
+              <span className="font-medium text-charcoal">
+                {reward.name}
+              </span>
+            </div>,
             <span key={`${reward.id}-type`} className="capitalize text-sm text-ink-muted">
               {reward.type}
             </span>,

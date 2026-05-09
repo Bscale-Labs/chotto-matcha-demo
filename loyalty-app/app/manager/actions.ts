@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
 import {
+  assets,
   branches,
   customers,
   orgConfig,
@@ -19,6 +20,7 @@ import { auth } from "@/lib/auth/server";
 import { hashDemoPin, isValidPin } from "@/lib/auth/pin";
 import { requireManagerSession } from "@/lib/auth/session";
 import { manualAdjustPoints } from "@/lib/data/transactions";
+import { deleteAssetObject, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
   error?: string;
@@ -51,6 +53,50 @@ function nonEmpty(formData: FormData, key: string) {
   return value;
 }
 
+const imageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const maxImageSize = 5 * 1024 * 1024;
+
+function sanitizeFilename(filename: string) {
+  return filename
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "reward-image";
+}
+
+function optionalImage(formData: FormData) {
+  const value = formData.get("image");
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (!imageTypes.has(value.type)) throw new Error("Reward image must be a JPG, PNG, WebP, or GIF");
+  if (value.size > maxImageSize) throw new Error("Reward image must be 5MB or smaller");
+  return value;
+}
+
+async function uploadRewardImage({
+  file,
+  rewardId,
+  staffProfileId
+}: {
+  file: File;
+  rewardId: string;
+  staffProfileId: string;
+}) {
+  const assetId = randomUUID();
+  const filename = sanitizeFilename(file.name);
+  const bucketKey = `rewards/${rewardId}/${assetId}-${filename}`;
+
+  await putAssetObject({ key: bucketKey, file, contentType: file.type });
+
+  return {
+    id: assetId,
+    bucketKey,
+    filename,
+    contentType: file.type,
+    size: file.size,
+    uploadedByStaffProfileId: staffProfileId
+  };
+}
+
 function temporaryPassword() {
   return `Chotto-${randomBytes(5).toString("base64url")}-1`;
 }
@@ -60,47 +106,87 @@ async function getAuthUserByEmail(email: string) {
 }
 
 export async function createReward(formData: FormData) {
-  await requireManagerSession();
+  const { profile } = await requireManagerSession();
   const name = nonEmpty(formData, "name");
   const description = nonEmpty(formData, "description");
   const pointCost = positiveInteger(formData, "pointCost");
   const type = text(formData, "type");
   if (type !== "item" && type !== "merch") throw new Error("Invalid reward type");
+  const image = optionalImage(formData);
+  const rewardId = randomUUID();
+  const imageAsset = image
+    ? await uploadRewardImage({ file: image, rewardId, staffProfileId: profile.id })
+    : null;
 
-  await db.insert(rewards).values({
-    id: randomUUID(),
-    name,
-    description,
-    pointCost,
-    type,
-    stockCount: optionalStock(formData),
-    active: true
-  });
+  try {
+    await db.transaction(async (tx) => {
+      if (imageAsset) await tx.insert(assets).values(imageAsset);
+      await tx.insert(rewards).values({
+        id: rewardId,
+        name,
+        description,
+        imageAssetId: imageAsset?.id ?? null,
+        pointCost,
+        type,
+        stockCount: optionalStock(formData),
+        active: true
+      });
+    });
+  } catch (error) {
+    if (imageAsset) await deleteAssetObject(imageAsset.bucketKey).catch(() => undefined);
+    throw error;
+  }
 
   revalidatePath("/manager/rewards");
   redirect("/manager/rewards");
 }
 
 export async function updateReward(formData: FormData) {
-  await requireManagerSession();
+  const { profile } = await requireManagerSession();
   const id = nonEmpty(formData, "id");
   const name = nonEmpty(formData, "name");
   const description = nonEmpty(formData, "description");
   const pointCost = positiveInteger(formData, "pointCost");
   const type = text(formData, "type");
   if (type !== "item" && type !== "merch") throw new Error("Invalid reward type");
+  const image = optionalImage(formData);
+  const imageAsset = image
+    ? await uploadRewardImage({ file: image, rewardId: id, staffProfileId: profile.id })
+    : null;
+  let oldBucketKey: string | null = null;
 
-  await db
-    .update(rewards)
-    .set({
-      name,
-      description,
-      pointCost,
-      type,
-      stockCount: optionalStock(formData),
-      updatedAt: new Date()
-    })
-    .where(eq(rewards.id, id));
+  try {
+    await db.transaction(async (tx) => {
+      if (imageAsset) {
+        const [oldImage] = await tx
+          .select({ bucketKey: assets.bucketKey })
+          .from(rewards)
+          .leftJoin(assets, eq(rewards.imageAssetId, assets.id))
+          .where(eq(rewards.id, id))
+          .limit(1);
+        oldBucketKey = oldImage?.bucketKey ?? null;
+        await tx.insert(assets).values(imageAsset);
+      }
+
+      await tx
+        .update(rewards)
+        .set({
+          name,
+          description,
+          imageAssetId: imageAsset?.id,
+          pointCost,
+          type,
+          stockCount: optionalStock(formData),
+          updatedAt: new Date()
+        })
+        .where(eq(rewards.id, id));
+    });
+  } catch (error) {
+    if (imageAsset) await deleteAssetObject(imageAsset.bucketKey).catch(() => undefined);
+    throw error;
+  }
+
+  if (oldBucketKey) await deleteAssetObject(oldBucketKey).catch(() => undefined);
 
   revalidatePath("/manager/rewards");
   redirect("/manager/rewards");

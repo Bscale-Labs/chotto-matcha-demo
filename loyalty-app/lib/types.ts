@@ -42,6 +42,7 @@ export type Reward = {
   name: string;
   description: string;
   imageAssetId: string | null;
+  imageUrl?: string | null;
   pointCost: number;
   type: "item" | "merch";
   stockCount: number | null;
