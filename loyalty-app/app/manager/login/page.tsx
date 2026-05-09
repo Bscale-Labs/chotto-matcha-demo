@@ -8,18 +8,23 @@ export default async function ManagerLoginPage() {
   if (session) redirect("/manager");
 
   return (
-    <main className="grain min-h-screen px-5 py-10">
-      <div className="mx-auto flex max-w-md flex-col gap-8">
+    <main className="min-h-screen bg-cream py-12">
+      <div className="mx-auto flex max-w-md flex-col gap-8 px-5">
         <div className="flex justify-center">
-          <Brand href="/" />
+          <Brand href="/" size="md" />
         </div>
-        <div className="matcha-card rounded-[16px] p-8">
-          <h1 className="font-display text-2xl text-ink">Sign in</h1>
-          <p className="mt-1 text-sm text-moss/80">Manager access only.</p>
+        <section className="rounded-lg border border-line-soft bg-cream p-8 shadow-sm">
+          <p className="eyebrow text-matcha-deep">Manager</p>
+          <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
+            Welcome back.
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
+            Sign in to tend the catalog, branches, and ledger.
+          </p>
           <div className="mt-6">
             <ManagerLoginForm />
           </div>
-        </div>
+        </section>
       </div>
     </main>
   );

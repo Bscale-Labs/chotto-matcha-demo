@@ -7,24 +7,40 @@ type ActionLinkProps = {
   href: string;
   children: React.ReactNode;
   icon?: ComponentType<LucideProps>;
-  variant?: "primary" | "secondary" | "ghost";
+  iconPosition?: "leading" | "trailing";
+  variant?: "primary" | "secondary" | "tertiary";
   className?: string;
 };
 
-export function ActionLink({ href, children, icon: Icon, variant = "primary", className }: ActionLinkProps) {
+const variants = {
+  primary:
+    "min-h-tap rounded-pill bg-matcha-deep px-6 py-[14px] text-cream hover:bg-forest active:bg-charcoal shadow-sm",
+  secondary:
+    "min-h-tap rounded-pill border border-line bg-cream px-6 py-[14px] text-charcoal hover:border-matcha-deep hover:text-matcha-deep active:bg-sage-wash",
+  tertiary:
+    "min-h-tap rounded-sm px-2 py-1 text-matcha-deep hover:bg-sage-wash active:bg-sage-tint"
+} as const;
+
+export function ActionLink({
+  href,
+  children,
+  icon: Icon,
+  iconPosition = "leading",
+  variant = "primary",
+  className
+}: ActionLinkProps) {
   return (
     <Link
       href={href}
       className={clsx(
-        "tap-target inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5",
-        variant === "primary" && "bg-ink text-paper shadow-soft",
-        variant === "secondary" && "border border-moss/20 bg-white/70 text-ink",
-        variant === "ghost" && "text-moss hover:bg-moss/10",
+        "inline-flex items-center justify-center gap-2 font-medium tracking-tight transition-colors duration-fast ease-out-soft",
+        variants[variant],
         className
       )}
     >
-      {Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null}
+      {Icon && iconPosition === "leading" ? <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" /> : null}
       {children}
+      {Icon && iconPosition === "trailing" ? <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" /> : null}
     </Link>
   );
 }

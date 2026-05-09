@@ -2,26 +2,29 @@ import { Brand } from "@/components/shared/brand";
 
 export default function ManagerAccessDeniedPage() {
   return (
-    <main className="grain min-h-screen px-5 py-10">
-      <div className="mx-auto flex max-w-md flex-col gap-8">
+    <main className="min-h-screen bg-cream py-12">
+      <div className="mx-auto flex max-w-md flex-col gap-8 px-5">
         <div className="flex justify-center">
-          <Brand href="/" />
+          <Brand href="/" size="md" />
         </div>
-        <div className="matcha-card rounded-[16px] p-8">
-          <h1 className="font-display text-2xl text-ink">Access denied</h1>
-          <p className="mt-2 text-sm text-moss/80">
-            You&apos;re signed in, but no active manager profile is linked to this account. Ask an
-            existing manager to grant access, or sign out and try a different account.
+        <section className="rounded-lg border border-line-soft bg-cream p-8 shadow-sm">
+          <p className="eyebrow text-matcha-deep">Hold on</p>
+          <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
+            No manager profile yet.
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-ink-muted">
+            You&apos;re signed in, but no active manager is linked to this account. Ask a current
+            manager to grant access, or sign out and try a different account.
           </p>
           <form action="/manager/logout" method="post" className="mt-6">
             <button
               type="submit"
-              className="rounded-[8px] border border-moss/20 bg-white px-4 py-2 text-sm font-bold text-moss"
+              className="inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-cream px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
             >
               Sign out
             </button>
           </form>
-        </div>
+        </section>
       </div>
     </main>
   );

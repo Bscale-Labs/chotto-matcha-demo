@@ -1,71 +1,87 @@
-import { ArrowRight, BadgeCheck, Coffee, MonitorCog } from "lucide-react";
-import { ActionLink } from "@/components/shared/action-link";
+import { ArrowUpRight, BadgeCheck, Coffee, MonitorCog, Palette } from "lucide-react";
+import { Button } from "@/components/shared/button";
 import { Brand } from "@/components/shared/brand";
+import { Pill } from "@/components/shared/pill";
 
 const surfaces = [
   {
     href: "/customer",
     icon: Coffee,
-    title: "Customer PWA",
-    detail: "Points, QR, rewards, and profile."
+    eyebrow: "Member",
+    title: "Customer app",
+    detail: "Show your code, watch leaves grow, redeem quietly."
   },
   {
     href: "/cashier",
     icon: BadgeCheck,
-    title: "Cashier Tablet",
-    detail: "Scan, award points, and redeem rewards."
+    eyebrow: "Bar",
+    title: "Cashier tablet",
+    detail: "Scan a member, award leaves, hand over a reward."
   },
   {
     href: "/manager",
     icon: MonitorCog,
-    title: "Manager Console",
-    detail: "Catalog, branches, staff, customers, and reporting."
+    eyebrow: "Studio",
+    title: "Manager console",
+    detail: "Tend the catalog, branches, staff, and ledger."
   }
 ];
 
 export default function Home() {
   return (
-    <main className="grain min-h-screen px-5 py-6">
-      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-6xl flex-col">
+    <main className="min-h-screen bg-cream py-8">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col px-6">
         <header className="flex items-center justify-between">
-          <Brand />
-          <span className="rounded-full border border-moss/20 bg-white/60 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-moss">
-            Demo scaffold
-          </span>
+          <Brand size="md" />
+          <Pill tone="default" icon={Palette}>
+            <a href="/design-system">Design system</a>
+          </Pill>
         </header>
 
-        <section className="grid flex-1 items-center gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="grid flex-1 items-center gap-12 py-12 lg:grid-cols-[1fr_1fr]">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-matcha">One app. Three counters.</p>
-            <h1 className="mt-4 max-w-xl font-display text-5xl leading-[0.96] text-ink md:text-7xl">
-              Loyalty ops for a small matcha bar.
+            <p className="eyebrow text-matcha-deep">A quiet loyalty ritual</p>
+            <h1 className="mt-5 font-display text-[56px] font-medium leading-[60px] tracking-display text-charcoal sm:text-[72px] sm:leading-[78px]">
+              Just a moment, with matcha.
             </h1>
-            <p className="mt-6 max-w-lg text-base leading-7 text-ink/68">
-              A clickable first pass with the same route boundaries the Railway-backed app will use.
+            <p className="mt-6 max-w-xl text-base leading-7 text-ink-muted">
+              Three thoughtful surfaces — one for members, one for the bar, one for the studio — sharing the
+              same calm palette, the same vocabulary, and the same Leaves you earn one cup at a time.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <ActionLink href="/customer" icon={ArrowRight}>Open customer app</ActionLink>
-              <ActionLink href="/manager" variant="secondary">Manager console</ActionLink>
+              <Button href="/customer" icon={ArrowUpRight} iconPosition="trailing">
+                Open the member app
+              </Button>
+              <Button href="/manager" variant="secondary">
+                Manager console
+              </Button>
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {surfaces.map((surface) => (
               <a
                 key={surface.href}
                 href={surface.href}
-                className="matcha-card group flex items-center justify-between rounded-[8px] p-5 transition hover:-translate-y-1"
+                className="group flex items-center gap-5 rounded-lg border border-line-soft bg-cream p-5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep"
               >
-                <span className="flex items-center gap-4">
-                  <span className="grid h-14 w-14 place-items-center rounded-full bg-matcha/12 text-moss">
-                    <surface.icon className="h-6 w-6" aria-hidden="true" />
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-pill bg-sage-wash text-matcha-deep transition-colors duration-fast ease-out-soft group-hover:bg-matcha-deep group-hover:text-cream">
+                  <surface.icon className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="eyebrow block text-ink-muted">{surface.eyebrow}</span>
+                  <span className="mt-1 block font-display text-[22px] font-medium leading-7 text-charcoal">
+                    {surface.title}
                   </span>
-                  <span>
-                    <span className="block text-lg font-bold text-ink">{surface.title}</span>
-                    <span className="mt-1 block text-sm text-ink/60">{surface.detail}</span>
+                  <span className="mt-1 block text-sm leading-5 text-ink-muted">
+                    {surface.detail}
                   </span>
                 </span>
-                <ArrowRight className="h-5 w-5 text-moss transition group-hover:translate-x-1" aria-hidden="true" />
+                <ArrowUpRight
+                  className="h-5 w-5 text-ink-faint transition-colors duration-fast ease-out-soft group-hover:text-matcha-deep"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
               </a>
             ))}
           </div>

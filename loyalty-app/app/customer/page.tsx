@@ -1,54 +1,120 @@
-import { Gift, QrCode } from "lucide-react";
-import { ActionLink } from "@/components/shared/action-link";
-import { StatCard } from "@/components/shared/stat-card";
+import Link from "next/link";
+import { ArrowUpRight, Gift, QrCode } from "lucide-react";
+import { Button } from "@/components/shared/button";
 import { CustomerShell } from "@/components/customer/customer-shell";
-import { getBranch, getCustomer, getCustomerTransactions, getReward } from "@/lib/mock-data";
+import { PointsBalanceCard } from "@/components/customer/points-balance-card";
+import { TierBadge } from "@/components/customer/tier-badge";
+import { RewardCard } from "@/components/customer/reward-card";
+import { getBranch, getCustomer, getCustomerTransactions, getReward, rewards } from "@/lib/mock-data";
 import { formatDate, formatPoints } from "@/lib/formatters";
+import { getNextTier, getTier, leavesToNextTier, tierProgress } from "@/lib/loyalty";
 
 export default function CustomerHome() {
   const customer = getCustomer();
+  const firstName = customer.name.split(" ")[0];
+  const tier = getTier(customer.pointsBalance);
+  const nextTier = getNextTier(customer.pointsBalance);
+  const leavesToNext = leavesToNextTier(customer.pointsBalance);
+  const progress = tierProgress(customer.pointsBalance);
   const recent = getCustomerTransactions(customer.id).slice(0, 3);
+  const featured = rewards.slice(0, 2);
 
   return (
     <CustomerShell>
-      <section className="matcha-card rounded-[8px] p-6">
-        <p className="text-sm font-bold text-moss">Hi, {customer.name.split(" ")[0]}</p>
-        <p className="mt-4 font-display text-6xl leading-none text-ink">{formatPoints(customer.pointsBalance)}</p>
-        <p className="mt-2 text-sm text-ink/60">available points</p>
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <ActionLink href="/customer/qr" icon={QrCode} className="px-3">Show QR</ActionLink>
-          <ActionLink href="/customer/rewards" icon={Gift} variant="secondary" className="px-3">Rewards</ActionLink>
+      <section className="mb-7">
+        <p className="text-base text-ink-muted">Welcome back,</p>
+        <h1 className="mt-1 font-display text-[40px] font-medium leading-[44px] text-charcoal">
+          {firstName}.
+        </h1>
+        <div className="mt-3">
+          <TierBadge tier={tier} />
         </div>
       </section>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <StatCard label="Earn rate" value="1:1" detail="1 point per peso" />
-        <StatCard label="Status" value="Open" detail="No expiry" />
+      <PointsBalanceCard
+        leaves={customer.pointsBalance}
+        tier={tier}
+        nextTier={nextTier}
+        leavesToNext={leavesToNext}
+        progress={progress}
+      />
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <Button href="/customer/qr" icon={QrCode}>Show QR</Button>
+        <Button href="/customer/rewards" variant="secondary" icon={Gift}>Rewards</Button>
       </div>
 
-      <section className="mt-6">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-ink">Recent activity</h2>
-          <a href="/customer/activity" className="text-sm font-bold text-moss">View all</a>
-        </div>
+      <section className="mt-9">
+        <header className="mb-3 flex items-end justify-between">
+          <div>
+            <p className="eyebrow text-matcha-deep">Today&apos;s moment</p>
+            <h2 className="mt-2 font-display text-[24px] font-medium leading-[30px] text-charcoal">
+              Ready to redeem
+            </h2>
+          </div>
+          <Link
+            href="/customer/rewards"
+            className="text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+          >
+            See all
+          </Link>
+        </header>
         <div className="grid gap-3">
-          {recent.map((transaction) => (
-            <article key={transaction.id} className="matcha-card rounded-[8px] p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-ink">
-                    {transaction.type === "redeem" ? getReward(transaction.rewardId ?? "")?.name : getBranch(transaction.branchId)?.name}
-                  </p>
-                  <p className="mt-1 text-xs text-ink/55">{formatDate(transaction.createdAt)}</p>
-                </div>
-                <span className={transaction.pointsDelta > 0 ? "font-bold text-matcha" : "font-bold text-persimmon"}>
-                  {transaction.pointsDelta > 0 ? "+" : ""}
-                  {formatPoints(transaction.pointsDelta)}
-                </span>
-              </div>
-            </article>
+          {featured.map((reward) => (
+            <RewardCard key={reward.id} reward={reward} customer={customer} />
           ))}
         </div>
+      </section>
+
+      <section className="mt-9">
+        <header className="mb-3 flex items-end justify-between">
+          <h2 className="font-display text-[24px] font-medium leading-[30px] text-charcoal">
+            Recent moments
+          </h2>
+          <Link
+            href="/customer/activity"
+            className="text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+          >
+            Open journal
+          </Link>
+        </header>
+        <ul className="grid gap-2">
+          {recent.map((transaction) => {
+            const earned = transaction.pointsDelta > 0;
+            const label =
+              transaction.type === "redeem"
+                ? getReward(transaction.rewardId ?? "")?.name ?? "Reward redeemed"
+                : getBranch(transaction.branchId)?.name ?? "Manual moment";
+            return (
+              <li
+                key={transaction.id}
+                className="flex items-center justify-between rounded-md border border-line-soft bg-cream px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-charcoal">{label}</p>
+                  <p className="mt-0.5 text-xs text-ink-muted">
+                    {formatDate(transaction.createdAt)}
+                  </p>
+                </div>
+                <span
+                  className={
+                    earned
+                      ? "counter ml-3 inline-flex items-center gap-1 rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep"
+                      : "counter ml-3 inline-flex items-center gap-1 rounded-pill bg-stone px-2.5 py-1 text-xs font-medium text-ink-muted"
+                  }
+                >
+                  {earned ? "+" : ""}
+                  {formatPoints(transaction.pointsDelta)}
+                  <ArrowUpRight
+                    className={earned ? "h-3 w-3" : "h-3 w-3 rotate-90"}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </section>
     </CustomerShell>
   );
