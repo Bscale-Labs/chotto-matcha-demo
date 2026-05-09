@@ -29,7 +29,7 @@ export async function ManagerShell({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-          <aside className="rounded-lg border border-line-soft bg-cream p-2 shadow-sm lg:sticky lg:top-6 lg:h-fit lg:min-h-[calc(100vh-8rem)]">
+          <aside className="rounded-lg border border-line-soft bg-cream p-2 shadow-sm lg:sticky lg:top-6 lg:h-fit">
             <ManagerNav />
           </aside>
           <section className="min-w-0">{children}</section>
