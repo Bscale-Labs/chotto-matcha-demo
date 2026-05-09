@@ -6,11 +6,13 @@ export function Brand({
   href = "/",
   size = "md",
   tone = "default",
+  showTagline = false,
   className
 }: {
   href?: string;
   size?: "sm" | "md" | "lg";
   tone?: "default" | "inverse";
+  showTagline?: boolean;
   className?: string;
 }) {
   const dimensions = size === "sm" ? "h-9 w-9" : size === "lg" ? "h-12 w-12" : "h-10 w-10";
@@ -27,7 +29,13 @@ export function Brand({
           inverse ? "bg-cream text-matcha-deep" : "bg-matcha-deep text-cream"
         )}
       >
-        <Leaf className="h-1/2 w-1/2" strokeWidth={1.5} aria-hidden="true" />
+        <Leaf
+          className="h-1/2 w-1/2"
+          strokeWidth={1.5}
+          fill="currentColor"
+          fillOpacity={0.18}
+          aria-hidden="true"
+        />
       </span>
       <span className="leading-none">
         <span
@@ -39,15 +47,17 @@ export function Brand({
         >
           Chotto Matcha
         </span>
-        <span
-          className={clsx(
-            "mt-1 block font-medium uppercase tracking-eyebrow",
-            eyebrowSize,
-            inverse ? "text-cream/70" : "text-ink-muted"
-          )}
-        >
-          Just a moment, with matcha
-        </span>
+        {showTagline ? (
+          <span
+            className={clsx(
+              "mt-1 block font-medium uppercase tracking-eyebrow",
+              eyebrowSize,
+              inverse ? "text-cream/70" : "text-ink-muted"
+            )}
+          >
+            Just a moment, with matcha
+          </span>
+        ) : null}
       </span>
     </Link>
   );

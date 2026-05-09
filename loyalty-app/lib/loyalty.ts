@@ -35,8 +35,6 @@ export function pointsToNextTier(points: number): number {
   return Math.max(0, next.min - points);
 }
 
-export const leavesToNextTier = pointsToNextTier;
-
 export function tierProgress(points: number): number {
   const current = getTier(points);
   const next = getNextTier(points);

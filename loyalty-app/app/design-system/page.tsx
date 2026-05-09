@@ -9,7 +9,7 @@ import { TierBadge } from "@/components/customer/tier-badge";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
 import { RewardCard } from "@/components/customer/reward-card";
 import { customers, rewards } from "@/lib/mock-data";
-import { getNextTier, getTier, leavesToNextTier, tierProgress, tiers } from "@/lib/loyalty";
+import { getNextTier, getTier, pointsToNextTier, tierProgress, tiers } from "@/lib/loyalty";
 
 const colorTokens = [
   { token: "--matcha-deep", hex: "#2F4B2E", role: "Primary actions · headlines" },
@@ -64,7 +64,7 @@ export default function DesignSystemPage() {
   const customer = customers[0];
   const tier = getTier(customer.pointsBalance);
   const nextTier = getNextTier(customer.pointsBalance);
-  const toNext = leavesToNextTier(customer.pointsBalance);
+  const toNext = pointsToNextTier(customer.pointsBalance);
   const progress = tierProgress(customer.pointsBalance);
 
   return (
@@ -161,13 +161,13 @@ export default function DesignSystemPage() {
               <div>
                 <p className="eyebrow text-ink-muted">Body · Inter 400 · 16/24</p>
                 <p className="mt-2 text-base leading-6 text-charcoal">
-                  You earned 50 leaves. Keep going, matcha lover.
+                  You earned 50 points. Keep going, matcha lover.
                 </p>
               </div>
               <div>
                 <p className="eyebrow text-ink-muted">Body Strong · Inter 600 · 16/24</p>
                 <p className="mt-2 text-base font-semibold leading-6 text-charcoal">
-                  Your next reward is 180 leaves away.
+                  Your next reward is 180 points away.
                 </p>
               </div>
               <div>
@@ -238,7 +238,7 @@ export default function DesignSystemPage() {
             <SectionHeader eyebrow="06" title="Buttons" hint="Pill-shaped. One Primary per screen." />
             <div className="mt-6 grid gap-6 rounded-lg border border-line-soft bg-cream p-7">
               <div className="flex flex-wrap items-center gap-3">
-                <Button>Earn leaves</Button>
+                <Button>Earn points</Button>
                 <Button variant="secondary">Skip for now</Button>
                 <Button variant="tertiary">See all</Button>
                 <Button variant="icon" icon={QrCode} aria-label="Scan" />
@@ -255,7 +255,7 @@ export default function DesignSystemPage() {
           <section id="pills" className="scroll-mt-6">
             <SectionHeader eyebrow="07" title="Pills & badges" />
             <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-line-soft bg-cream p-7">
-              <Pill tone="default">+50 Leaves</Pill>
+              <Pill tone="default">+50 Points</Pill>
               <Pill tone="inverse" icon={Leaf}>Live</Pill>
               <Pill tone="soft">Resting</Pill>
               <Pill tone="muted">Closed</Pill>
@@ -302,14 +302,14 @@ export default function DesignSystemPage() {
               <RewardCard reward={rewards[0]} customer={customer} />
               <RewardCard reward={rewards[2]} customer={customer} />
               <Toast
-                title="You earned 50 Leaves"
+                title="You earned 50 points"
                 message="Keep going, matcha lover."
                 icon={Leaf}
               />
               <div className="rounded-lg border border-line-soft bg-cream p-6 shadow-md">
                 <h3 className="font-display text-[22px] leading-7 text-charcoal">Redeem reward?</h3>
                 <p className="mt-2 text-sm leading-6 text-ink-muted">
-                  This will spend 350 leaves on an Iced Matcha Latte.
+                  This will spend 350 points on an Iced Matcha Latte.
                 </p>
                 <div className="mt-6 flex gap-3">
                   <Button variant="secondary" className="flex-1">Cancel</Button>
@@ -342,7 +342,7 @@ export default function DesignSystemPage() {
           </section>
 
           <section id="tiers" className="scroll-mt-6">
-            <SectionHeader eyebrow="10" title="Tiers" hint="Status grows with cumulative leaves earned." />
+            <SectionHeader eyebrow="10" title="Tiers" hint="Status grows with cumulative points earned." />
             <ul className="mt-6 grid gap-3 sm:grid-cols-3">
               {tiers.map((row) => {
                 const TierIcon = row.icon;
@@ -360,8 +360,8 @@ export default function DesignSystemPage() {
                       </p>
                       <p className="counter text-xs text-ink-muted">
                         {row.max === null
-                          ? `${row.min}+ leaves`
-                          : `${row.min}–${row.max} leaves`}
+                          ? `${row.min}+ points`
+                          : `${row.min}–${row.max} points`}
                       </p>
                       <p className="mt-1 text-xs text-ink-muted">{row.vibe}</p>
                     </div>
@@ -379,7 +379,7 @@ export default function DesignSystemPage() {
                 <ul className="mt-3 space-y-2 text-sm text-charcoal">
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-matcha-deep" strokeWidth={1.5} />
-                    <span>You earned 50 Leaves. Keep going, matcha lover.</span>
+                    <span>You earned 50 points. Keep going, matcha lover.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-matcha-deep" strokeWidth={1.5} />
@@ -396,7 +396,7 @@ export default function DesignSystemPage() {
                 <ul className="mt-3 space-y-2 text-sm text-ink-muted">
                   <li className="flex items-start gap-2">
                     <X className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" strokeWidth={1.5} />
-                    <span>BOOM! +50 LEAVES UNLOCKED!!!</span>
+                    <span>BOOM! +50 POINTS UNLOCKED!!!</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <X className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" strokeWidth={1.5} />

@@ -16,8 +16,8 @@ export default async function EditBranchPage({ params }: { params: Promise<{ id:
         <SectionTitle eyebrow="Locations" title="Edit branch" />
         <form action={updateBranch} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
           <input type="hidden" name="id" value={branch.id} />
-          <input name="name" required defaultValue={branch.name} className="rounded-md border border-line bg-cream px-4 py-3" />
-          <textarea name="address" required defaultValue={branch.address} className="min-h-28 rounded-md border border-line bg-cream px-4 py-3" />
+          <input name="name" required defaultValue={branch.name} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
+          <textarea name="address" required defaultValue={branch.address} className="min-h-28 rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
           <div className="flex gap-3">
             <Button type="submit">Save branch</Button>
             <Button href="/manager/branches" variant="secondary">Cancel</Button>

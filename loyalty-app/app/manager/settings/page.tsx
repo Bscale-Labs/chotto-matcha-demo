@@ -11,7 +11,7 @@ export default async function ManagerSettingsPage() {
     <ManagerShell>
       <div className="space-y-7">
         <SectionTitle eyebrow="Configuration" title="Settings" />
-        <form action={updateSettings} className="rounded-lg border border-line-soft bg-cream p-7">
+        <form action={updateSettings} className="rounded-lg border border-line-soft bg-cream p-7 shadow-sm">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-md border border-line-soft bg-stone/40 p-5">
               <p className="eyebrow text-ink-muted">Earn rate</p>
@@ -21,10 +21,10 @@ export default async function ManagerSettingsPage() {
                 min="0.01"
                 step="0.01"
                 defaultValue={orgConfig.earnRate}
-                className="counter mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 font-display text-[32px] font-medium leading-none text-charcoal"
+                className="counter mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 font-display text-[32px] font-medium leading-none text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
               />
               <p className="mt-3 text-sm leading-5 text-ink-muted">
-                One leaf earned for every peso a member spends.
+                One point earned for every peso a member spends.
               </p>
             </div>
             <div className="rounded-md border border-line-soft bg-stone/40 p-5">
@@ -32,7 +32,7 @@ export default async function ManagerSettingsPage() {
               <input
                 name="orgName"
                 defaultValue={orgConfig.orgName}
-                className="mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 text-base text-charcoal"
+                className="mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 text-base text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
               />
               <p className="mt-3 text-sm leading-5 text-ink-muted">
                 Logo upload remains out of scope. Current logo asset: {orgConfig.logoAssetId ?? "none"}.

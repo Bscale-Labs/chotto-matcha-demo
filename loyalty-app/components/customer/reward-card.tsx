@@ -1,8 +1,15 @@
-import { Leaf } from "lucide-react";
+import { Coffee, Gift, Leaf } from "lucide-react";
+import type { ComponentType } from "react";
+import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
 import { formatPoints } from "@/lib/formatters";
 import { pointsNeeded } from "@/lib/points";
 import type { Customer, Reward } from "@/lib/types";
+
+const typeIcon: Record<Reward["type"], ComponentType<LucideProps>> = {
+  item: Coffee,
+  merch: Gift
+};
 
 export function RewardCard({
   reward,
@@ -17,7 +24,12 @@ export function RewardCard({
   const ready = needed === 0;
   const progress = Math.min(1, customer.pointsBalance / reward.pointCost);
   const stockLabel =
-    reward.stockCount === null ? "Always available" : reward.stockCount === 0 ? "Out for now" : `${reward.stockCount} left`;
+    reward.stockCount === null
+      ? "Always available"
+      : reward.stockCount === 0
+      ? "Out for now"
+      : `${reward.stockCount} left`;
+  const Icon = typeIcon[reward.type] ?? Leaf;
 
   return (
     <article
@@ -28,14 +40,10 @@ export function RewardCard({
     >
       <div className="flex gap-4">
         <div
-          className="grid h-16 w-16 shrink-0 place-items-center rounded-md text-matcha-deep"
-          style={{
-            backgroundImage:
-              "linear-gradient(135deg, var(--sage-wash) 0%, var(--sage-tint) 100%)"
-          }}
+          className="grid h-16 w-16 shrink-0 place-items-center rounded-md bg-gradient-to-br from-sage-wash to-sage-tint text-matcha-deep"
           aria-hidden="true"
         >
-          <Leaf className="h-7 w-7" strokeWidth={1.5} />
+          <Icon className="h-7 w-7" strokeWidth={1.5} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
@@ -61,7 +69,7 @@ export function RewardCard({
                 )}
               >
                 {ready
-                  ? "Ready"
+                  ? "Ready to redeem"
                   : `${formatPoints(customer.pointsBalance)} / ${formatPoints(reward.pointCost)}`}
               </span>
             </div>

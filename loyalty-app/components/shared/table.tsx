@@ -12,17 +12,17 @@ export function DataTable({
   return (
     <div
       className={clsx(
-        "overflow-hidden rounded-lg border border-line-soft bg-cream",
+        "overflow-x-auto rounded-lg border border-line-soft bg-cream shadow-sm",
         className
       )}
     >
-      <table className="w-full border-collapse text-left text-sm">
+      <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-line-soft bg-stone">
+          <tr className="bg-matcha-deep text-cream">
             {headers.map((header) => (
               <th
                 key={header}
-                className="eyebrow px-4 py-3 text-ink-muted"
+                className="px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85 first:rounded-tl-lg last:rounded-tr-lg"
               >
                 {header}
               </th>
@@ -33,7 +33,7 @@ export function DataTable({
           {rows.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="border-t border-line-soft transition-colors duration-fast ease-out-soft hover:bg-stone/60 first:border-t-0"
+              className="border-t border-line-soft transition-colors duration-fast ease-out-soft first:border-t-0 hover:bg-stone/50"
             >
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex} className="px-4 py-3.5 align-middle text-charcoal">

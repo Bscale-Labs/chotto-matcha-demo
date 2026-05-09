@@ -60,7 +60,7 @@ export default async function CashierAwardPage({
               min="1"
               step="0.01"
               defaultValue={billTotal}
-              className="rounded-md border border-line bg-cream px-4 py-3"
+              className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus"
             />
           </label>
           <Button type="submit" icon={CheckCircle2}>

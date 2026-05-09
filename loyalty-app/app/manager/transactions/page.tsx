@@ -27,25 +27,57 @@ export default async function ManagerTransactionsPage({
     <ManagerShell>
       <div className="space-y-7">
         <SectionTitle eyebrow="Ledger" title="Transactions" />
-        <form className="grid gap-3 rounded-lg border border-line-soft bg-cream p-4 md:grid-cols-5">
-          <select name="type" defaultValue={type ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm">
-            <option value="">All types</option>
-            <option value="earn">Earn</option>
-            <option value="redeem">Redeem</option>
-            <option value="manual">Manual</option>
-          </select>
-          <select name="branchId" defaultValue={params.branchId ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm">
-            <option value="">All branches</option>
-            {branches.map((branch) => (
-              <option key={branch.id} value={branch.id}>{branch.name}</option>
-            ))}
-          </select>
-          <input name="customerId" defaultValue={params.customerId ?? ""} placeholder="Customer ID" className="rounded-md border border-line bg-cream px-3 py-2 text-sm" />
-          <input name="from" type="date" defaultValue={params.from ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm" />
-          <button className="rounded-md bg-matcha-deep px-4 py-2 text-sm font-medium text-cream">Filter</button>
+        <form className="grid gap-3 rounded-lg border border-line-soft bg-cream p-4 shadow-sm md:grid-cols-5">
+          <label className="grid gap-1 text-xs font-medium text-ink-muted">
+            Type
+            <select
+              name="type"
+              defaultValue={type ?? ""}
+              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
+            >
+              <option value="">All types</option>
+              <option value="earn">Earn</option>
+              <option value="redeem">Redeem</option>
+              <option value="manual">Manual</option>
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs font-medium text-ink-muted">
+            Branch
+            <select
+              name="branchId"
+              defaultValue={params.branchId ?? ""}
+              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
+            >
+              <option value="">All branches</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>{branch.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs font-medium text-ink-muted">
+            Customer ID
+            <input
+              name="customerId"
+              defaultValue={params.customerId ?? ""}
+              placeholder="cust-…"
+              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal placeholder:text-ink-faint focus:border-matcha-deep focus:outline-none"
+            />
+          </label>
+          <label className="grid gap-1 text-xs font-medium text-ink-muted">
+            From
+            <input
+              name="from"
+              type="date"
+              defaultValue={params.from ?? ""}
+              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
+            />
+          </label>
+          <button className="h-10 self-end rounded-md bg-matcha-deep px-4 text-sm font-medium text-cream shadow-sm transition-colors duration-fast ease-out-soft hover:bg-forest">
+            Filter
+          </button>
         </form>
         <DataTable
-          headers={["When", "Member", "Staff", "Branch", "Type", "Bill", "Leaves"]}
+          headers={["When", "Member", "Staff", "Branch", "Type", "Bill", "Points"]}
           rows={transactions.map(({ transaction, customerName, staffName, branchName, rewardName }) => {
             return [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
@@ -71,7 +103,7 @@ export default async function ManagerTransactionsPage({
                 className={
                   transaction.pointsDelta > 0
                     ? "counter text-sm font-medium text-matcha-deep"
-                    : "counter text-sm font-medium text-ink-muted"
+                    : "counter text-sm font-medium text-error-text"
                 }
               >
                 {transaction.pointsDelta > 0 ? "+" : ""}

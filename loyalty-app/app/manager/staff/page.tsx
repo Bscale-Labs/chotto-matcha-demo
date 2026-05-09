@@ -18,7 +18,7 @@ export default async function ManagerStaffPage() {
           <Button href="/manager/staff/new" icon={Plus}>Add staff</Button>
         </div>
         <DataTable
-          headers={["Name", "Role", "Branch", "PIN", "Status", "Actions"]}
+          headers={["Name", "Role", "Branch", "PIN", "Status", "PIN reset", "Actions"]}
           rows={staff.map(({ profile, detail, branchName }) => [
             <span key={`${profile.id}-name`} className="font-medium text-charcoal">
               {profile.name}
@@ -35,28 +35,38 @@ export default async function ManagerStaffPage() {
             <Pill key={`${profile.id}-status`} tone={profile.active ? "default" : "muted"}>
               {profile.active ? "Active" : "Resting"}
             </Pill>,
-            <div key={`${profile.id}-actions`} className="flex flex-wrap items-center gap-2">
+            detail.role === "cashier" ? (
+              <form
+                key={`${profile.id}-pin-reset`}
+                action={resetStaffPin}
+                className="flex items-center gap-1.5"
+              >
+                <input type="hidden" name="id" value={profile.id} />
+                <input
+                  name="pin"
+                  inputMode="numeric"
+                  className="h-9 w-20 rounded-md border border-line bg-cream px-2 text-sm focus:border-matcha-deep focus:outline-none"
+                  placeholder="PIN"
+                  aria-label="New PIN"
+                />
+                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
+                  Reset
+                </button>
+              </form>
+            ) : (
+              <span key={`${profile.id}-pin-reset`} className="text-xs text-ink-faint">—</span>
+            ),
+            <div
+              key={`${profile.id}-actions`}
+              className="flex items-center gap-1.5"
+            >
               <Button href={`/manager/staff/${profile.id}/edit`} variant="tertiary">
                 Edit
               </Button>
-              {detail.role === "cashier" ? (
-                <form action={resetStaffPin} className="flex items-center gap-1">
-                  <input type="hidden" name="id" value={profile.id} />
-                  <input
-                    name="pin"
-                    inputMode="numeric"
-                    className="h-9 w-20 rounded-md border border-line bg-cream px-2 text-sm"
-                    placeholder="PIN"
-                  />
-                  <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
-                    Reset
-                  </button>
-                </form>
-              ) : null}
               <form action={setStaffActive}>
                 <input type="hidden" name="id" value={profile.id} />
                 <input type="hidden" name="active" value={profile.active ? "false" : "true"} />
-                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
+                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
                   {profile.active ? "Deactivate" : "Reactivate"}
                 </button>
               </form>

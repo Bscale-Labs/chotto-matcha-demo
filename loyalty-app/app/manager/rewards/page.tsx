@@ -21,7 +21,7 @@ export default async function ManagerRewardsPage() {
           </Button>
         </div>
         <DataTable
-          headers={["Reward", "Type", "Cost", "Stock", "Status", "Actions"]}
+          headers={["Reward", "Type", "Cost", "Stock", "Status", "Stock adjust", "Actions"]}
           rows={rewards.map((reward) => [
             <span key={`${reward.id}-name`} className="font-medium text-charcoal">
               {reward.name}
@@ -41,26 +41,31 @@ export default async function ManagerRewardsPage() {
             >
               {reward.active ? "Active" : "Resting"}
             </Pill>,
-            <div key={`${reward.id}-actions`} className="flex flex-wrap items-center gap-2">
+            <form
+              key={`${reward.id}-stock-adjust`}
+              action={adjustRewardStock}
+              className="flex items-center gap-1.5"
+            >
+              <input type="hidden" name="id" value={reward.id} />
+              <input
+                name="delta"
+                type="number"
+                className="h-9 w-16 rounded-md border border-line bg-cream px-2 text-sm focus:border-matcha-deep focus:outline-none"
+                placeholder="±"
+                aria-label="Stock delta"
+              />
+              <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
+                Apply
+              </button>
+            </form>,
+            <div key={`${reward.id}-actions`} className="flex items-center gap-1.5">
               <Button href={`/manager/rewards/${reward.id}/edit`} variant="tertiary">
                 Edit
               </Button>
-              <form action={adjustRewardStock} className="flex items-center gap-1">
-                <input type="hidden" name="id" value={reward.id} />
-                <input
-                  name="delta"
-                  type="number"
-                  className="h-9 w-20 rounded-md border border-line bg-cream px-2 text-sm"
-                  placeholder="+/-"
-                />
-                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
-                  Stock
-                </button>
-              </form>
               <form action={setRewardActive}>
                 <input type="hidden" name="id" value={reward.id} />
                 <input type="hidden" name="active" value={reward.active ? "false" : "true"} />
-                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
+                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
                   {reward.active ? "Archive" : "Restore"}
                 </button>
               </form>

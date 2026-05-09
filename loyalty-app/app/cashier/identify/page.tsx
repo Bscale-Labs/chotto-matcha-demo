@@ -12,13 +12,13 @@ export default async function CashierIdentifyPage() {
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
-      <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-        <section className="grid min-h-[480px] place-items-center rounded-lg border border-line-soft bg-cream p-8 text-center">
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <section className="grid min-h-[420px] place-items-center rounded-lg border border-line-soft bg-cream p-8 text-center shadow-sm">
           <div>
             <div className="mx-auto grid h-24 w-24 place-items-center rounded-pill bg-matcha-deep text-cream shadow-md">
               <Camera className="h-9 w-9" strokeWidth={1.5} aria-hidden="true" />
             </div>
-            <h1 className="mt-6 font-display text-[40px] font-medium leading-[44px] text-charcoal">
+            <h1 className="mt-6 font-display text-[36px] font-medium leading-[42px] text-charcoal">
               Scan a member&apos;s code
             </h1>
             <p className="mx-auto mt-3 max-w-md text-base leading-6 text-ink-muted">
@@ -26,10 +26,10 @@ export default async function CashierIdentifyPage() {
             </p>
           </div>
         </section>
-        <aside className="rounded-lg border border-line-soft bg-cream p-5">
+        <aside className="rounded-lg border border-line-soft bg-cream p-5 shadow-sm">
           <Eyebrow className="text-matcha-deep">Lookup</Eyebrow>
           <label className="mt-3 flex items-center gap-2 rounded-md border border-line bg-cream px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
-            <Search className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+            <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             <input
               placeholder="Search phone or name"
               className="flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"

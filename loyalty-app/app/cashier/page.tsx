@@ -23,9 +23,9 @@ export default async function CashierPage({
   return (
     <CashierShell sessionLabel={branch ? `${branch.name} · ${profile.name}` : profile.name}>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <section className="rounded-lg border border-line-soft bg-cream p-7">
+        <section className="rounded-lg border border-line-soft bg-cream p-7 shadow-sm">
           <Eyebrow className="text-matcha-deep">Branch device</Eyebrow>
-          <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
+          <h1 className="mt-3 font-display text-[36px] font-medium leading-[42px] text-charcoal">
             {branch?.name ?? "No branch assigned"}
           </h1>
           <p className="mt-2 text-sm leading-6 text-ink-muted">{branch?.address ?? "Ask a manager to assign a branch."}</p>
@@ -37,17 +37,17 @@ export default async function CashierPage({
                 name="pin"
                 type="password"
                 inputMode="numeric"
-                className="rounded-md border border-line bg-cream px-4 py-3 text-base"
-                placeholder="1234"
+                className="h-12 rounded-md border border-line bg-cream px-4 text-base focus:border-matcha-deep focus:outline-none focus:shadow-focus"
+                placeholder="••••"
               />
             </label>
             {params.pin === "invalid" ? <p className="text-sm text-error-text">Invalid PIN.</p> : null}
             <Button type="submit" icon={KeyRound} disabled={!branch}>Start shift</Button>
           </form>
         </section>
-        <aside className="rounded-lg border border-line-soft bg-cream p-7">
+        <aside className="rounded-lg border border-line-soft bg-cream p-7 shadow-sm">
           <Eyebrow className="text-matcha-deep">Active session</Eyebrow>
-          <h2 className="mt-3 font-display text-[24px] font-medium leading-[30px] text-charcoal">
+          <h2 className="mt-3 font-display text-[22px] font-medium leading-[28px] text-charcoal">
             {activeShift ? `${profile.name} is on the bar` : "No active shift"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">

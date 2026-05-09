@@ -10,13 +10,13 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "min-h-tap rounded-pill bg-matcha-deep px-6 py-[14px] text-cream hover:bg-forest active:bg-charcoal disabled:bg-sage disabled:text-cream/80 shadow-sm",
+    "min-h-tap rounded-pill bg-matcha-deep px-6 py-[14px] text-cream shadow-sm hover:bg-forest active:bg-charcoal disabled:bg-sage disabled:text-cream/80 disabled:shadow-none",
   secondary:
     "min-h-tap rounded-pill border border-line bg-cream px-6 py-[14px] text-charcoal hover:border-matcha-deep hover:text-matcha-deep active:bg-sage-wash disabled:text-ink-faint disabled:border-line-soft",
   tertiary:
-    "min-h-tap rounded-sm px-2 py-1 text-matcha-deep hover:bg-sage-wash active:bg-sage-tint disabled:text-ink-faint",
+    "min-h-[36px] rounded-pill px-3 py-1.5 text-sm text-matcha-deep hover:bg-sage-wash active:bg-sage-tint disabled:text-ink-faint",
   icon:
-    "h-11 w-11 min-h-tap min-w-tap rounded-pill bg-matcha-deep text-cream hover:bg-forest active:bg-charcoal disabled:bg-sage disabled:text-cream/80 shadow-sm"
+    "h-11 w-11 min-h-tap min-w-tap rounded-pill bg-matcha-deep text-cream shadow-sm hover:bg-forest active:bg-charcoal disabled:bg-sage disabled:text-cream/80 disabled:shadow-none"
 };
 
 type CommonProps = {
@@ -44,15 +44,16 @@ type ButtonProps = ButtonAsButton | ButtonAsLink;
 export function Button(props: ButtonProps) {
   const { variant = "primary", icon: Icon, iconPosition = "leading", className, children, ...rest } = props;
   const classes = clsx(base, variants[variant], className);
+  const iconSize = variant === "icon" ? "h-5 w-5" : variant === "tertiary" ? "h-3.5 w-3.5" : "h-4 w-4";
 
   const inner = (
     <>
       {Icon && iconPosition === "leading" ? (
-        <Icon className={variant === "icon" ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.5} aria-hidden="true" />
+        <Icon className={iconSize} strokeWidth={1.75} aria-hidden="true" />
       ) : null}
       {children}
       {Icon && iconPosition === "trailing" ? (
-        <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+        <Icon className={iconSize} strokeWidth={1.75} aria-hidden="true" />
       ) : null}
     </>
   );

@@ -28,7 +28,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-stretch justify-between rounded-pill border border-line-soft bg-cream p-1.5 shadow-md backdrop-blur"
+      className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-stretch justify-between rounded-pill border border-line-soft bg-cream/95 p-1.5 shadow-lg backdrop-blur"
     >
       {items.map((item) => {
         const isActive = item.match ? item.match(pathname) : pathname.startsWith(item.href);
@@ -39,19 +39,14 @@ export function BottomNav() {
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={clsx(
-              "group relative flex min-h-tap min-w-tap flex-1 flex-col items-center justify-center gap-0.5 rounded-pill px-2 py-2 transition-colors duration-fast ease-out-soft",
-              isActive ? "text-matcha-deep" : "text-ink-faint hover:text-ink-muted"
+              "relative flex min-h-tap min-w-tap flex-1 flex-col items-center justify-center gap-0.5 rounded-pill px-2 py-2 transition-colors duration-fast ease-out-soft",
+              isActive
+                ? "bg-matcha-deep text-cream"
+                : "text-ink-faint hover:bg-stone hover:text-matcha-deep"
             )}
           >
-            <span
-              className={clsx(
-                "absolute inset-0 rounded-pill transition-colors duration-fast ease-out-soft",
-                isActive ? "bg-sage-wash" : "bg-transparent group-hover:bg-stone"
-              )}
-              aria-hidden="true"
-            />
-            <Icon className="relative h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
-            <span className="relative text-[11px] font-medium leading-tight">{item.label}</span>
+            <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+            <span className="text-[11px] font-medium leading-tight">{item.label}</span>
           </Link>
         );
       })}

@@ -31,7 +31,7 @@ export function Pill({
         className
       )}
     >
-      {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" /> : null}
+      {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" /> : null}
       {children}
     </span>
   );

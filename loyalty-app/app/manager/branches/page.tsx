@@ -21,7 +21,7 @@ export default async function ManagerBranchesPage() {
           headers={["Branch", "Address", "Status", "Actions"]}
           rows={branches.map((branch) => [
             <span key={`${branch.id}-name`} className="inline-flex items-center gap-2 font-medium text-charcoal">
-              <Building2 className="h-4 w-4 text-matcha-deep" strokeWidth={1.5} aria-hidden="true" />
+              <Building2 className="h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
               {branch.name}
             </span>,
             <span key={`${branch.id}-address`} className="text-sm text-ink-muted">
@@ -30,14 +30,14 @@ export default async function ManagerBranchesPage() {
             <Pill key={`${branch.id}-status`} tone={branch.active ? "default" : "muted"}>
               {branch.active ? "Open" : "Closed"}
             </Pill>,
-            <div key={`${branch.id}-actions`} className="flex flex-wrap gap-2">
+            <div key={`${branch.id}-actions`} className="flex items-center gap-1.5">
               <Button href={`/manager/branches/${branch.id}/edit`} variant="tertiary">
                 Edit
               </Button>
               <form action={setBranchActive}>
                 <input type="hidden" name="id" value={branch.id} />
                 <input type="hidden" name="active" value={branch.active ? "false" : "true"} />
-                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
+                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
                   {branch.active ? "Deactivate" : "Reactivate"}
                 </button>
               </form>
