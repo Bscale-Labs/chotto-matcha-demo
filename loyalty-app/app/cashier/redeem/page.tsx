@@ -8,7 +8,7 @@ import { RewardThumbnail } from "@/components/cashier/cashier-visuals";
 import { redeemCustomerReward } from "@/app/cashier/actions";
 import { requireCashierShiftSession } from "@/lib/auth/session";
 import { getCustomerById } from "@/lib/data/customers";
-import { listActiveRewards } from "@/lib/data/rewards";
+import { listActiveRewardsForBranch } from "@/lib/data/rewards";
 import { canRedeem } from "@/lib/points";
 import { formatPoints } from "@/lib/formatters";
 
@@ -20,7 +20,10 @@ export default async function CashierRedeemPage({
   const { profile, branch } = await requireCashierShiftSession();
   const { customerId } = await searchParams;
   if (!customerId) notFound();
-  const [customer, rewards] = await Promise.all([getCustomerById(customerId), listActiveRewards()]);
+  const [customer, rewards] = await Promise.all([
+    getCustomerById(customerId),
+    listActiveRewardsForBranch(branch.id)
+  ]);
   if (!customer?.active) notFound();
   const firstAvailableRewardId = rewards.find((reward) => canRedeem(customer, reward))?.id;
 
@@ -52,7 +55,7 @@ export default async function CashierRedeemPage({
             return (
               <label
                 key={reward.id}
-                className="grid min-h-[70px] grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-2.5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
+                className="gloss grid min-h-[84px] grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border border-line-soft bg-milk p-3 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
               >
                 <input
                   type="radio"
@@ -83,9 +86,19 @@ export default async function CashierRedeemPage({
             );
           })}
 
-          <Button type="submit" icon={CheckCircle2} disabled={!firstAvailableRewardId} className="mt-2">
-            Confirm reward
-          </Button>
+          <div className="sticky bottom-4 z-20 mt-3">
+            <div className="surface-glass rounded-pill p-1.5">
+              <Button
+                type="submit"
+                size="lg"
+                icon={CheckCircle2}
+                disabled={!firstAvailableRewardId}
+                className="w-full"
+              >
+                Confirm reward
+              </Button>
+            </div>
+          </div>
         </form>
       </section>
     </CashierShell>

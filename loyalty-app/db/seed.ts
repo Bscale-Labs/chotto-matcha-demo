@@ -1,14 +1,17 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { eq } from "drizzle-orm";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { betterAuth } from "better-auth";
+import { and, eq, or } from "drizzle-orm";
 import { createHash } from "node:crypto";
-import { db } from "./client";
+import { db, schema } from "./client";
 import {
   assets,
   branches,
   customers,
   orgConfig,
+  rewardBranchAllocations,
   rewards,
   staffProfiles,
   staffRoleDetails,
@@ -16,7 +19,27 @@ import {
   user,
   userRoles
 } from "./schema";
-import { auth } from "@/lib/auth/server";
+
+const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
+  advanced: {
+    cookiePrefix: "chotto-matcha"
+  },
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: schema.user,
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification
+    }
+  }),
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false
+  }
+});
 
 const DEMO_PASSWORD = "demopass123";
 
@@ -75,14 +98,18 @@ const demoUsers = [
 const demoBranches = [
   {
     id: "branch-bgc",
+    code: "BGC",
     name: "BGC Matcha Bar",
     address: "High Street, Bonifacio Global City",
+    googleMapsUrl: "https://maps.google.com/?q=High%20Street%20Bonifacio%20Global%20City",
     active: true
   },
   {
     id: "branch-makati",
+    code: "MKT",
     name: "Makati Kiosk",
     address: "Legazpi Village, Makati",
+    googleMapsUrl: "https://maps.google.com/?q=Legazpi%20Village%20Makati",
     active: true
   }
 ];
@@ -158,6 +185,69 @@ const demoRewards = [
     type: "merch" as const,
     stockCount: 4,
     active: true
+  }
+];
+
+const demoRewardAllocations = [
+  {
+    rewardId: "reward-latte",
+    branchId: "branch-bgc",
+    stockCount: null,
+    active: true
+  },
+  {
+    rewardId: "reward-latte",
+    branchId: "branch-makati",
+    stockCount: null,
+    active: true
+  },
+  {
+    rewardId: "reward-cookie",
+    branchId: "branch-bgc",
+    stockCount: 18,
+    active: true
+  },
+  {
+    rewardId: "reward-cookie",
+    branchId: "branch-makati",
+    stockCount: 8,
+    active: true
+  },
+  {
+    rewardId: "reward-tin",
+    branchId: "branch-bgc",
+    stockCount: 6,
+    active: true
+  },
+  {
+    rewardId: "reward-tin",
+    branchId: "branch-makati",
+    stockCount: 2,
+    active: true
+  },
+  {
+    rewardId: "reward-tote",
+    branchId: "branch-bgc",
+    stockCount: 0,
+    active: false
+  },
+  {
+    rewardId: "reward-tote",
+    branchId: "branch-makati",
+    stockCount: 4,
+    active: true
+  },
+  {
+    rewardId: "reward-whisk",
+    branchId: "branch-bgc",
+    stockCount: 4,
+    active: true
+  },
+  {
+    rewardId: "reward-whisk",
+    branchId: "branch-makati",
+    stockCount: 0,
+    active: false
   }
 ];
 
@@ -297,7 +387,14 @@ async function main() {
       .values(branch)
       .onConflictDoUpdate({
         target: branches.id,
-        set: { name: branch.name, address: branch.address, active: branch.active, updatedAt: new Date() }
+        set: {
+          code: branch.code,
+          name: branch.name,
+          address: branch.address,
+          googleMapsUrl: branch.googleMapsUrl,
+          active: branch.active,
+          updatedAt: new Date()
+        }
       });
   }
 
@@ -333,6 +430,24 @@ async function main() {
 
       for (const role of demoUser.roles) {
         if (role === "manager" || role === "cashier") {
+          await db
+            .delete(staffRoleDetails)
+            .where(eq(staffRoleDetails.staffProfileId, demoUser.staffProfileId));
+          await db
+            .delete(userRoles)
+            .where(
+              and(
+                eq(userRoles.authUserId, authUser.id),
+                or(eq(userRoles.role, "manager"), eq(userRoles.role, "cashier"))
+              )
+            );
+          break;
+        }
+      }
+
+      for (const role of demoUser.roles) {
+        if (role === "manager" || role === "cashier") {
+          await db.insert(userRoles).values({ authUserId: authUser.id, role }).onConflictDoNothing();
           await db
             .insert(staffRoleDetails)
             .values({
@@ -403,6 +518,20 @@ async function main() {
       .onConflictDoUpdate({
         target: rewards.id,
         set: { ...reward, updatedAt: new Date() }
+      });
+  }
+
+  for (const allocation of demoRewardAllocations) {
+    await db
+      .insert(rewardBranchAllocations)
+      .values(allocation)
+      .onConflictDoUpdate({
+        target: [rewardBranchAllocations.rewardId, rewardBranchAllocations.branchId],
+        set: {
+          stockCount: allocation.stockCount,
+          active: allocation.active,
+          updatedAt: new Date()
+        }
       });
   }
 

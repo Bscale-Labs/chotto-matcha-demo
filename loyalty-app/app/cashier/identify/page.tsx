@@ -55,9 +55,9 @@ export default async function CashierIdentifyPage() {
               <Link
                 key={customer.id}
                 href={`/cashier/customer/${customer.id}`}
-                className="group flex min-h-[84px] items-center gap-3 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-3.5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash"
+                className="gloss group flex min-h-[92px] items-center gap-3 rounded-lg border border-line-soft bg-milk p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash active:bg-sage-tint"
               >
-                <CustomerAvatar name={customer.name} className="h-11 w-11" />
+                <CustomerAvatar name={customer.name} className="h-12 w-12" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium text-charcoal">{customer.name}</span>
                   <span className="mt-1 block truncate text-xs text-ink-muted">{customer.phone}</span>

@@ -8,14 +8,18 @@ export const orgConfig: OrgConfig = {
 export const branches: Branch[] = [
   {
     id: "branch-bgc",
+    code: "BGC",
     name: "BGC Matcha Bar",
     address: "High Street, Bonifacio Global City",
+    googleMapsUrl: "https://maps.google.com/?q=High%20Street%20Bonifacio%20Global%20City",
     active: true
   },
   {
     id: "branch-makati",
+    code: "MKT",
     name: "Makati Kiosk",
     address: "Legazpi Village, Makati",
+    googleMapsUrl: "https://maps.google.com/?q=Legazpi%20Village%20Makati",
     active: true
   }
 ];

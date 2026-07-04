@@ -22,20 +22,23 @@ export default async function CustomerRewardsPage() {
         <p className="mt-2 text-sm leading-5 text-ink-muted">
           {formatPoints(customer.pointsBalance)} points to spend, slowly.
         </p>
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {filters.map((filter, index) => (
-            <button
-              key={filter}
-              type="button"
-              className={
-                index === 0
-                  ? "min-h-tap shrink-0 rounded-pill bg-matcha-deep px-4 text-sm font-medium text-cream"
-                  : "min-h-tap shrink-0 rounded-pill border border-line bg-cream px-4 text-sm font-medium text-ink-muted transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
-              }
-            >
-              {filter}
-            </button>
-          ))}
+        <div className="sticky top-2 z-20 mt-5">
+          <div className="surface-glass flex gap-1.5 overflow-x-auto rounded-pill p-1.5">
+            {filters.map((filter, index) => (
+              <button
+                key={filter}
+                type="button"
+                className={
+                  index === 0
+                    ? "action-lacquer min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-semibold"
+                    : "min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-medium text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-wash hover:text-matcha-deep"
+                }
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+          <div className="scroll-edge-diffuse pointer-events-none absolute inset-x-0 top-full h-4" />
         </div>
       </section>
 

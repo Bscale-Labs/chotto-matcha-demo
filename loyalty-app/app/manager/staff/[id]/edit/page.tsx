@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Button } from "@/components/shared/button";
-import { updateStaff } from "@/app/manager/actions";
+import { Select } from "@/components/shared/select";
+import { setStaffActive, updateStaff } from "@/app/manager/actions";
 import { listActiveBranches } from "@/lib/data/branches";
 import { getManagerStaffProfile } from "@/lib/data/manager";
 
@@ -14,27 +15,47 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Team" title="Edit staff" />
+        <SectionTitle title="Edit staff" />
         <form action={updateStaff} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
           <input type="hidden" name="id" value={staff.profile.id} />
           <input name="name" required defaultValue={staff.profile.name} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
           <input name="email" required type="email" defaultValue={staff.profile.email} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <select name="role" defaultValue={staff.detail.role} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus">
-            <option value="cashier">Cashier</option>
-            <option value="manager">Manager</option>
-          </select>
-          <select name="branchId" defaultValue={staff.detail.branchId ?? ""} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus">
-            <option value="">All branches / manager</option>
-            {branches.map((branch) => (
-              <option key={branch.id} value={branch.id}>{branch.name}</option>
-            ))}
-          </select>
+          <Select
+            name="role"
+            defaultValue={staff.detail.role}
+            aria-label="Role"
+            options={[
+              { value: "cashier", label: "Cashier" },
+              { value: "manager", label: "Manager" }
+            ]}
+          />
+          <Select
+            name="branchId"
+            defaultValue={staff.detail.branchId ?? ""}
+            aria-label="Branch"
+            options={[
+              { value: "", label: "All branches / manager" },
+              ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
+            ]}
+          />
           <input name="pin" inputMode="numeric" placeholder="New cashier PIN; leave blank to keep current" className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <div className="flex gap-3">
-            <Button type="submit">Save staff</Button>
+          <div className="flex justify-end gap-3">
             <Button href="/manager/staff" variant="secondary">Cancel</Button>
+            <Button type="submit">Save staff</Button>
           </div>
         </form>
+        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+          <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
+            Status
+          </h2>
+          <form action={setStaffActive}>
+            <input type="hidden" name="id" value={staff.profile.id} />
+            <input type="hidden" name="active" value={staff.profile.active ? "false" : "true"} />
+            <Button type="submit" variant="secondary">
+              {staff.profile.active ? "Deactivate staff" : "Reactivate staff"}
+            </Button>
+          </form>
+        </section>
       </div>
     </ManagerShell>
   );

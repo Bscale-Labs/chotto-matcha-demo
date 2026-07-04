@@ -94,13 +94,16 @@ export const branches = pgTable(
   "branches",
   {
     id: text("id").primaryKey(),
+    code: text("code"),
     name: text("name").notNull(),
     address: text("address").notNull(),
+    googleMapsUrl: text("google_maps_url"),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (t) => ({
+    codeIdx: index("branches_code_idx").on(t.code),
     activeIdx: index("branches_active_idx").on(t.active)
   })
 );
@@ -134,6 +137,7 @@ export const staffRoleDetails = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.staffProfileId, t.role] }),
+    staffProfileUniqueIdx: uniqueIndex("staff_role_details_staff_profile_unique_idx").on(t.staffProfileId),
     roleBranchIdx: index("staff_role_details_role_branch_idx").on(t.role, t.branchId)
   })
 );
@@ -195,6 +199,27 @@ export const rewards = pgTable(
   },
   (t) => ({
     activeTypeIdx: index("rewards_active_type_idx").on(t.active, t.type)
+  })
+);
+
+export const rewardBranchAllocations = pgTable(
+  "reward_branch_allocations",
+  {
+    rewardId: text("reward_id")
+      .notNull()
+      .references(() => rewards.id, { onDelete: "cascade" }),
+    branchId: text("branch_id")
+      .notNull()
+      .references(() => branches.id, { onDelete: "cascade" }),
+    stockCount: integer("stock_count"),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.rewardId, t.branchId] }),
+    branchActiveIdx: index("reward_branch_allocations_branch_active_idx").on(t.branchId, t.active),
+    rewardIdx: index("reward_branch_allocations_reward_idx").on(t.rewardId)
   })
 );
 

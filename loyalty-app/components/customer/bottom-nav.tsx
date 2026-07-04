@@ -28,7 +28,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-4 bottom-4 z-30 mx-auto grid max-w-md grid-cols-5 rounded-[26px] border border-line-soft bg-milk/95 px-2 py-1 shadow-lg backdrop-blur-xl"
+      className="surface-glass fixed inset-x-4 bottom-4 z-30 mx-auto grid max-w-md grid-cols-5 gap-1 rounded-[28px] px-2 py-1.5"
     >
       {items.map((item) => {
         const isActive = item.match ? item.match(pathname) : pathname.startsWith(item.href);
@@ -39,18 +39,18 @@ export function BottomNav() {
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={clsx(
-              "group flex min-h-[50px] min-w-tap flex-col items-center justify-center gap-0.5 rounded-[20px] px-1 text-[11px] font-medium leading-none transition-colors duration-fast ease-out-soft",
-              isActive ? "text-matcha-deep" : "text-ink-faint hover:text-matcha-deep"
+              "group flex min-h-[60px] min-w-tap flex-col items-center justify-center gap-1 rounded-[22px] px-1 text-[11px] font-semibold leading-none transition-colors duration-fast ease-out-soft",
+              isActive ? "action-lacquer" : "text-ink-faint hover:text-matcha-deep"
             )}
           >
             <span
               className={clsx(
                 "grid h-7 w-7 place-items-center transition-colors duration-fast ease-out-soft",
-                isActive ? "text-matcha-deep" : "group-hover:text-matcha-deep"
+                isActive ? "text-cream" : "group-hover:text-matcha-deep"
               )}
             >
               <Icon
-                className="h-5 w-5"
+                className="h-[22px] w-[22px]"
                 strokeWidth={1.75}
                 fill={isActive ? "currentColor" : "none"}
                 aria-hidden="true"

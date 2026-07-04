@@ -16,22 +16,22 @@ export function CashierShell({
         <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <Brand href="/cashier" size="sm" />
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="inline-flex min-h-[40px] items-center gap-2 rounded-pill border border-line-soft bg-milk px-3.5 text-sm text-charcoal shadow-sm">
+            <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm font-medium text-charcoal">
               <Sparkles className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
               {sessionLabel}
             </span>
-            <span className="hidden min-h-[40px] items-center gap-2 rounded-pill border border-line-soft bg-milk px-3.5 text-sm text-ink-muted shadow-sm sm:inline-flex">
+            <span className="surface-glass hidden min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm text-ink-muted sm:inline-flex">
               <Clock3 className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
               Cashier tablet
             </span>
             <form action={endCashierShift}>
-              <button className="inline-flex min-h-[40px] items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
+              <button className="gloss inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
                 <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 End shift
               </button>
             </form>
             <form action="/cashier/logout" method="post">
-              <button className="inline-flex min-h-[40px] items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
+              <button className="gloss inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
                 <ShieldCheck className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 Reset device
               </button>

@@ -49,9 +49,9 @@ export function StartShiftForm({
           return (
             <label
               key={profile.id}
-              className="flex min-h-[72px] cursor-pointer items-center gap-4 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-3.5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
+              className="gloss flex min-h-[84px] cursor-pointer items-center gap-4 rounded-lg border border-line-soft bg-milk p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
             >
-              <CustomerAvatar name={profile.name} className="h-11 w-11" />
+              <CustomerAvatar name={profile.name} className="h-12 w-12" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium text-charcoal">{profile.name}</span>
                 <span className="mt-1 block truncate text-xs text-ink-muted">{branch.name}</span>
@@ -69,7 +69,7 @@ export function StartShiftForm({
         })}
       </div>
 
-      <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.76)] p-3.5 shadow-sm">
+      <div className="rounded-md border border-line-soft bg-milk p-3.5 shadow-sm">
         <label className="grid gap-2 text-xs font-semibold uppercase tracking-eyebrow text-ink-muted">
           Enter PIN
           <input

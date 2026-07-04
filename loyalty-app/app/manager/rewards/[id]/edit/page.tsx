@@ -1,45 +1,50 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { ManagerShell } from "@/components/manager/manager-shell";
+import { RewardDetailsForm } from "@/components/manager/reward-details-form";
+import { RewardAllocationTable } from "@/components/manager/reward-allocation-table";
 import { SectionTitle } from "@/components/shared/section-title";
-import { Button } from "@/components/shared/button";
-import { updateReward } from "@/app/manager/actions";
-import { getRewardById } from "@/lib/data/rewards";
+import { listImageAssetsForManager } from "@/lib/data/assets";
+import { listBranches } from "@/lib/data/branches";
+import { getRewardById, listRewardAllocations } from "@/lib/data/rewards";
 
-export default async function EditRewardPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditRewardPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  const reward = await getRewardById(id);
+  const [reward, branches, allocations, assetPool] = await Promise.all([
+    getRewardById(id),
+    listBranches(),
+    listRewardAllocations(id),
+    listImageAssetsForManager()
+  ]);
   if (!reward) notFound();
 
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Catalog" title="Edit reward" />
-        <form action={updateReward} encType="multipart/form-data" className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
-          <input type="hidden" name="id" value={reward.id} />
-          <input name="name" required defaultValue={reward.name} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <textarea name="description" required defaultValue={reward.description} className="min-h-28 rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          {reward.imageUrl ? (
-            <div className="flex items-center gap-4 rounded-md border border-line-soft bg-stone/40 p-4">
-              <Image src={reward.imageUrl} alt="" width={64} height={64} className="h-16 w-16 rounded-md object-cover" />
-              <p className="text-sm text-ink-muted">Current reward image. Upload a new file to replace it.</p>
-            </div>
-          ) : null}
-          <label className="grid gap-2 text-sm font-medium text-charcoal">
-            Reward image
-            <input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="rounded-md border border-line bg-cream px-4 py-3 text-sm text-ink-muted file:mr-3 file:rounded-pill file:border-0 file:bg-sage-wash file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-matcha-deep focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          </label>
-          <input name="pointCost" required type="number" min="1" defaultValue={reward.pointCost} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <select name="type" defaultValue={reward.type} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus">
-            <option value="item">Item</option>
-            <option value="merch">Merch</option>
-          </select>
-          <input name="stockCount" type="number" min="0" defaultValue={reward.stockCount ?? ""} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <div className="flex gap-3">
-            <Button type="submit">Save reward</Button>
-            <Button href="/manager/rewards" variant="secondary">Cancel</Button>
-          </div>
-        </form>
+        <SectionTitle title="Edit reward" />
+        <RewardDetailsForm
+          mode="edit"
+          reward={{
+            id: reward.id,
+            name: reward.name,
+            description: reward.description,
+            pointCost: reward.pointCost,
+            type: reward.type,
+            active: reward.active,
+            imageAssetId: reward.imageAssetId,
+            imageUrl: reward.imageUrl
+          }}
+          assetPool={assetPool}
+        />
+        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+          <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
+            Branch allocation
+          </h2>
+          <RewardAllocationTable rewardId={reward.id} branches={branches} allocations={allocations} />
+        </section>
       </div>
     </ManagerShell>
   );

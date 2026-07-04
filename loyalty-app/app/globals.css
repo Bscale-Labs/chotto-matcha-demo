@@ -17,9 +17,28 @@
   --ink-faint:   #9CA095;
   --line:        #E4E1D9;
   --line-soft:   #ECE9E2;
+  --warn-fill:   #F5E2DA;
+  --error-border: #C56B53;
+  --error-text:  #8C3D2A;
   --cashier-rail: #18381F;
   --cashier-rail-2: #24492B;
-  --cashier-card: rgba(255, 253, 248, 0.82);
+  --cashier-card: #FFFDF8;
+
+  /* Opaque content fill (Ceramic) — replaces scattered rgba(...,0.72/0.76) tiles */
+  --ceramic: #FFFDF8;
+
+  /* Glass material layer — warm cream/sage, never cool blue (see DESIGN.md) */
+  --glass-fill:        rgba(255, 253, 248, 0.78);
+  --glass-fill-strong: rgba(255, 253, 248, 0.90);
+  --glass-fill-clear:  rgba(255, 253, 248, 0.48);
+  --glass-border:      rgba(255, 253, 248, 0.62);
+  --glass-border-green: rgba(47, 75, 46, 0.12);
+  --glass-highlight:   rgba(255, 255, 255, 0.58);
+  --glass-shadow:        0 18px 42px rgba(47, 75, 46, 0.12);
+  --glass-shadow-strong: 0 24px 54px rgba(47, 75, 46, 0.18);
+  --glass-blur:        14px;
+  --glass-blur-strong: 20px;
+  --glass-saturate:    1.14;
 
   --font-display: "Playfair Display", Georgia, serif;
   --font-body:    "Inter", -apple-system, system-ui, sans-serif;
@@ -93,13 +112,18 @@ textarea {
   border-color: var(--matcha-deep);
 }
 
+input:focus-visible {
+  box-shadow: none;
+}
+
+/* Motion is allowed by default (hover/press color, modal fade, toast, progress).
+   Disabled only when the user prefers reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
@@ -119,6 +143,161 @@ textarea {
 .counter {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/* ============================================================
+   Material system — "Content is paper. Controls are glass.
+   Primary actions are matcha lacquer." (see DESIGN.md)
+   ============================================================ */
+
+/* Layer 1 · Paper — opaque readable content */
+.surface-paper {
+  border: 1px solid var(--line-soft);
+  background: var(--cream);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Layer 2 · Milk Glass — floating nav & sticky controls */
+.surface-glass {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.88), rgba(255, 253, 248, 0.72)),
+    rgba(250, 247, 242, 0.76);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+.surface-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), transparent 38%);
+  opacity: 0.48;
+}
+
+/* Layer 3 · Focus Glass — modals, QR, redemption confirmation */
+.surface-glass-strong {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-green);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.94), rgba(255, 253, 248, 0.84)),
+    rgba(250, 247, 242, 0.88);
+  box-shadow:
+    var(--glass-shadow-strong),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.12);
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.12);
+}
+
+/* Primary action — Matcha Lacquer (glossy via highlight + shadow, not transparency) */
+.action-lacquer {
+  border: 1px solid rgba(255, 253, 248, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.12), transparent 42%),
+    var(--matcha-deep);
+  color: var(--cream);
+  box-shadow:
+    0 8px 18px rgba(47, 75, 46, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.action-lacquer:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.12), transparent 42%),
+    var(--forest);
+}
+
+.action-lacquer:active {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.10), transparent 42%),
+    var(--charcoal);
+}
+
+.action-lacquer:disabled {
+  background: var(--sage);
+  color: rgba(250, 247, 242, 0.8);
+  box-shadow: none;
+}
+
+/* Tactile top-edge highlight — the shared "gloss" cue for interactive controls.
+   Compose onto light rows/nav so they read raised like the lacquer buttons. */
+.gloss {
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.gloss-strong {
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* CRUD change highlight — flash a row/item that was just created or updated,
+   then settle. Driven by a ?changed=<id> param the mutation redirects with. */
+@keyframes row-flash {
+  0%,
+  22% {
+    background-color: var(--sage-wash);
+    box-shadow: inset 3px 0 0 var(--matcha-deep);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 rgba(47, 75, 46, 0);
+  }
+}
+
+.row-flash {
+  animation: row-flash 2.4s var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No fade — hold a static highlight so the change is still obvious. */
+  .row-flash {
+    animation: none;
+    background-color: var(--sage-wash);
+    box-shadow: inset 3px 0 0 var(--matcha-deep);
+  }
+}
+
+/* Scroll edge diffusion — placed under sticky glass so content doesn't collide */
+.scroll-edge-diffuse {
+  background:
+    linear-gradient(180deg, rgba(250, 247, 242, 0.94), rgba(250, 247, 242, 0)),
+    linear-gradient(180deg, rgba(255, 253, 248, 0.62), rgba(255, 253, 248, 0));
+  pointer-events: none;
+}
+
+/* Graceful degradation — glass must still look intentional */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .surface-glass,
+  .surface-glass-strong {
+    background: rgba(255, 253, 248, 0.96);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .surface-glass,
+  .surface-glass-strong {
+    background: rgba(255, 253, 248, 0.98);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .surface-glass,
+  .surface-glass-strong {
+    border-color: var(--matcha-deep);
+    background: var(--milk);
+  }
 }
 
 .customer-surface {

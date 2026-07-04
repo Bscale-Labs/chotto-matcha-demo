@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <span className="text-sm font-medium text-charcoal">{label}</span>
       <span
         className={clsx(
-          "flex items-center gap-2 rounded-md border bg-cream px-4 py-3.5 transition-colors duration-fast ease-out-soft",
+          "flex min-h-tap items-center gap-2 rounded-md border bg-cream px-4 py-3.5 transition-colors duration-fast ease-out-soft",
           error
             ? "border-error-border focus-within:shadow-focus"
             : "border-line focus-within:border-matcha-deep focus-within:shadow-focus"

@@ -12,7 +12,7 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/customer/profile"
             aria-label="Notifications"
-            className="grid h-10 w-10 place-items-center rounded-pill border border-line-soft bg-milk text-charcoal shadow-sm transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
+            className="gloss grid h-11 w-11 place-items-center rounded-pill border border-line-soft bg-milk text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
           >
             <Bell className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
           </Link>

@@ -31,7 +31,7 @@ export default async function CashierPage({
         <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4">
           <header className="flex items-center justify-between gap-3">
             <Brand href="/" size="sm" />
-            <span className="inline-flex min-h-[40px] items-center gap-2 rounded-pill border border-line-soft bg-milk px-3.5 text-sm text-ink-muted shadow-sm">
+            <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm text-ink-muted">
               <ShieldCheck className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
               Cashier device
             </span>
@@ -90,7 +90,7 @@ export default async function CashierPage({
             End shift when taking a break or at end of day.
           </p>
           <form action={endCashierShift} className="mt-5">
-            <button className="inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-pill border border-line bg-milk px-5 text-sm font-medium text-charcoal transition-colors hover:border-matcha-deep hover:text-matcha-deep">
+            <button className="gloss inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-pill border border-line bg-milk px-5 text-sm font-medium text-charcoal transition-colors hover:border-matcha-deep hover:text-matcha-deep">
               <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               End shift
             </button>
@@ -106,11 +106,11 @@ export default async function CashierPage({
               </h2>
               <p className="mt-2 text-sm leading-6 text-ink-muted">{activeBranch.address}</p>
               <div className="mt-5 grid gap-3 text-sm text-ink-muted sm:grid-cols-2">
-                <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-4">
+                <div className="rounded-md border border-line-soft bg-stone p-4">
                   <Clock3 className="mb-3 h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
                   Shift-ready tablet
                 </div>
-                <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-4">
+                <div className="rounded-md border border-line-soft bg-stone p-4">
                   <UserRoundCheck className="mb-3 h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
                   Member lookup enabled
                 </div>

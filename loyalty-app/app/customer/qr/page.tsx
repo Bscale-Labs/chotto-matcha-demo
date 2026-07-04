@@ -54,13 +54,13 @@ export default async function CustomerQrPage() {
         </p>
       </section>
 
-      <div className="mt-7 rounded-xl bg-matcha-deep p-6 text-center text-cream shadow-md">
-        <div className="mx-auto inline-flex items-center gap-2 rounded-pill bg-cream/15 px-3 py-1 text-xs font-medium text-cream">
+      <div className="surface-glass-strong mt-7 rounded-xl p-6 text-center">
+        <div className="mx-auto inline-flex items-center gap-2 rounded-pill bg-sage-wash px-3 py-1 text-xs font-medium text-matcha-deep">
           <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
           {customer.name.split(" ")[0]} · {formatPoints(customer.pointsBalance)} points
         </div>
         <div
-          className="mx-auto mt-5 grid aspect-square w-full max-w-[18rem] gap-px rounded-lg bg-cream p-4"
+          className="mx-auto mt-5 grid aspect-square w-full max-w-[18rem] gap-px rounded-lg border border-line-soft bg-cream p-4 shadow-sm"
           style={{ gridTemplateColumns: `repeat(${SIZE}, minmax(0, 1fr))` }}
           aria-label="QR placeholder"
           role="img"
@@ -72,7 +72,7 @@ export default async function CustomerQrPage() {
             />
           ))}
         </div>
-        <p className="mt-4 font-mono text-[11px] uppercase tracking-eyebrow text-cream/70">
+        <p className="mt-4 font-mono text-[11px] uppercase tracking-eyebrow text-ink-muted">
           {customer.id}
         </p>
       </div>

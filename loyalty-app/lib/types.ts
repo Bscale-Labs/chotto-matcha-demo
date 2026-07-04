@@ -2,8 +2,10 @@ export type Role = "customer" | "cashier" | "manager";
 
 export type Branch = {
   id: string;
+  code?: string | null;
   name: string;
   address: string;
+  googleMapsUrl?: string | null;
   active: boolean;
 };
 

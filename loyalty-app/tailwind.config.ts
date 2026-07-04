@@ -18,9 +18,11 @@ const config: Config = {
         line: "var(--line)",
         "line-soft": "var(--line-soft)",
         milk: "var(--milk)",
+        ceramic: "var(--ceramic)",
         rice: "var(--rice)",
-        "error-border": "#C56B53",
-        "error-text": "#8C3D2A"
+        "warn-fill": "var(--warn-fill)",
+        "error-border": "var(--error-border)",
+        "error-text": "var(--error-text)"
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],
@@ -37,6 +39,8 @@ const config: Config = {
         sm: "0 1px 2px rgba(43,43,43,0.04), 0 1px 1px rgba(43,43,43,0.03)",
         md: "0 4px 12px rgba(43,43,43,0.06), 0 2px 4px rgba(43,43,43,0.04)",
         lg: "0 16px 32px rgba(43,43,43,0.08), 0 4px 8px rgba(43,43,43,0.04)",
+        glass: "var(--glass-shadow)",
+        "glass-strong": "var(--glass-shadow-strong)",
         focus: "0 0 0 3px var(--sage-wash)"
       },
       transitionTimingFunction: {

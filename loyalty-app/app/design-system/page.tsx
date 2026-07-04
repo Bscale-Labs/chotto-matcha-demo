@@ -48,6 +48,7 @@ const spacingTokens = [
 
 const sections = [
   { id: "color", label: "Color" },
+  { id: "materials", label: "Materials" },
   { id: "type", label: "Typography" },
   { id: "spacing", label: "Spacing" },
   { id: "radius", label: "Radius" },
@@ -72,7 +73,7 @@ export default function DesignSystemPage() {
       <header className="border-b border-line-soft bg-cream">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <Brand size="sm" />
-          <Pill tone="default">v1.0 · May 2026</Pill>
+          <Pill tone="default">v1.1 · Materials · Jul 2026</Pill>
         </div>
       </header>
 
@@ -125,6 +126,81 @@ export default function DesignSystemPage() {
                 </div>
               ))}
             </div>
+          </section>
+
+          <section id="materials" className="scroll-mt-6">
+            <SectionHeader
+              eyebrow="01b"
+              title="Materials"
+              hint="Content is paper. Controls are glass. Primary actions are matcha lacquer. Glass belongs to nav, focus, and feedback — not content."
+            />
+
+            {/* Glass reads only against content behind it — show it over a warm wash */}
+            <div className="relative mt-6 overflow-hidden rounded-lg border border-line-soft">
+              <div className="customer-surface absolute inset-0" aria-hidden="true" />
+              <div
+                className="absolute inset-0 opacity-70"
+                aria-hidden="true"
+                style={{
+                  background:
+                    "radial-gradient(circle at 22% 30%, rgba(168,180,138,0.5), transparent 42%), radial-gradient(circle at 80% 68%, rgba(47,75,46,0.28), transparent 46%)"
+                }}
+              />
+              <div className="relative grid gap-4 p-6 sm:grid-cols-2">
+                <MaterialSwatch
+                  name=".surface-paper"
+                  role="Content · opaque, readable"
+                  className="surface-paper"
+                />
+                <MaterialSwatch
+                  name=".surface-glass"
+                  role="Control · nav & sticky bars"
+                  className="surface-glass"
+                />
+                <MaterialSwatch
+                  name=".surface-glass-strong"
+                  role="Focus · modal, QR, confirm"
+                  className="surface-glass-strong"
+                />
+                <div className="action-lacquer grid gap-1 rounded-lg p-5">
+                  <p className="font-mono text-xs text-cream/85">.action-lacquer</p>
+                  <p className="text-sm font-semibold text-cream">Primary action</p>
+                  <p className="text-xs text-cream/80">Deep matcha, gloss via highlight + shadow</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Scroll edge diffusion — glass sitting above scrolling content */}
+            <div className="relative mt-4 h-28 overflow-hidden rounded-lg border border-line-soft bg-rice">
+              <div className="surface-glass absolute inset-x-0 top-0 z-10 flex items-center gap-2 rounded-none px-5 py-3">
+                <span className="text-sm font-semibold text-charcoal">Sticky glass header</span>
+                <span className="counter text-xs text-ink-muted">.scroll-edge-diffuse below</span>
+              </div>
+              <div className="scroll-edge-diffuse absolute inset-x-0 top-[46px] z-[5] h-6" />
+              <div className="absolute inset-x-0 bottom-0 space-y-1 px-5 py-3 text-sm text-charcoal">
+                <p>Content scrolls under the control layer.</p>
+                <p>The diffusion strip keeps text from colliding with glass.</p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="surface-paper rounded-md p-4">
+                <p className="eyebrow text-ink-muted">Reduced transparency</p>
+                <p className="mt-2 text-sm text-charcoal">Glass becomes near-opaque milk; blur is removed.</p>
+              </div>
+              <div className="surface-paper rounded-md p-4">
+                <p className="eyebrow text-ink-muted">No backdrop-filter</p>
+                <p className="mt-2 text-sm text-charcoal">Falls back to a solid 96% milk fill — still intentional.</p>
+              </div>
+              <div className="surface-paper rounded-md p-4">
+                <p className="eyebrow text-ink-muted">Increased contrast</p>
+                <p className="mt-2 text-sm text-charcoal">Borders strengthen to matcha; fill goes solid milk.</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-ink-muted">
+              Motion (hover, press, modal fade, toast, progress) is enabled by default and disabled under
+              <span className="counter"> prefers-reduced-motion</span>.
+            </p>
           </section>
 
           <section id="type" className="scroll-mt-6">
@@ -235,7 +311,11 @@ export default function DesignSystemPage() {
           </section>
 
           <section id="buttons" className="scroll-mt-6">
-            <SectionHeader eyebrow="06" title="Buttons" hint="Pill-shaped. One Primary per screen." />
+            <SectionHeader
+              eyebrow="06"
+              title="Buttons"
+              hint="Primary is Matcha Lacquer. One Primary per task area. size=&quot;lg&quot; for cashier-critical confirm actions."
+            />
             <div className="mt-6 grid gap-6 rounded-lg border border-line-soft bg-cream p-7">
               <div className="flex flex-wrap items-center gap-3">
                 <Button>Earn points</Button>
@@ -248,6 +328,10 @@ export default function DesignSystemPage() {
                 <Button variant="secondary" icon={Gift}>Choose reward</Button>
                 <Button disabled>Disabled</Button>
                 <Button variant="secondary" disabled>Disabled</Button>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button size="lg" icon={Check}>Confirm award</Button>
+                <Button size="lg" variant="secondary">Cancel</Button>
               </div>
             </div>
           </section>
@@ -306,7 +390,13 @@ export default function DesignSystemPage() {
                 message="Keep going, matcha lover."
                 icon={Leaf}
               />
-              <div className="rounded-lg border border-line-soft bg-cream p-6 shadow-md">
+              <Toast
+                title="Reward saved"
+                message="Light glass tone, for floating over content."
+                icon={Check}
+                tone="glass"
+              />
+              <div className="surface-glass-strong rounded-lg p-6">
                 <h3 className="font-display text-[22px] leading-7 text-charcoal">Redeem reward?</h3>
                 <p className="mt-2 text-sm leading-6 text-ink-muted">
                   This will spend 350 points on an Iced Matcha Latte.
@@ -316,7 +406,7 @@ export default function DesignSystemPage() {
                   <Button className="flex-1">Confirm</Button>
                 </div>
               </div>
-              <div className="rounded-pill border border-line-soft bg-cream p-1.5 shadow-md">
+              <div className="surface-glass rounded-pill p-1.5">
                 <div className="flex items-stretch justify-between">
                   {[
                     { label: "Home", active: true },
@@ -419,11 +509,29 @@ export default function DesignSystemPage() {
               Back to surfaces
               <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </Link>
-            <p className="mt-3 text-xs text-ink-muted">Chotto Matcha · Design System v1.0 · May 2026</p>
+            <p className="mt-3 text-xs text-ink-muted">Chotto Matcha · Design System v1.1 · Materials · Jul 2026</p>
           </footer>
         </div>
       </div>
     </main>
+  );
+}
+
+function MaterialSwatch({
+  name,
+  role,
+  className
+}: {
+  name: string;
+  role: string;
+  className: string;
+}) {
+  return (
+    <div className={`grid gap-1 rounded-lg p-5 ${className}`}>
+      <p className="font-mono text-xs text-charcoal">{name}</p>
+      <p className="text-sm font-semibold text-charcoal">Readable label</p>
+      <p className="text-xs text-ink-muted">{role}</p>
+    </div>
   );
 }
 

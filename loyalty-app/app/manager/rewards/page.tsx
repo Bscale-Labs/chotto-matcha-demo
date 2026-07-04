@@ -5,24 +5,66 @@ import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Pill } from "@/components/shared/pill";
-import { adjustRewardStock, setRewardActive } from "@/app/manager/actions";
-import { listRewards } from "@/lib/data/rewards";
+import { listBranches } from "@/lib/data/branches";
+import { listRewardsForManager } from "@/lib/data/rewards";
 import { formatPoints } from "@/lib/formatters";
 
-export default async function ManagerRewardsPage() {
-  const rewards = await listRewards();
+function AvailableBranches({
+  count,
+  branchNames
+}: {
+  count: number;
+  branchNames: string[];
+}) {
+  const label = count === 1 ? "1 branch in stock" : `${count} branches in stock`;
+  const title = branchNames.length > 0
+    ? `Available at: ${branchNames.join(", ")}`
+    : "No branches currently have stock available";
+
+  return (
+    <span className="group relative inline-flex w-fit" title={title}>
+      <span className="text-sm text-ink-muted">
+        {count > 0 ? label : "No stock"}
+      </span>
+      <span className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-max max-w-56 rounded-md border border-line-soft bg-cream px-3 py-2 text-xs font-medium leading-5 text-charcoal shadow-sm group-hover:block group-focus-within:block">
+        {branchNames.length > 0 ? branchNames.join(", ") : "No branches available"}
+      </span>
+    </span>
+  );
+}
+
+export default async function ManagerRewardsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ branchId?: string; changed?: string }>;
+}) {
+  const { branchId, changed } = await searchParams;
+  const branches = await listBranches();
+  const selectedBranch = branches.find((branch) => branch.id === branchId);
+  const rewards = await listRewardsForManager(selectedBranch?.id);
 
   return (
     <ManagerShell>
       <div className="space-y-7">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionTitle eyebrow="Catalog" title="Rewards" />
+          <SectionTitle title="Rewards" />
           <Button href="/manager/rewards/new" icon={Plus}>
             Add reward
           </Button>
         </div>
         <DataTable
-          headers={["Reward", "Type", "Cost", "Stock", "Status", "Stock adjust", "Actions"]}
+          headers={
+            selectedBranch
+              ? ["Reward", "Type", "Cost", "Branch stock", "Branch status"]
+              : ["Reward", "Type", "Cost", "Branches", "Status"]
+          }
+          rowHrefs={rewards.map((reward) =>
+            selectedBranch
+              ? `/manager/rewards/${reward.id}/edit?branchId=${selectedBranch.id}`
+              : `/manager/rewards/${reward.id}/edit`
+          )}
+          rowKeys={rewards.map((reward) => reward.id)}
+          highlightKey={changed}
           rows={rewards.map((reward) => [
             <div key={`${reward.id}-name`} className="flex items-center gap-3">
               {reward.imageUrl ? (
@@ -39,43 +81,39 @@ export default async function ManagerRewardsPage() {
               {formatPoints(reward.pointCost)}
             </span>,
             <span key={`${reward.id}-stock`} className="text-sm text-ink-muted">
-              {reward.stockCount === null ? "Always available" : `${reward.stockCount} left`}
+              {selectedBranch
+                ? reward.branchId
+                  ? reward.branchStockCount === null
+                    ? "Always available"
+                    : `${reward.branchStockCount} left`
+                  : "Not allocated"
+                : (
+                  <AvailableBranches
+                    count={reward.availableBranchCount ?? 0}
+                    branchNames={reward.availableBranchNames}
+                  />
+                )}
             </span>,
             <Pill
               key={`${reward.id}-status`}
-              tone={reward.active ? "default" : "muted"}
+              tone={
+                selectedBranch
+                  ? reward.branchActive
+                    ? "default"
+                    : "muted"
+                  : reward.active
+                    ? "default"
+                    : "muted"
+              }
             >
-              {reward.active ? "Active" : "Resting"}
-            </Pill>,
-            <form
-              key={`${reward.id}-stock-adjust`}
-              action={adjustRewardStock}
-              className="flex items-center gap-1.5"
-            >
-              <input type="hidden" name="id" value={reward.id} />
-              <input
-                name="delta"
-                type="number"
-                className="h-9 w-16 rounded-md border border-line bg-cream px-2 text-sm focus:border-matcha-deep focus:outline-none"
-                placeholder="±"
-                aria-label="Stock delta"
-              />
-              <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
-                Apply
-              </button>
-            </form>,
-            <div key={`${reward.id}-actions`} className="flex items-center gap-1.5">
-              <Button href={`/manager/rewards/${reward.id}/edit`} variant="tertiary">
-                Edit
-              </Button>
-              <form action={setRewardActive}>
-                <input type="hidden" name="id" value={reward.id} />
-                <input type="hidden" name="active" value={reward.active ? "false" : "true"} />
-                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
-                  {reward.active ? "Archive" : "Restore"}
-                </button>
-              </form>
-            </div>
+              {selectedBranch
+                ? reward.branchActive
+                  ? "Available"
+                  : "Resting"
+                : reward.active
+                  ? "Active"
+                  : "Resting"}
+            </Pill>
           ])}
         />
       </div>

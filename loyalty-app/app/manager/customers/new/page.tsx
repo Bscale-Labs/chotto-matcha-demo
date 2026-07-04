@@ -6,7 +6,7 @@ export default function NewCustomerPage() {
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Community" title="Add customer" />
+        <SectionTitle title="Add customer" />
         <section className="max-w-2xl rounded-lg border border-line-soft bg-cream p-6">
           <CustomerCreateForm />
         </section>

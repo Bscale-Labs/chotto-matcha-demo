@@ -1,6 +1,7 @@
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
+import { Select } from "@/components/shared/select";
 import { listBranches } from "@/lib/data/branches";
 import { listTransactionsWithLabels } from "@/lib/data/manager";
 import { formatDate, formatPeso, formatPoints } from "@/lib/formatters";
@@ -26,33 +27,33 @@ export default async function ManagerTransactionsPage({
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Ledger" title="Transactions" />
-        <form className="grid gap-3 rounded-lg border border-line-soft bg-cream p-4 shadow-sm md:grid-cols-5">
+        <SectionTitle title="Transactions" />
+        <form className="surface-glass sticky top-4 z-20 grid gap-3 rounded-lg p-4 md:grid-cols-5">
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
             Type
-            <select
+            <Select
               name="type"
               defaultValue={type ?? ""}
-              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
-            >
-              <option value="">All types</option>
-              <option value="earn">Earn</option>
-              <option value="redeem">Redeem</option>
-              <option value="manual">Manual</option>
-            </select>
+              className="min-h-[44px] px-3 text-sm"
+              options={[
+                { value: "", label: "All types" },
+                { value: "earn", label: "Earn" },
+                { value: "redeem", label: "Redeem" },
+                { value: "manual", label: "Manual" }
+              ]}
+            />
           </label>
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
             Branch
-            <select
+            <Select
               name="branchId"
               defaultValue={params.branchId ?? ""}
-              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
-            >
-              <option value="">All branches</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>{branch.name}</option>
-              ))}
-            </select>
+              className="min-h-[44px] px-3 text-sm"
+              options={[
+                { value: "", label: "All branches" },
+                ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
+              ]}
+            />
           </label>
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
             Customer ID
@@ -60,7 +61,7 @@ export default async function ManagerTransactionsPage({
               name="customerId"
               defaultValue={params.customerId ?? ""}
               placeholder="cust-…"
-              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal placeholder:text-ink-faint focus:border-matcha-deep focus:outline-none"
+              className="h-11 min-h-tap rounded-md border border-line bg-cream px-3 text-sm text-charcoal placeholder:text-ink-faint focus:border-matcha-deep focus:outline-none"
             />
           </label>
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
@@ -69,10 +70,10 @@ export default async function ManagerTransactionsPage({
               name="from"
               type="date"
               defaultValue={params.from ?? ""}
-              className="h-10 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
+              className="h-11 min-h-tap rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
             />
           </label>
-          <button className="h-10 self-end rounded-md bg-matcha-deep px-4 text-sm font-medium text-cream shadow-sm transition-colors duration-fast ease-out-soft hover:bg-forest">
+          <button className="min-h-tap self-end rounded-md action-lacquer px-4 text-sm font-semibold">
             Filter
           </button>
         </form>

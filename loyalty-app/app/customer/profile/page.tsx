@@ -99,9 +99,9 @@ export default async function CustomerProfilePage() {
           <a
             key={link.label}
             href={link.href}
-            className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4 transition-colors duration-fast ease-out-soft hover:bg-stone"
+            className="gloss flex min-h-[64px] items-center gap-3 rounded-lg border border-line-soft bg-milk p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash active:bg-sage-tint"
           >
-            <span className="grid h-10 w-10 place-items-center rounded-pill bg-stone text-charcoal">
+            <span className="grid h-11 w-11 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
               <link.icon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
@@ -114,9 +114,9 @@ export default async function CustomerProfilePage() {
         <form action="/customer/logout" method="post">
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-md border border-line-soft bg-cream p-4 text-left transition-colors duration-fast ease-out-soft hover:bg-stone"
+            className="gloss flex min-h-[64px] w-full items-center gap-3 rounded-lg border border-line-soft bg-milk p-4 text-left transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash active:bg-sage-tint"
           >
-            <span className="grid h-10 w-10 place-items-center rounded-pill bg-stone text-charcoal">
+            <span className="grid h-11 w-11 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
               <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">

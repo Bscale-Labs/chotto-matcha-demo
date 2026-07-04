@@ -2,14 +2,16 @@ import type { ComponentType, ReactNode } from "react";
 import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
 
-type PillTone = "default" | "inverse" | "soft" | "muted" | "warn";
+type PillTone = "default" | "inverse" | "soft" | "muted" | "warn" | "glass";
 
 const tones: Record<PillTone, string> = {
   default: "bg-sage-wash text-matcha-deep",
   inverse: "bg-matcha-deep text-cream",
   soft: "bg-stone text-charcoal",
   muted: "bg-line-soft text-ink-muted",
-  warn: "bg-[#F5E2DA] text-[#8C3D2A]"
+  warn: "bg-warn-fill text-error-text",
+  // Session / status pill floating on a surface — Control Glass
+  glass: "surface-glass text-charcoal"
 };
 
 export function Pill({

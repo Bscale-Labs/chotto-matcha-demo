@@ -18,9 +18,7 @@ export default async function ManagerPage() {
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Today" title="Manager dashboard">
-          Demo data mirrors the single Postgres model planned for production.
-        </SectionTitle>
+        <SectionTitle title="Manager dashboard" />
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
@@ -46,7 +44,7 @@ export default async function ManagerPage() {
         </div>
 
         <section>
-          <h2 className="mb-3 font-display text-[24px] font-medium leading-[30px] text-charcoal">
+          <h2 className="mb-3 font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Recent ledger
           </h2>
           <DataTable

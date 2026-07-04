@@ -39,9 +39,12 @@ export function CustomerCreateForm() {
           </p>
         </div>
       ) : null}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Creating..." : "Create customer account"}
-      </Button>
+      <div className="flex justify-end gap-3">
+        <Button href="/manager/customers" variant="secondary">Cancel</Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Creating..." : "Create customer account"}
+        </Button>
+      </div>
     </form>
   );
 }

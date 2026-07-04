@@ -8,19 +8,25 @@ export function Toast({
   message,
   icon: Icon = Leaf,
   onDismiss,
+  tone = "sage",
   className
 }: {
   title: ReactNode;
   message?: ReactNode;
   icon?: ComponentType<LucideProps>;
   onDismiss?: () => void;
+  tone?: "sage" | "glass";
   className?: string;
 }) {
   return (
     <div
       role="status"
       className={clsx(
-        "flex items-start gap-3 rounded-md border border-sage-tint bg-sage-wash p-4 shadow-sm",
+        "flex items-start gap-3 rounded-md p-4",
+        // Feedback layer: quiet sage wash (default) or light glass when floating over content
+        tone === "glass"
+          ? "surface-glass"
+          : "border border-sage-tint bg-sage-wash shadow-sm",
         className
       )}
     >

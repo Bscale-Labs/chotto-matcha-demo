@@ -10,6 +10,7 @@ import {
   branches,
   customers,
   orgConfig,
+  rewardBranchAllocations,
   rewards,
   staffProfiles,
   staffRoleDetails,
@@ -54,6 +55,10 @@ function nonEmpty(formData: FormData, key: string) {
   const value = text(formData, key);
   if (!value) throw new Error(`${key} is required`);
   return value;
+}
+
+function optionalText(formData: FormData, key: string) {
+  return text(formData, key) || null;
 }
 
 const imageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
@@ -115,7 +120,9 @@ export async function createReward(formData: FormData) {
   const pointCost = positiveInteger(formData, "pointCost");
   const type = text(formData, "type");
   if (type !== "item" && type !== "merch") throw new Error("Invalid reward type");
+  const initialStockCount = optionalStock(formData);
   const image = optionalImage(formData);
+  const existingImageAssetId = text(formData, "imageAssetId") || null;
   const rewardId = randomUUID();
   const imageAsset = image
     ? await uploadRewardImage({ file: image, rewardId, staffProfileId: profile.id })
@@ -128,12 +135,23 @@ export async function createReward(formData: FormData) {
         id: rewardId,
         name,
         description,
-        imageAssetId: imageAsset?.id ?? null,
+        imageAssetId: imageAsset?.id ?? existingImageAssetId,
         pointCost,
         type,
-        stockCount: optionalStock(formData),
+        stockCount: initialStockCount,
         active: true
       });
+      const branchRows = await tx.select({ id: branches.id }).from(branches);
+      if (branchRows.length > 0) {
+        await tx.insert(rewardBranchAllocations).values(
+          branchRows.map((branch) => ({
+            rewardId,
+            branchId: branch.id,
+            stockCount: initialStockCount,
+            active: true
+          }))
+        );
+      }
     });
   } catch (error) {
     if (imageAsset) await deleteAssetObject(imageAsset.bucketKey).catch(() => undefined);
@@ -141,7 +159,7 @@ export async function createReward(formData: FormData) {
   }
 
   revalidatePath("/manager/rewards");
-  redirect("/manager/rewards");
+  redirect(`/manager/rewards?changed=${rewardId}`);
 }
 
 export async function updateReward(formData: FormData) {
@@ -152,22 +170,16 @@ export async function updateReward(formData: FormData) {
   const pointCost = positiveInteger(formData, "pointCost");
   const type = text(formData, "type");
   if (type !== "item" && type !== "merch") throw new Error("Invalid reward type");
+  const active = text(formData, "active");
   const image = optionalImage(formData);
+  const existingImageAssetId = text(formData, "imageAssetId") || null;
   const imageAsset = image
     ? await uploadRewardImage({ file: image, rewardId: id, staffProfileId: profile.id })
     : null;
-  let oldBucketKey: string | null = null;
 
   try {
     await db.transaction(async (tx) => {
       if (imageAsset) {
-        const [oldImage] = await tx
-          .select({ bucketKey: assets.bucketKey })
-          .from(rewards)
-          .leftJoin(assets, eq(rewards.imageAssetId, assets.id))
-          .where(eq(rewards.id, id))
-          .limit(1);
-        oldBucketKey = oldImage?.bucketKey ?? null;
         await tx.insert(assets).values(imageAsset);
       }
 
@@ -176,10 +188,10 @@ export async function updateReward(formData: FormData) {
         .set({
           name,
           description,
-          imageAssetId: imageAsset?.id,
+          imageAssetId: imageAsset?.id ?? existingImageAssetId,
           pointCost,
           type,
-          stockCount: optionalStock(formData),
+          ...(active ? { active: active === "true" } : {}),
           updatedAt: new Date()
         })
         .where(eq(rewards.id, id));
@@ -189,10 +201,8 @@ export async function updateReward(formData: FormData) {
     throw error;
   }
 
-  if (oldBucketKey) await deleteAssetObject(oldBucketKey).catch(() => undefined);
-
   revalidatePath("/manager/rewards");
-  redirect("/manager/rewards");
+  redirect(`/manager/rewards?changed=${id}`);
 }
 
 export async function setRewardActive(formData: FormData) {
@@ -201,6 +211,8 @@ export async function setRewardActive(formData: FormData) {
   const active = text(formData, "active") === "true";
   await db.update(rewards).set({ active, updatedAt: new Date() }).where(eq(rewards.id, id));
   revalidatePath("/manager/rewards");
+  revalidatePath(`/manager/rewards/${id}/edit`);
+  redirect(`/manager/rewards?changed=${id}`);
 }
 
 export async function adjustRewardStock(formData: FormData) {
@@ -216,41 +228,104 @@ export async function adjustRewardStock(formData: FormData) {
     })
     .where(eq(rewards.id, id));
   revalidatePath("/manager/rewards");
+  revalidatePath(`/manager/rewards/${id}/edit`);
+}
+
+export async function updateRewardAllocation(formData: FormData) {
+  await requireManagerSession();
+  const rewardId = nonEmpty(formData, "rewardId");
+  const branchId = nonEmpty(formData, "branchId");
+  const stockCount = optionalStock(formData);
+  const active = text(formData, "active") === "true";
+  await db
+    .insert(rewardBranchAllocations)
+    .values({
+      rewardId,
+      branchId,
+      stockCount,
+      active
+    })
+    .onConflictDoUpdate({
+      target: [rewardBranchAllocations.rewardId, rewardBranchAllocations.branchId],
+      set: {
+        stockCount,
+        active,
+        updatedAt: new Date()
+      }
+    });
+  revalidatePath("/manager/rewards");
+  revalidatePath(`/manager/rewards/${rewardId}/edit`);
+  revalidatePath(`/manager/rewards/${rewardId}/edit?branchId=${branchId}`);
+}
+
+export async function deleteImageAsset(assetId: string) {
+  await requireManagerSession();
+  if (!assetId) throw new Error("assetId is required");
+
+  const asset = await db.query.assets.findFirst({ where: eq(assets.id, assetId) });
+  if (!asset) return;
+  if (!asset.contentType.startsWith("image/")) throw new Error("Only image assets can be deleted here");
+
+  await db.transaction(async (tx) => {
+    await tx.delete(assets).where(eq(assets.id, assetId));
+
+    const logoConfig = await tx.query.orgConfig.findFirst({ where: eq(orgConfig.key, "logo_asset_id") });
+    if (logoConfig?.value === assetId) {
+      await tx
+        .update(orgConfig)
+        .set({ value: "", updatedAt: new Date() })
+        .where(eq(orgConfig.key, "logo_asset_id"));
+    }
+  });
+
+  await deleteAssetObject(asset.bucketKey).catch(() => undefined);
+  revalidatePath("/manager/rewards");
+  revalidatePath("/manager/settings");
 }
 
 export async function createBranch(formData: FormData) {
   await requireManagerSession();
+  const branchId = randomUUID();
   await db.insert(branches).values({
-    id: randomUUID(),
+    id: branchId,
+    code: optionalText(formData, "code"),
     name: nonEmpty(formData, "name"),
     address: nonEmpty(formData, "address"),
-    active: true
+    googleMapsUrl: optionalText(formData, "googleMapsUrl"),
+    active: text(formData, "active") !== "false"
   });
   revalidatePath("/manager/branches");
-  redirect("/manager/branches");
+  redirect(`/manager/branches?changed=${branchId}`);
 }
 
 export async function updateBranch(formData: FormData) {
   await requireManagerSession();
+  const id = nonEmpty(formData, "id");
   await db
     .update(branches)
     .set({
+      code: optionalText(formData, "code"),
       name: nonEmpty(formData, "name"),
       address: nonEmpty(formData, "address"),
+      googleMapsUrl: optionalText(formData, "googleMapsUrl"),
+      active: text(formData, "active") !== "false",
       updatedAt: new Date()
     })
-    .where(eq(branches.id, nonEmpty(formData, "id")));
+    .where(eq(branches.id, id));
   revalidatePath("/manager/branches");
-  redirect("/manager/branches");
+  redirect(`/manager/branches?changed=${id}`);
 }
 
 export async function setBranchActive(formData: FormData) {
   await requireManagerSession();
+  const id = nonEmpty(formData, "id");
   await db
     .update(branches)
     .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
-    .where(eq(branches.id, nonEmpty(formData, "id")));
+    .where(eq(branches.id, id));
   revalidatePath("/manager/branches");
+  revalidatePath(`/manager/branches/${id}/edit`);
+  redirect(`/manager/branches?changed=${id}`);
 }
 
 export async function createStaffAccount(_: CreateAccountState, formData: FormData): Promise<CreateAccountState> {
@@ -349,7 +424,7 @@ export async function updateStaff(formData: FormData) {
   });
 
   revalidatePath("/manager/staff");
-  redirect("/manager/staff");
+  redirect(`/manager/staff?changed=${id}`);
 }
 
 export async function resetStaffPin(formData: FormData) {
@@ -366,11 +441,14 @@ export async function resetStaffPin(formData: FormData) {
 
 export async function setStaffActive(formData: FormData) {
   await requireManagerSession();
+  const id = nonEmpty(formData, "id");
   await db
     .update(staffProfiles)
     .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
-    .where(eq(staffProfiles.id, nonEmpty(formData, "id")));
+    .where(eq(staffProfiles.id, id));
   revalidatePath("/manager/staff");
+  revalidatePath(`/manager/staff/${id}/edit`);
+  redirect(`/manager/staff?changed=${id}`);
 }
 
 export async function createCustomerAccount(_: CreateAccountState, formData: FormData): Promise<CreateAccountState> {
@@ -428,27 +506,32 @@ export async function updateCustomer(formData: FormData) {
   });
 
   revalidatePath("/manager/customers");
-  redirect("/manager/customers");
+  redirect(`/manager/customers?changed=${id}`);
 }
 
 export async function setCustomerActive(formData: FormData) {
   await requireManagerSession();
+  const id = nonEmpty(formData, "id");
   await db
     .update(customers)
     .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
-    .where(eq(customers.id, nonEmpty(formData, "id")));
+    .where(eq(customers.id, id));
   revalidatePath("/manager/customers");
+  revalidatePath(`/manager/customers/${id}/edit`);
+  redirect(`/manager/customers?changed=${id}`);
 }
 
 export async function adjustCustomerPoints(formData: FormData) {
+  const customerId = nonEmpty(formData, "id");
   const { profile } = await requireManagerSession();
   await manualAdjustPoints({
-    customerId: nonEmpty(formData, "id"),
+    customerId,
     managerStaffProfileId: profile.id,
     pointsDelta: Number(nonEmpty(formData, "pointsDelta")),
     reason: nonEmpty(formData, "reason")
   });
   revalidatePath("/manager/customers");
+  revalidatePath(`/manager/customers/${customerId}/edit`);
   revalidatePath("/manager/transactions");
 }
 

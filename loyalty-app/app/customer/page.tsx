@@ -39,14 +39,14 @@ export default async function CustomerHome() {
           <div className="grid grid-cols-2 gap-[18px]">
             <Link
               href="/customer/qr"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill bg-milk px-4 font-display text-[17px] font-medium text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
+              className="surface-glass inline-flex min-h-tap items-center justify-center gap-2 rounded-pill px-4 text-[15px] font-semibold text-matcha-deep transition-colors duration-fast ease-out-soft"
             >
               <QrCode className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Show QR
             </Link>
             <Link
               href="/customer/rewards"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill border border-cream/70 px-4 font-display text-[17px] font-medium text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
+              className="inline-flex min-h-tap items-center justify-center gap-2 rounded-pill border border-cream/70 px-4 text-[15px] font-semibold text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
             >
               <Gift className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Rewards
@@ -65,7 +65,7 @@ export default async function CustomerHome() {
           </div>
           <Link
             href="/customer/rewards"
-            className="inline-flex items-center gap-0.5 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+            className="-my-2.5 inline-flex min-h-tap items-center gap-0.5 px-1 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
           >
             See all
             <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -83,7 +83,7 @@ export default async function CustomerHome() {
           <p className="eyebrow text-matcha-deep">Recent activity</p>
           <Link
             href="/customer/activity"
-            className="inline-flex items-center gap-0.5 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+            className="-my-2.5 inline-flex min-h-tap items-center gap-0.5 px-1 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
           >
             View all
             <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />

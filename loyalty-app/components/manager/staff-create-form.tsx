@@ -6,6 +6,7 @@ import { createStaffAccount, type CreateAccountState } from "@/app/manager/actio
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
 import { Pill } from "@/components/shared/pill";
+import { Select } from "@/components/shared/select";
 
 const initialState: CreateAccountState = {};
 
@@ -18,21 +19,25 @@ export function StaffCreateForm({ branches }: { branches: { id: string; name: st
       <Input label="Email" name="email" type="email" required />
       <label className="grid gap-2 text-sm font-medium text-charcoal">
         Role
-        <select name="role" className="rounded-md border border-line bg-cream px-4 py-3.5 text-base">
-          <option value="cashier">Cashier</option>
-          <option value="manager">Manager</option>
-        </select>
+        <Select
+          name="role"
+          defaultValue="cashier"
+          options={[
+            { value: "cashier", label: "Cashier" },
+            { value: "manager", label: "Manager" }
+          ]}
+        />
       </label>
       <label className="grid gap-2 text-sm font-medium text-charcoal">
         Branch
-        <select name="branchId" className="rounded-md border border-line bg-cream px-4 py-3.5 text-base">
-          <option value="">All branches / manager</option>
-          {branches.map((branch) => (
-            <option key={branch.id} value={branch.id}>
-              {branch.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          name="branchId"
+          defaultValue=""
+          options={[
+            { value: "", label: "All branches / manager" },
+            ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
+          ]}
+        />
       </label>
       <Input label="Cashier PIN" name="pin" inputMode="numeric" pattern="[0-9]*" hint="Required for cashiers." />
       {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
@@ -57,9 +62,12 @@ export function StaffCreateForm({ branches }: { branches: { id: string; name: st
           </p>
         </div>
       ) : null}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Creating..." : "Create staff account"}
-      </Button>
+      <div className="flex justify-end gap-3">
+        <Button href="/manager/staff" variant="secondary">Cancel</Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Creating..." : "Create staff account"}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -41,11 +41,11 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
         </div>
 
         <div className="cashier-points-panel mt-7 rounded-lg p-7 shadow-md">
-          <p className="eyebrow relative text-[#FAF7F2]/70">Current balance</p>
-          <p className="counter relative mt-3 font-display text-[64px] font-medium leading-none">
-            {formatPoints(customer.pointsBalance)} <span className="text-[28px]">pts</span>
+          <p className="eyebrow relative text-cream/85">Current balance</p>
+          <p className="counter relative mt-3 text-[56px] font-semibold leading-none tracking-tight">
+            {formatPoints(customer.pointsBalance)} <span className="text-[26px] font-medium">pts</span>
           </p>
-          <p className="relative mt-2 text-sm text-[#FAF7F2]/75">Available points</p>
+          <p className="relative mt-2 text-sm text-cream/85">Available points</p>
           <TeaStillLife className="pointer-events-none absolute bottom-0 right-0 h-full w-[42%] opacity-70 [mask-image:linear-gradient(90deg,transparent,black_32%)]" />
         </div>
 
@@ -58,17 +58,17 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
           </Button>
         </div>
 
-        <div className="mt-6 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-5">
+        <div className="mt-6 border-t border-line-soft pt-5">
           <div className="flex items-center justify-between gap-3">
             <Eyebrow className="text-matcha-deep">Recent activity</Eyebrow>
             <span className="text-xs font-medium text-ink-muted">{recentTransactions.length} latest</span>
           </div>
-          <div className="mt-4 grid gap-3">
-            {recentTransactions.length > 0 ? (
-              recentTransactions.map((transaction) => (
-                <div
+          {recentTransactions.length > 0 ? (
+            <ul className="mt-3 divide-y divide-line-soft">
+              {recentTransactions.map((transaction) => (
+                <li
                   key={transaction.id}
-                  className="grid gap-3 rounded-md border border-line-soft bg-[rgba(250,247,242,0.72)] p-3.5 sm:grid-cols-[1fr_auto] sm:items-center"
+                  className="grid gap-3 py-3 sm:grid-cols-[1fr_auto] sm:items-center"
                 >
                   <div className="flex items-center gap-3">
                     <span className="grid h-9 w-9 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
@@ -85,12 +85,12 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
                     {transaction.pointsDelta > 0 ? "+" : ""}
                     {formatPoints(transaction.pointsDelta)} pts
                   </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-ink-muted">No recent activity.</p>
-            )}
-          </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-ink-muted">No recent activity.</p>
+          )}
         </div>
       </section>
     </CashierShell>

@@ -48,7 +48,7 @@ export function Modal({
       />
       <div
         className={clsx(
-          "relative w-full max-w-[360px] rounded-lg bg-cream p-6 shadow-lg",
+          "surface-glass-strong relative w-full max-w-[360px] rounded-lg p-6",
           className
         )}
       >

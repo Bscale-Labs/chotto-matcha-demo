@@ -7,6 +7,7 @@ import {
   branches,
   customers,
   orgConfig,
+  rewardBranchAllocations,
   rewards,
   staffProfiles,
   staffRoleDetails,
@@ -135,28 +136,44 @@ export async function redeemReward(input: RedeemRewardInput) {
     });
     if (!branch) throw new Error("Branch is inactive or missing");
 
-    const reward = await tx.query.rewards.findFirst({
-      where: and(eq(rewards.id, input.rewardId), eq(rewards.active, true))
-    });
-    if (!reward) throw new Error("Reward is inactive or missing");
+    const rewardRows = await tx
+      .select({
+        id: rewards.id,
+        pointCost: rewards.pointCost,
+        stockCount: rewardBranchAllocations.stockCount
+      })
+      .from(rewardBranchAllocations)
+      .innerJoin(rewards, eq(rewardBranchAllocations.rewardId, rewards.id))
+      .where(
+        and(
+          eq(rewardBranchAllocations.rewardId, input.rewardId),
+          eq(rewardBranchAllocations.branchId, input.branchId),
+          eq(rewardBranchAllocations.active, true),
+          eq(rewards.active, true)
+        )
+      )
+      .limit(1);
+    const reward = rewardRows[0];
+    if (!reward) throw new Error("Reward is not available at this branch");
     if (reward.stockCount !== null && reward.stockCount <= 0) throw new Error("Reward is out of stock");
 
     if (reward.stockCount !== null) {
-      const [updatedReward] = await tx
-        .update(rewards)
+      const [updatedAllocation] = await tx
+        .update(rewardBranchAllocations)
         .set({
-          stockCount: sql`${rewards.stockCount} - 1`,
+          stockCount: sql`${rewardBranchAllocations.stockCount} - 1`,
           updatedAt: new Date()
         })
         .where(
           and(
-            eq(rewards.id, input.rewardId),
-            eq(rewards.active, true),
-            sql`${rewards.stockCount} > 0`
+            eq(rewardBranchAllocations.rewardId, input.rewardId),
+            eq(rewardBranchAllocations.branchId, input.branchId),
+            eq(rewardBranchAllocations.active, true),
+            sql`${rewardBranchAllocations.stockCount} > 0`
           )
         )
         .returning();
-      if (!updatedReward) throw new Error("Reward is out of stock");
+      if (!updatedAllocation) throw new Error("Reward is out of stock");
     }
 
     const [updatedCustomer] = await tx

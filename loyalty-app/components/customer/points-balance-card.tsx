@@ -58,10 +58,10 @@ export function PointsBalanceCard({
           <p className="counter font-display text-[56px] font-medium leading-[0.9] tracking-display">
             {formatPoints(points)}
           </p>
-          <p className="mt-1 text-xs text-cream/76">available points</p>
+          <p className="mt-1 text-xs text-cream/85">available points</p>
         </div>
 
-        <p className="absolute right-6 top-[74px] max-w-[8.75rem] text-xs leading-4 text-cream/72">
+        <p className="absolute right-6 top-[74px] max-w-[8.75rem] text-xs leading-4 text-cream/80">
           {tier.vibe}
         </p>
 
@@ -70,7 +70,7 @@ export function PointsBalanceCard({
             <span className="font-medium text-cream/82">
               {formatPoints(remainingPoints)} points to {progressLabel}
             </span>
-            <span className="counter text-cream/72">
+            <span className="counter text-cream/80">
               {formatPoints(points)} / {formatPoints(progressTarget)}
             </span>
           </div>
