@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { LayoutDashboard, ScanLine, Settings } from "lucide-react";
+import { LayoutDashboard, LoaderCircle, ScanLine, Settings } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -17,6 +17,25 @@ const items: NavItem[] = [
   { href: "/cashier", label: "Dashboard", icon: LayoutDashboard },
   { href: "/cashier/identify", label: "Identify", icon: ScanLine }
 ];
+
+function PendingIndicator({ active }: { active: boolean }) {
+  const { pending } = useLinkStatus();
+
+  return (
+    <span className="grid h-4 w-4 place-items-center" aria-live="polite" aria-atomic="true">
+      {pending ? (
+        <>
+          <LoaderCircle
+            className={clsx("h-4 w-4 animate-spin", active ? "text-matcha-deep" : "text-cream")}
+            strokeWidth={1.9}
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading</span>
+        </>
+      ) : null}
+    </span>
+  );
+}
 
 export function CashierNav() {
   const pathname = usePathname() ?? "/cashier";
@@ -36,7 +55,7 @@ export function CashierNav() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={clsx(
-                "grid min-h-[80px] place-items-center gap-1.5 rounded-lg px-2 py-3 text-center text-xs font-semibold transition-colors duration-fast ease-out-soft",
+                "grid min-h-[80px] place-items-center gap-1 rounded-lg px-2 py-3 text-center text-xs font-semibold transition-colors duration-fast ease-out-soft",
                 isActive
                   ? "gloss bg-cream text-matcha-deep"
                   : "text-cream/90 hover:bg-white/10 hover:text-cream"
@@ -48,6 +67,7 @@ export function CashierNav() {
                 aria-hidden="true"
               />
               {item.label}
+              <PendingIndicator active={isActive} />
             </Link>
           );
         })}

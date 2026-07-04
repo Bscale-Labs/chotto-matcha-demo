@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { updateRewardAllocation } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
+import { ToastActionForm } from "@/components/shared/toast-action-form";
 
 type Branch = {
   id: string;
@@ -28,7 +29,12 @@ function StockCell({
   const dirty = value !== initialValue;
 
   return (
-    <form action={updateRewardAllocation} className="flex w-full items-center justify-between gap-3">
+    <ToastActionForm
+      action={updateRewardAllocation}
+      successTitle="Branch stock saved"
+      errorTitle="Could not save branch stock"
+      className="flex w-full items-center justify-between gap-3"
+    >
       <input type="hidden" name="rewardId" value={rewardId} />
       <input type="hidden" name="branchId" value={branch.id} />
       <input type="hidden" name="active" value="true" />
@@ -57,7 +63,7 @@ function StockCell({
           Save
         </Button>
       </span>
-    </form>
+    </ToastActionForm>
   );
 }
 

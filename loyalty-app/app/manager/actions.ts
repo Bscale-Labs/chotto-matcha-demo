@@ -160,7 +160,7 @@ export async function createReward(formData: FormData) {
   }
 
   revalidatePath("/manager/rewards");
-  redirect(`/manager/rewards?changed=${rewardId}`);
+  redirect(`/manager/rewards?changed=${rewardId}&toast=reward-created`);
 }
 
 export async function updateReward(formData: FormData) {
@@ -203,7 +203,7 @@ export async function updateReward(formData: FormData) {
   }
 
   revalidatePath("/manager/rewards");
-  redirect(`/manager/rewards?changed=${id}`);
+  redirect(`/manager/rewards?changed=${id}&toast=reward-updated`);
 }
 
 export async function setRewardActive(formData: FormData) {
@@ -213,7 +213,7 @@ export async function setRewardActive(formData: FormData) {
   await db.update(rewards).set({ active, updatedAt: new Date() }).where(eq(rewards.id, id));
   revalidatePath("/manager/rewards");
   revalidatePath(`/manager/rewards/${id}/edit`);
-  redirect(`/manager/rewards?changed=${id}`);
+  redirect(`/manager/rewards?changed=${id}&toast=${active ? "reward-activated" : "reward-deactivated"}`);
 }
 
 export async function adjustRewardStock(formData: FormData) {
@@ -360,7 +360,7 @@ export async function createBranch(formData: FormData) {
     active: text(formData, "active") !== "false"
   });
   revalidatePath("/manager/branches");
-  redirect(`/manager/branches?changed=${branchId}`);
+  redirect(`/manager/branches?changed=${branchId}&toast=branch-created`);
 }
 
 export async function updateBranch(formData: FormData) {
@@ -378,19 +378,20 @@ export async function updateBranch(formData: FormData) {
     })
     .where(eq(branches.id, id));
   revalidatePath("/manager/branches");
-  redirect(`/manager/branches?changed=${id}`);
+  redirect(`/manager/branches?changed=${id}&toast=branch-updated`);
 }
 
 export async function setBranchActive(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
+  const active = text(formData, "active") === "true";
   await db
     .update(branches)
-    .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
+    .set({ active, updatedAt: new Date() })
     .where(eq(branches.id, id));
   revalidatePath("/manager/branches");
   revalidatePath(`/manager/branches/${id}/edit`);
-  redirect(`/manager/branches?changed=${id}`);
+  redirect(`/manager/branches?changed=${id}&toast=${active ? "branch-opened" : "branch-closed"}`);
 }
 
 export async function createStaffAccount(_: CreateAccountState, formData: FormData): Promise<CreateAccountState> {
@@ -489,7 +490,7 @@ export async function updateStaff(formData: FormData) {
   });
 
   revalidatePath("/manager/staff");
-  redirect(`/manager/staff?changed=${id}`);
+  redirect(`/manager/staff?changed=${id}&toast=staff-updated`);
 }
 
 export async function resetStaffPin(formData: FormData) {
@@ -507,13 +508,14 @@ export async function resetStaffPin(formData: FormData) {
 export async function setStaffActive(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
+  const active = text(formData, "active") === "true";
   await db
     .update(staffProfiles)
-    .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
+    .set({ active, updatedAt: new Date() })
     .where(eq(staffProfiles.id, id));
   revalidatePath("/manager/staff");
   revalidatePath(`/manager/staff/${id}/edit`);
-  redirect(`/manager/staff?changed=${id}`);
+  redirect(`/manager/staff?changed=${id}&toast=${active ? "staff-activated" : "staff-deactivated"}`);
 }
 
 export async function createCustomerAccount(_: CreateAccountState, formData: FormData): Promise<CreateAccountState> {
@@ -571,19 +573,20 @@ export async function updateCustomer(formData: FormData) {
   });
 
   revalidatePath("/manager/customers");
-  redirect(`/manager/customers?changed=${id}`);
+  redirect(`/manager/customers?changed=${id}&toast=customer-updated`);
 }
 
 export async function setCustomerActive(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
+  const active = text(formData, "active") === "true";
   await db
     .update(customers)
-    .set({ active: text(formData, "active") === "true", updatedAt: new Date() })
+    .set({ active, updatedAt: new Date() })
     .where(eq(customers.id, id));
   revalidatePath("/manager/customers");
   revalidatePath(`/manager/customers/${id}/edit`);
-  redirect(`/manager/customers?changed=${id}`);
+  redirect(`/manager/customers?changed=${id}&toast=${active ? "customer-activated" : "customer-deactivated"}`);
 }
 
 export async function adjustCustomerPoints(formData: FormData) {

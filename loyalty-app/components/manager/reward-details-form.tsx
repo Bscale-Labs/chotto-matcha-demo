@@ -6,6 +6,7 @@ import { createReward, deleteImageAsset, updateReward } from "@/app/manager/acti
 import { Button } from "@/components/shared/button";
 import { Modal } from "@/components/shared/modal";
 import { Select } from "@/components/shared/select";
+import { getToastErrorMessage, useToast } from "@/components/shared/toast-provider";
 
 type RewardDetailsFormProps =
   | {
@@ -53,6 +54,7 @@ function setRoundedDragPreview(event: DragEvent<HTMLDivElement>) {
 }
 
 export function RewardDetailsForm(props: RewardDetailsFormProps) {
+  const { showSuccess, showError } = useToast();
   const imageInputId = useId();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -125,11 +127,16 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
 
   function deleteAssetFromPool(assetId: string) {
     startAssetDelete(async () => {
-      await deleteImageAsset(assetId);
-      setAvailableAssets((assets) => assets.filter((asset) => asset.id !== assetId));
-      if (selectedAssetId === assetId) {
-        setSelectedAssetId("");
-        markDirty();
+      try {
+        await deleteImageAsset(assetId);
+        setAvailableAssets((assets) => assets.filter((asset) => asset.id !== assetId));
+        if (selectedAssetId === assetId) {
+          setSelectedAssetId("");
+          markDirty();
+        }
+        showSuccess("Image deleted", "The asset pool was updated.");
+      } catch (error) {
+        showError("Could not delete image", getToastErrorMessage(error));
       }
     });
   }

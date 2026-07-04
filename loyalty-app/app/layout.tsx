@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Suspense } from "react";
+import { ToastProvider, ToastUrlListener } from "@/components/shared/toast-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,7 +36,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ToastProvider>
+          {children}
+          <Suspense fallback={null}>
+            <ToastUrlListener />
+          </Suspense>
+        </ToastProvider>
+      </body>
     </html>
   );
 }

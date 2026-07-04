@@ -69,7 +69,7 @@ export async function awardCustomerPoints(formData: FormData) {
   const billTotalCents = Math.round(billTotal * 100);
   await awardPoints({ customerId, staffProfileId: profile.id, branchId: branch.id, billTotalCents });
   revalidatePath(`/cashier/customer/${customerId}`);
-  redirect(`/cashier/customer/${customerId}`);
+  redirect(`/cashier/customer/${customerId}?toast=points-awarded`);
 }
 
 export async function redeemCustomerReward(formData: FormData) {
@@ -82,5 +82,5 @@ export async function redeemCustomerReward(formData: FormData) {
     rewardId: nonEmpty(formData, "rewardId")
   });
   revalidatePath(`/cashier/customer/${customerId}`);
-  redirect(`/cashier/customer/${customerId}`);
+  redirect(`/cashier/customer/${customerId}?toast=reward-redeemed`);
 }

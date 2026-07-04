@@ -3,6 +3,8 @@ import type { ComponentType, ReactNode } from "react";
 import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
 
+export type ToastTone = "sage" | "glass" | "error";
+
 export function Toast({
   title,
   message,
@@ -15,26 +17,35 @@ export function Toast({
   message?: ReactNode;
   icon?: ComponentType<LucideProps>;
   onDismiss?: () => void;
-  tone?: "sage" | "glass";
+  tone?: ToastTone;
   className?: string;
 }) {
+  const isError = tone === "error";
+
   return (
     <div
-      role="status"
+      role={isError ? "alert" : "status"}
       className={clsx(
         "flex items-start gap-3 rounded-md p-4",
         // Feedback layer: quiet sage wash (default) or light glass when floating over content
-        tone === "glass"
-          ? "surface-glass"
-          : "border border-sage-tint bg-sage-wash shadow-sm",
+        tone === "glass" && "surface-glass",
+        tone === "sage" && "border border-sage-tint bg-sage-wash shadow-sm",
+        isError && "border border-error-border bg-cream shadow-sm",
         className
       )}
     >
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-cream text-matcha-deep">
+      <span
+        className={clsx(
+          "grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-cream",
+          isError ? "text-error-text" : "text-matcha-deep"
+        )}
+      >
         <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold leading-6 text-matcha-deep">{title}</p>
+        <p className={clsx("text-base font-semibold leading-6", isError ? "text-error-text" : "text-matcha-deep")}>
+          {title}
+        </p>
         {message ? (
           <p className="mt-1 text-xs leading-[18px] text-ink-muted">{message}</p>
         ) : null}
