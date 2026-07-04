@@ -7,5 +7,14 @@ dist/
 coverage/
 .playwright-mcp/
 .superpowers/
-customer-mobile.png
-manager-desktop.png
+
+# Build cache
+tsconfig.tsbuildinfo
+
+# pnpm 10 placeholder stub — breaks Railway (lockfile v9), keep out of the repo
+pnpm-workspace.yaml
+
+# Local scratch: screenshots, Playwright snapshots, temp dir
+/*.png
+*-snapshot.md
+tmp/
