@@ -23,7 +23,7 @@ import { sendSignInLink } from "@/lib/auth/magic-link";
 import { hashDemoPin, isValidPin } from "@/lib/auth/pin";
 import { requireManagerSession } from "@/lib/auth/session";
 import { manualAdjustPoints } from "@/lib/data/transactions";
-import { deleteAssetObject, putAssetObject } from "@/lib/storage";
+import { deleteAssetObject, getAssetUrl, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
   error?: string;
@@ -71,6 +71,13 @@ function sanitizeFilename(filename: string) {
     .replace(/[^a-z0-9._-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80) || "reward-image";
+}
+
+function assertImageFile(value: FormDataEntryValue | null): File {
+  if (!(value instanceof File) || value.size === 0) throw new Error("Choose an image to upload");
+  if (!imageTypes.has(value.type)) throw new Error("Image must be a JPG, PNG, WebP, or GIF");
+  if (value.size > maxImageSize) throw new Error("Image must be 5MB or smaller");
+  return value;
 }
 
 function optionalImage(formData: FormData) {
@@ -321,6 +328,39 @@ export async function updateRewardTiers(formData: FormData) {
   revalidatePath("/customer/profile");
   revalidatePath("/customer/qr");
   revalidatePath("/cashier/customer/[id]", "page");
+}
+
+/**
+ * Upload an image straight into the org asset pool, independent of any reward's
+ * save state. Returns the new asset so the client can drop it into the pool
+ * (without selecting it) — choosing it is a separate, explicit step.
+ */
+export async function uploadOrgAsset(formData: FormData) {
+  const { profile } = await requireManagerSession();
+  const file = assertImageFile(formData.get("image"));
+
+  const assetId = randomUUID();
+  const filename = sanitizeFilename(file.name);
+  const bucketKey = `assets/${assetId}-${filename}`;
+
+  await putAssetObject({ key: bucketKey, file, contentType: file.type });
+
+  try {
+    await db.insert(assets).values({
+      id: assetId,
+      bucketKey,
+      filename,
+      contentType: file.type,
+      size: file.size,
+      uploadedByStaffProfileId: profile.id
+    });
+  } catch (error) {
+    await deleteAssetObject(bucketKey).catch(() => undefined);
+    throw error;
+  }
+
+  revalidatePath("/manager/rewards");
+  return { id: assetId, filename, imageUrl: getAssetUrl(bucketKey) };
 }
 
 export async function deleteImageAsset(assetId: string) {

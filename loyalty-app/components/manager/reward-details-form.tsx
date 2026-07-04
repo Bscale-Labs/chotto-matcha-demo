@@ -1,11 +1,15 @@
 "use client";
 
+import { clsx } from "clsx";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useId, useRef, useState, useTransition, type DragEvent } from "react";
-import { createReward, deleteImageAsset, updateReward } from "@/app/manager/actions";
+import { unstable_rethrow } from "next/navigation";
+import { useId, useRef, useState, useTransition, type DragEvent } from "react";
+import { createReward, deleteImageAsset, updateReward, uploadOrgAsset } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
 import { Modal } from "@/components/shared/modal";
 import { Select } from "@/components/shared/select";
+import { SubmitButton } from "@/components/shared/submit-button";
 import { getToastErrorMessage, useToast } from "@/components/shared/toast-provider";
 
 type RewardDetailsFormProps =
@@ -59,13 +63,12 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [dirty, setDirty] = useState(props.mode === "create");
-  const [selectedImageName, setSelectedImageName] = useState<string | null>(null);
-  const [selectedUploadPreview, setSelectedUploadPreview] = useState<string | null>(null);
   const [selectedAssetId, setSelectedAssetId] = useState(props.mode === "edit" ? props.reward.imageAssetId ?? "" : "");
   const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
   const [galleryOrder, setGalleryOrder] = useState<string[]>([]);
   const [availableAssets, setAvailableAssets] = useState(props.assetPool);
   const [isDeletingAsset, startAssetDelete] = useTransition();
+  const [isUploading, startUpload] = useTransition();
   const isEdit = props.mode === "edit";
   const reward = isEdit ? props.reward : null;
   const assetPool = availableAssets;
@@ -73,54 +76,45 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
   const usesCurrentRewardImage = Boolean(
     reward?.imageUrl &&
     reward.imageAssetId &&
-    selectedAssetId === reward.imageAssetId &&
-    !selectedUploadPreview
+    selectedAssetId === reward.imageAssetId
   );
-  const primaryImageUrl = selectedUploadPreview ?? selectedAsset?.imageUrl ?? (usesCurrentRewardImage ? reward?.imageUrl : null);
-  const galleryItems = [
-    ...(selectedAsset || usesCurrentRewardImage
-      ? [{
-          id: selectedAsset ? `asset-${selectedAsset.id}` : "current",
-          assetId: selectedAsset?.id ?? reward?.imageAssetId ?? null,
-          imageUrl: selectedAsset?.imageUrl ?? reward?.imageUrl ?? null,
-          label: selectedAsset?.filename ?? "Current image"
-        }]
-      : []),
-    ...(selectedImageName
-      ? [{ id: "pending", assetId: null, imageUrl: selectedUploadPreview, label: selectedImageName }]
-      : [])
-  ].sort((left, right) => {
+  const primaryImageUrl = selectedAsset?.imageUrl ?? (usesCurrentRewardImage ? reward?.imageUrl : null);
+  const galleryItems = (selectedAsset || usesCurrentRewardImage
+    ? [{
+        id: selectedAsset ? `asset-${selectedAsset.id}` : "current",
+        assetId: selectedAsset?.id ?? reward?.imageAssetId ?? null,
+        imageUrl: selectedAsset?.imageUrl ?? reward?.imageUrl ?? null,
+        label: selectedAsset?.filename ?? "Current image"
+      }]
+    : []
+  ).sort((left, right) => {
     const leftIndex = galleryOrder.indexOf(left.id);
     const rightIndex = galleryOrder.indexOf(right.id);
     return (leftIndex === -1 ? 999 : leftIndex) - (rightIndex === -1 ? 999 : rightIndex);
   });
 
-  useEffect(() => {
-    return () => {
-      if (selectedUploadPreview) URL.revokeObjectURL(selectedUploadPreview);
-    };
-  }, [selectedUploadPreview]);
-
   function markDirty() {
     if (!dirty) setDirty(true);
   }
 
-  function clearSelectedUpload() {
-    setSelectedImageName(null);
-    setSelectedUploadPreview((currentPreview) => {
-      if (currentPreview) URL.revokeObjectURL(currentPreview);
-      return null;
+  // Upload straight into the org asset pool. This is independent of the reward's
+  // save state: it does NOT select the image or mark the form dirty. Choosing it
+  // from the pool (or reordering) is the separate step that enables Save.
+  function uploadToPool(file: File) {
+    startUpload(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        const asset = await uploadOrgAsset(formData);
+        setAvailableAssets((assets) => [asset, ...assets.filter((existing) => existing.id !== asset.id)]);
+        showSuccess("Image added to pool", "Choose it below to use it for this reward.");
+      } catch (error) {
+        showError("Could not upload image", getToastErrorMessage(error));
+      }
     });
-    if (imageInputRef.current) imageInputRef.current.value = "";
   }
 
-  function removeGalleryItem(itemId: string) {
-    if (itemId === "pending") {
-      clearSelectedUpload();
-      markDirty();
-      return;
-    }
-
+  function deselectImage() {
     setSelectedAssetId("");
     markDirty();
   }
@@ -141,9 +135,21 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
     });
   }
 
+  // The action redirects on success (toast shown via the URL param on the next
+  // page). We catch failures — oversized images, validation, network — into a
+  // toast, and re-throw the redirect so navigation still happens.
+  async function submit(formData: FormData) {
+    try {
+      await (isEdit ? updateReward(formData) : createReward(formData));
+    } catch (error) {
+      unstable_rethrow(error);
+      showError(isEdit ? "Could not save reward" : "Could not create reward", getToastErrorMessage(error));
+    }
+  }
+
   return (
     <form
-      action={isEdit ? updateReward : createReward}
+      action={submit}
       className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6"
     >
       {reward ? <input type="hidden" name="id" value={reward.id} /> : null}
@@ -151,19 +157,14 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
       <input
         ref={imageInputRef}
         id={imageInputId}
-        name="image"
         type="file"
         accept="image/jpeg,image/png,image/webp,image/gif"
         className="sr-only"
         onChange={(event) => {
-          const file = event.target.files?.[0] ?? null;
-          setSelectedImageName(file?.name ?? null);
-          setSelectedAssetId("");
-          setSelectedUploadPreview((currentPreview) => {
-            if (currentPreview) URL.revokeObjectURL(currentPreview);
-            return file ? URL.createObjectURL(file) : null;
-          });
-          markDirty();
+          const file = event.target.files?.[0];
+          // Reset so re-picking the same file fires change again.
+          event.target.value = "";
+          if (file) uploadToPool(file);
         }}
       />
       <div className="grid items-stretch gap-4 sm:grid-cols-[196px_1fr]">
@@ -175,7 +176,7 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
           {primaryImageUrl ? (
             <Image src={primaryImageUrl} alt="" width={196} height={204} className="h-full w-full object-cover" />
           ) : (
-            <span className="px-4">{selectedImageName ?? "Reward image"}</span>
+            <span className="px-4">Reward image</span>
           )}
         </button>
         <div className="grid gap-4">
@@ -263,9 +264,13 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
       )}
       <div className="flex justify-end gap-3">
         <Button href="/manager/rewards" variant="secondary">Cancel</Button>
-        <Button type="submit" variant={dirty ? "primary" : "secondary"} disabled={isEdit && !dirty}>
+        <SubmitButton
+          variant={dirty ? "primary" : "secondary"}
+          disabled={isEdit && !dirty}
+          pendingLabel={isEdit ? "Saving…" : "Creating…"}
+        >
           {isEdit ? "Save reward" : "Create reward"}
-        </Button>
+        </SubmitButton>
       </div>
       <Modal
         open={galleryOpen}
@@ -298,13 +303,14 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
                       const [moved] = nextOrder.splice(fromIndex, 1);
                       nextOrder.splice(toIndex, 0, moved);
                       setGalleryOrder(nextOrder);
+                      markDirty();
                     }}
                     className="relative cursor-grab overflow-hidden rounded-md border border-line bg-stone active:cursor-grabbing"
                   >
                     <button
                       type="button"
                       className="absolute right-2 top-2 z-10 rounded-pill border border-line bg-cream px-3 py-1 text-xs font-medium text-charcoal hover:border-matcha-deep hover:text-matcha-deep"
-                      onClick={() => removeGalleryItem(item.id)}
+                      onClick={deselectImage}
                     >
                       Remove
                     </button>
@@ -339,9 +345,21 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
               <h3 className="text-sm font-semibold text-charcoal">Org asset pool</h3>
               <label
                 htmlFor={imageInputId}
-                className="inline-flex min-h-tap cursor-pointer items-center justify-center rounded-pill border border-line bg-cream px-5 py-2.5 text-sm font-medium tracking-tight text-charcoal hover:border-matcha-deep hover:text-matcha-deep"
+                aria-disabled={isUploading}
+                aria-busy={isUploading}
+                className={clsx(
+                  "inline-flex min-h-tap items-center justify-center gap-2 rounded-pill border border-line bg-cream px-5 py-2.5 text-sm font-medium tracking-tight text-charcoal hover:border-matcha-deep hover:text-matcha-deep",
+                  isUploading ? "pointer-events-none opacity-60" : "cursor-pointer"
+                )}
               >
-                Upload image
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    Uploading…
+                  </>
+                ) : (
+                  "Upload image"
+                )}
               </label>
             </div>
             <div className="grid max-h-[260px] gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
@@ -356,7 +374,6 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
                       className="block w-full text-left"
                       onClick={() => {
                         setSelectedAssetId(asset.id);
-                        clearSelectedUpload();
                         markDirty();
                       }}
                     >
