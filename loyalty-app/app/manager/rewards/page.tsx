@@ -45,7 +45,7 @@ export default async function ManagerRewardsPage({
 
   return (
     <ManagerShell>
-      <div className="space-y-7">
+      <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionTitle title="Rewards" />
           <Button href="/manager/rewards/new" icon={Plus}>
@@ -53,6 +53,7 @@ export default async function ManagerRewardsPage({
           </Button>
         </div>
         <DataTable
+          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={
             selectedBranch
               ? ["Reward", "Type", "Cost", "Branch stock", "Branch status"]

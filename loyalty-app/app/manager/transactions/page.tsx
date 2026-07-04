@@ -26,9 +26,9 @@ export default async function ManagerTransactionsPage({
 
   return (
     <ManagerShell>
-      <div className="space-y-7">
+      <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <SectionTitle title="Transactions" />
-        <form className="surface-glass sticky top-4 z-20 grid gap-3 rounded-lg p-4 md:grid-cols-5">
+        <form className="surface-glass z-20 grid gap-3 rounded-lg p-4 md:grid-cols-5">
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
             Type
             <Select
@@ -78,6 +78,7 @@ export default async function ManagerTransactionsPage({
           </button>
         </form>
         <DataTable
+          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["When", "Member", "Staff", "Branch", "Type", "Bill", "Points"]}
           rows={transactions.map(({ transaction, customerName, staffName, branchName, rewardName }) => {
             return [

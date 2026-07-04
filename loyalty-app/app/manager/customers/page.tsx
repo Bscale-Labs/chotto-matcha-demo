@@ -23,7 +23,7 @@ export default async function ManagerCustomersPage({
 
   return (
     <ManagerShell>
-      <div className="space-y-7">
+      <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionTitle title="Members" />
           <Button href="/manager/customers/new" icon={Plus}>Add customer</Button>
@@ -41,6 +41,7 @@ export default async function ManagerCustomersPage({
           </button>
         </form>
         <DataTable
+          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["Name", "Contact", "Tier", "Points", "Status"]}
           rowHrefs={customers.map((customer) => `/manager/customers/${customer.id}/edit`)}
           rowKeys={customers.map((customer) => customer.id)}

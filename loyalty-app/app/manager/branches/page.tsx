@@ -16,12 +16,13 @@ export default async function ManagerBranchesPage({
 
   return (
     <ManagerShell>
-      <div className="space-y-7">
+      <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionTitle title="Branches" />
           <Button href="/manager/branches/new" icon={Plus}>Add branch</Button>
         </div>
         <DataTable
+          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["Branch", "Address", "Google Maps", "Status"]}
           rowHrefs={branches.map((branch) => `/manager/branches/${branch.id}/edit`)}
           rowKeys={branches.map((branch) => branch.id)}
