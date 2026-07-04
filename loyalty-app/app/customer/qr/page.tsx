@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { requireCustomerSession } from "@/lib/auth/session";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 
@@ -39,7 +40,8 @@ function buildPattern(seed: string) {
 
 export default async function CustomerQrPage() {
   const { customer } = await requireCustomerSession();
-  const tier = getTier(customer.pointsBalance);
+  const rewardTiers = await listConfiguredRewardTiers();
+  const tier = getTier(customer.pointsBalance, rewardTiers);
   const cells = buildPattern(customer.id);
 
   return (

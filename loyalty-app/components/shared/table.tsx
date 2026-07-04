@@ -21,7 +21,7 @@ export function DataTable({
   return (
     <div
       className={clsx(
-        "surface-paper overflow-x-auto rounded-lg",
+        "surface-paper overflow-auto rounded-lg",
         className
       )}
     >
@@ -31,7 +31,7 @@ export function DataTable({
             {headers.map((header) => (
               <th
                 key={header}
-                className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85 first:rounded-tl-lg last:rounded-tr-lg"
+                className="sticky top-0 z-10 bg-matcha-deep px-5 py-3.5 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85 first:rounded-tl-lg last:rounded-tr-lg"
               >
                 {header}
               </th>

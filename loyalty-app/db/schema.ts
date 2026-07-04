@@ -202,6 +202,25 @@ export const rewards = pgTable(
   })
 );
 
+export const rewardTiers = pgTable(
+  "reward_tiers",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    minPoints: integer("min_points").notNull(),
+    sortOrder: integer("sort_order").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    sortOrderIdx: uniqueIndex("reward_tiers_sort_order_idx").on(t.sortOrder),
+    minPointsIdx: index("reward_tiers_min_points_idx").on(t.minPoints),
+    activeIdx: index("reward_tiers_active_idx").on(t.active)
+  })
+);
+
 export const rewardBranchAllocations = pgTable(
   "reward_branch_allocations",
   {

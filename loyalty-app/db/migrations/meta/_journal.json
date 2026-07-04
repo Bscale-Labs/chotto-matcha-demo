@@ -43,6 +43,13 @@
       "when": 1783161000000,
       "tag": "0005_single_staff_role",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783162000000,
+      "tag": "0006_reward_tiers",
+      "breakpoints": true
     }
   ]
 }

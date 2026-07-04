@@ -6,6 +6,7 @@ import { CustomerAvatar, TeaStillLife } from "@/components/cashier/cashier-visua
 import { TierBadge } from "@/components/customer/tier-badge";
 import { requireCashierShiftSession } from "@/lib/auth/session";
 import { getCustomerById, getCustomerRecentTransactions } from "@/lib/data/customers";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatDate, formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
@@ -15,8 +16,11 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
   const { id } = await params;
   const customer = await getCustomerById(id);
   if (!customer?.active) notFound();
-  const recentTransactions = await getCustomerRecentTransactions(customer.id, 2);
-  const tier = getTier(customer.pointsBalance);
+  const [recentTransactions, rewardTiers] = await Promise.all([
+    getCustomerRecentTransactions(customer.id, 2),
+    listConfiguredRewardTiers()
+  ]);
+  const tier = getTier(customer.pointsBalance, rewardTiers);
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>

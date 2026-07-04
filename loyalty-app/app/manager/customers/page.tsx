@@ -6,6 +6,7 @@ import { TierBadge } from "@/components/customer/tier-badge";
 import { Button } from "@/components/shared/button";
 import { Pill } from "@/components/shared/pill";
 import { listCustomersForManager } from "@/lib/data/manager";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 
@@ -15,7 +16,10 @@ export default async function ManagerCustomersPage({
   searchParams: Promise<{ q?: string; changed?: string }>;
 }) {
   const { q, changed } = await searchParams;
-  const customers = await listCustomersForManager(q);
+  const [customers, rewardTiers] = await Promise.all([
+    listCustomersForManager(q),
+    listConfiguredRewardTiers()
+  ]);
 
   return (
     <ManagerShell>
@@ -42,7 +46,7 @@ export default async function ManagerCustomersPage({
           rowKeys={customers.map((customer) => customer.id)}
           highlightKey={changed}
           rows={customers.map((customer) => {
-            const tier = getTier(customer.pointsBalance);
+            const tier = getTier(customer.pointsBalance, rewardTiers);
             return [
               <span key={`${customer.id}-name`} className="font-medium text-charcoal">
                 {customer.name}

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Building2,
   Gift,
+  Medal,
   ReceiptText,
   UsersRound
 } from "lucide-react";
@@ -24,6 +25,7 @@ type NavItem = {
 const items: NavItem[] = [
   { href: "/manager", label: "Dashboard", icon: BarChart3 },
   { href: "/manager/rewards", label: "Rewards", icon: Gift, children: "rewardBranches" },
+  { href: "/manager/reward-tiers", label: "Reward Tiers", icon: Medal },
   { href: "/manager/branches", label: "Branches", icon: Building2 },
   { href: "/manager/staff", label: "Staff", icon: BadgeCheck },
   { href: "/manager/customers", label: "Customers", icon: UsersRound },

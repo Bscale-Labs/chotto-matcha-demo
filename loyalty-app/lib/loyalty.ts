@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
 export type Tier = {
-  id: "seedling" | "whisk" | "ceremony";
+  id: string;
   name: string;
   icon: ComponentType<LucideProps>;
   min: number;
@@ -17,27 +17,66 @@ export const tiers: Tier[] = [
   { id: "ceremony", name: "Ceremony", icon: Award, min: 500, max: null, vibe: "A devoted member of the community" }
 ];
 
-export function getTier(points: number): Tier {
+const iconsById: Record<string, ComponentType<LucideProps>> = {
+  ceremony: Award,
+  seedling: Sprout,
+  whisk: Sparkles
+};
+
+const iconsByOrder = [Sprout, Sparkles, Award];
+
+export function tierIcon(id: string, index: number) {
+  return iconsById[id] ?? iconsByOrder[index] ?? Award;
+}
+
+export function normalizeTiers(
+  rows: Array<{
+    id: string;
+    name: string;
+    description: string;
+    minPoints: number;
+    sortOrder: number;
+  }>
+): Tier[] {
+  const sorted = [...rows].sort((left, right) => {
+    if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;
+    return left.minPoints - right.minPoints;
+  });
+
+  return sorted.map((row, index) => {
+    const next = sorted[index + 1];
+    return {
+      id: row.id,
+      name: row.name,
+      icon: tierIcon(row.id, index),
+      min: row.minPoints,
+      max: next ? Math.max(row.minPoints, next.minPoints - 1) : null,
+      vibe: row.description
+    };
+  });
+}
+
+export function getTier(points: number, tierList: Tier[] = tiers): Tier {
   return (
-    tiers.find((tier) => points >= tier.min && (tier.max === null || points <= tier.max)) ?? tiers[0]
+    tierList.find((tier) => points >= tier.min && (tier.max === null || points <= tier.max)) ?? tierList[0] ?? tiers[0]
   );
 }
 
-export function getNextTier(points: number): Tier | null {
-  const current = getTier(points);
-  const index = tiers.findIndex((tier) => tier.id === current.id);
-  return tiers[index + 1] ?? null;
+export function getNextTier(points: number, tierList: Tier[] = tiers): Tier | null {
+  const current = getTier(points, tierList);
+  const index = tierList.findIndex((tier) => tier.id === current.id);
+  return tierList[index + 1] ?? null;
 }
 
-export function pointsToNextTier(points: number): number {
-  const next = getNextTier(points);
+export function pointsToNextTier(points: number, tierList: Tier[] = tiers): number {
+  const next = getNextTier(points, tierList);
   if (!next) return 0;
   return Math.max(0, next.min - points);
 }
 
-export function tierProgress(points: number): number {
-  const current = getTier(points);
-  const next = getNextTier(points);
+export function tierProgress(points: number, tierList: Tier[] = tiers): number {
+  const current = getTier(points, tierList);
+  const next = getNextTier(points, tierList);
   if (!next) return 1;
   const span = next.min - current.min;
   if (span <= 0) return 1;

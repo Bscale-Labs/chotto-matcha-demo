@@ -6,24 +6,26 @@ import { RewardCard } from "@/components/customer/reward-card";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { listBranches } from "@/lib/data/branches";
 import { getCustomerRecentTransactions } from "@/lib/data/customers";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { listActiveRewards } from "@/lib/data/rewards";
 import { formatDate, formatPoints } from "@/lib/formatters";
 import { getNextTier, getTier, pointsToNextTier, tierProgress } from "@/lib/loyalty";
 
 export default async function CustomerHome() {
   const { customer } = await requireCustomerSession();
-  const [recent, rewards, branches] = await Promise.all([
+  const [recent, rewards, branches, rewardTiers] = await Promise.all([
     getCustomerRecentTransactions(customer.id, 3),
     listActiveRewards(),
-    listBranches()
+    listBranches(),
+    listConfiguredRewardTiers()
   ]);
   const branchById = new Map(branches.map((branch) => [branch.id, branch]));
   const rewardById = new Map(rewards.map((reward) => [reward.id, reward]));
   const firstName = customer.name.split(" ")[0];
-  const tier = getTier(customer.pointsBalance);
-  const nextTier = getNextTier(customer.pointsBalance);
-  const pointsToNext = pointsToNextTier(customer.pointsBalance);
-  const progress = tierProgress(customer.pointsBalance);
+  const tier = getTier(customer.pointsBalance, rewardTiers);
+  const nextTier = getNextTier(customer.pointsBalance, rewardTiers);
+  const pointsToNext = pointsToNextTier(customer.pointsBalance, rewardTiers);
+  const progress = tierProgress(customer.pointsBalance, rewardTiers);
   const featured = rewards.slice(0, 2);
 
   return (

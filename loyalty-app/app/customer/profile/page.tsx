@@ -2,8 +2,9 @@ import { ChevronRight, LogOut, Mail, Phone, Settings2, Sparkles } from "lucide-r
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { requireCustomerSession } from "@/lib/auth/session";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { initials, formatPoints } from "@/lib/formatters";
-import { getNextTier, getTier, pointsToNextTier, tiers } from "@/lib/loyalty";
+import { getNextTier, getTier, pointsToNextTier } from "@/lib/loyalty";
 
 const links = [
   { label: "Notifications", description: "Quiet pings only", icon: Sparkles, href: "#" },
@@ -12,9 +13,10 @@ const links = [
 
 export default async function CustomerProfilePage() {
   const { customer } = await requireCustomerSession();
-  const tier = getTier(customer.pointsBalance);
-  const nextTier = getNextTier(customer.pointsBalance);
-  const toNext = pointsToNextTier(customer.pointsBalance);
+  const rewardTiers = await listConfiguredRewardTiers();
+  const tier = getTier(customer.pointsBalance, rewardTiers);
+  const nextTier = getNextTier(customer.pointsBalance, rewardTiers);
+  const toNext = pointsToNextTier(customer.pointsBalance, rewardTiers);
 
   return (
     <CustomerShell>
@@ -59,7 +61,7 @@ export default async function CustomerProfilePage() {
       <section className="mt-7">
         <p className="eyebrow text-ink-muted">Tiers</p>
         <ul className="mt-3 grid gap-2">
-          {tiers.map((row) => {
+          {rewardTiers.map((row) => {
             const isCurrent = row.id === tier.id;
             const TierIcon = row.icon;
             return (

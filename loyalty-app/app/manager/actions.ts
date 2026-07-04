@@ -11,6 +11,7 @@ import {
   customers,
   orgConfig,
   rewardBranchAllocations,
+  rewardTiers,
   rewards,
   staffProfiles,
   staffRoleDetails,
@@ -256,6 +257,70 @@ export async function updateRewardAllocation(formData: FormData) {
   revalidatePath("/manager/rewards");
   revalidatePath(`/manager/rewards/${rewardId}/edit`);
   revalidatePath(`/manager/rewards/${rewardId}/edit?branchId=${branchId}`);
+}
+
+export async function updateRewardTiers(formData: FormData) {
+  await requireManagerSession();
+  const tierIds = formData.getAll("tierId").map((value) => String(value));
+  if (tierIds.length === 0) throw new Error("At least one reward tier is required");
+
+  const nextTiers = tierIds.map((id) => {
+    const name = nonEmpty(formData, `name-${id}`);
+    const description = nonEmpty(formData, `description-${id}`);
+    const minPoints = Number(nonEmpty(formData, `minPoints-${id}`));
+    const sortOrder = Number(nonEmpty(formData, `sortOrder-${id}`));
+
+    if (!Number.isInteger(minPoints) || minPoints < 0) {
+      throw new Error(`${name} minimum points must be a non-negative integer`);
+    }
+    if (!Number.isInteger(sortOrder) || sortOrder <= 0) {
+      throw new Error(`${name} sort order must be a positive integer`);
+    }
+
+    return { id, name, description, minPoints, sortOrder };
+  }).sort((left, right) => left.sortOrder - right.sortOrder);
+
+  if (nextTiers[0]?.minPoints !== 0) {
+    throw new Error("The first reward tier must start at 0 points");
+  }
+  for (let index = 1; index < nextTiers.length; index += 1) {
+    if (nextTiers[index].minPoints <= nextTiers[index - 1].minPoints) {
+      throw new Error("Reward tier minimum points must increase from one tier to the next");
+    }
+  }
+
+  await db.transaction(async (tx) => {
+    for (const tier of nextTiers) {
+      await tx
+        .insert(rewardTiers)
+        .values({
+          id: tier.id,
+          name: tier.name,
+          description: tier.description,
+          minPoints: tier.minPoints,
+          sortOrder: tier.sortOrder,
+          active: true
+        })
+        .onConflictDoUpdate({
+          target: rewardTiers.id,
+          set: {
+            name: tier.name,
+            description: tier.description,
+            minPoints: tier.minPoints,
+            sortOrder: tier.sortOrder,
+            active: true,
+            updatedAt: new Date()
+          }
+        });
+    }
+  });
+
+  revalidatePath("/manager/reward-tiers");
+  revalidatePath("/manager/customers");
+  revalidatePath("/customer");
+  revalidatePath("/customer/profile");
+  revalidatePath("/customer/qr");
+  revalidatePath("/cashier/customer/[id]", "page");
 }
 
 export async function deleteImageAsset(assetId: string) {

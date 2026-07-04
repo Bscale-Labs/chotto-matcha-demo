@@ -2,52 +2,23 @@ import { ArrowDownRight, ArrowUpRight, Building2 } from "lucide-react";
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
-import { StatCard } from "@/components/shared/stat-card";
-import { listBranches } from "@/lib/data/branches";
-import { getManagerDashboardStats } from "@/lib/data/dashboard";
 import { listTransactionsWithLabels } from "@/lib/data/manager";
 import { formatDate, formatPoints } from "@/lib/formatters";
 
 export default async function ManagerPage() {
-  const [dashboardStats, branchRows, transactionRows] = await Promise.all([
-    getManagerDashboardStats(),
-    listBranches(),
-    listTransactionsWithLabels({}, 10)
-  ]);
+  const transactionRows = await listTransactionsWithLabels({}, 100);
 
   return (
     <ManagerShell>
-      <div className="space-y-7">
+      <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <SectionTitle title="Manager dashboard" />
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            label="Members"
-            value={String(dashboardStats.activeCustomers)}
-            detail="Active community"
-          />
-          <StatCard
-            label="Points issued"
-            value={formatPoints(dashboardStats.pointsIssuedAllTime)}
-            detail="All-time earned"
-          />
-          <StatCard
-            label="Points redeemed"
-            value={formatPoints(dashboardStats.pointsRedeemedAllTime)}
-            detail="All-time spent"
-          />
-          <StatCard
-            label="Branches"
-            value={String(branchRows.length)}
-            detail="Pouring today"
-          />
-        </div>
-
-        <section>
+        <section className="flex min-h-[360px] flex-1 flex-col lg:min-h-0">
           <h2 className="mb-3 font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Recent ledger
           </h2>
           <DataTable
+            className="min-h-0 flex-1"
             headers={["When", "Branch", "Type", "Points"]}
             rows={transactionRows.map(({ transaction, branchName }) => [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
