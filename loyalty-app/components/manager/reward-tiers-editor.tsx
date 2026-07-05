@@ -71,27 +71,39 @@ function cellKey(id: string, field: EditableField) {
   return `${id}:${field}`;
 }
 
+function tiersToRows(tiers: EditorTier[]): Row[] {
+  return tiers.map((tier) => ({
+    id: tier.id,
+    name: tier.name,
+    min: String(tier.min),
+    vibe: tier.vibe
+  }));
+}
+
+function normalizeSavedRows(rows: Row[]) {
+  return sortedRows(rows).map((row) => ({
+    id: row.id,
+    name: row.name.trim(),
+    min: String(Number(row.min.trim())),
+    vibe: row.vibe.trim()
+  }));
+}
+
 export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[] }) {
-  const [rows, setRows] = useState<Row[]>(
-    initialTiers.map((tier) => ({
-      id: tier.id,
-      name: tier.name,
-      min: String(tier.min),
-      vibe: tier.vibe
-    }))
-  );
+  const [savedRows, setSavedRows] = useState<Row[]>(() => tiersToRows(initialTiers));
+  const [rows, setRows] = useState<Row[]>(() => tiersToRows(initialTiers));
   const [editingCells, setEditingCells] = useState<Set<string>>(new Set());
   const [activeCell, setActiveCell] = useState<string | null>(null);
 
   // Baseline the fields against the saved tiers (keyed by id). After a save the
-  // page refreshes with the new values, so highlights and the dirty gate clear
-  // on their own. A row with no baseline is newly added, so it counts as changed.
+  // successful action promotes the current rows into this baseline, so highlights
+  // and the dirty gate clear without waiting for a full remount.
   const baselineById = useMemo(
     () =>
       new Map(
-        initialTiers.map((tier) => [tier.id, { name: tier.name, min: String(tier.min), vibe: tier.vibe }])
+        savedRows.map((row) => [row.id, { name: row.name, min: row.min, vibe: row.vibe }])
       ),
-    [initialTiers]
+    [savedRows]
   );
 
   function fieldChanged(row: Row, key: keyof Omit<Row, "id">) {
@@ -100,12 +112,12 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
   }
 
   const dirty = useMemo(() => {
-    if (rows.length !== initialTiers.length) return true;
+    if (rows.length !== savedRows.length) return true;
     return rows.some((row) => {
       const base = baselineById.get(row.id);
       return base ? row.name !== base.name || row.min !== base.min || row.vibe !== base.vibe : true;
     });
-  }, [rows, initialTiers.length, baselineById]);
+  }, [rows, savedRows.length, baselineById]);
 
   const displayRows = useMemo(() => sortedRows(rows), [rows]);
 
@@ -142,11 +154,20 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
     return !baselineById.has(row.id) || editingCells.has(cellKey(row.id, field));
   }
 
+  function clearEditState() {
+    const nextSavedRows = normalizeSavedRows(rows);
+    setRows(nextSavedRows);
+    setSavedRows(nextSavedRows);
+    setEditingCells(new Set());
+    setActiveCell(null);
+  }
+
   return (
     <ToastActionForm
       action={updateRewardTiers}
       successTitle="Reward tiers saved"
       errorTitle="Could not save reward tiers"
+      onSuccess={clearEditState}
       className="surface-paper overflow-hidden rounded-lg"
     >
       <div

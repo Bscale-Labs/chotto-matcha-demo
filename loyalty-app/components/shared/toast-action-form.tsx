@@ -10,6 +10,7 @@ type ToastActionFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "action" |
   successTitle: ReactNode;
   successMessage?: ReactNode;
   errorTitle: ReactNode;
+  onSuccess?: () => void;
 };
 
 export function ToastActionForm({
@@ -18,6 +19,7 @@ export function ToastActionForm({
   successTitle,
   successMessage,
   errorTitle,
+  onSuccess,
   ...props
 }: ToastActionFormProps) {
   const router = useRouter();
@@ -31,6 +33,7 @@ export function ToastActionForm({
           await action(formData);
           router.refresh();
           showSuccess(successTitle, successMessage);
+          onSuccess?.();
         } catch (error) {
           showError(errorTitle, getToastErrorMessage(error));
         }
