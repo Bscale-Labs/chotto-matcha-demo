@@ -86,7 +86,7 @@ export function RewardAllocationTable({
   );
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-line-soft">
+    <div className="overflow-x-auto overscroll-x-none rounded-lg border border-line-soft">
       <table className="w-full min-w-[520px] border-collapse text-left text-sm">
         <thead>
           <tr className="bg-matcha-deep text-cream">
