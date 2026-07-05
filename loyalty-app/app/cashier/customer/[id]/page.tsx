@@ -38,7 +38,11 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
               <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal sm:text-[44px] sm:leading-[48px]">
                 {customer.name}
               </h1>
-              <p className="mt-1 text-sm leading-6 text-ink-muted">{customer.phone}</p>
+              <p className="mt-1 text-sm leading-6 text-ink-muted">
+                <span className="font-mono uppercase tracking-[0.08em] text-matcha-deep">{customer.code}</span>
+                <span className="mx-2 text-line">/</span>
+                {customer.phone}
+              </p>
             </div>
           </div>
           <TierBadge tier={tier} />

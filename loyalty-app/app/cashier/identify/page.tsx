@@ -36,7 +36,7 @@ export default async function CashierIdentifyPage() {
             <label className="surface-paper mx-auto mt-5 flex max-w-xs items-center gap-2 rounded-md px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
               <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               <input
-                placeholder="Enter phone or name manually"
+                placeholder="Enter code, phone, or name manually"
                 className="min-w-0 flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"
               />
             </label>
@@ -47,7 +47,7 @@ export default async function CashierIdentifyPage() {
           <label className="surface-paper mt-4 flex items-center gap-2 rounded-md px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
             <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             <input
-              placeholder="Search phone or name"
+              placeholder="Search code, phone, or name"
               className="min-w-0 flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"
             />
           </label>
@@ -61,7 +61,9 @@ export default async function CashierIdentifyPage() {
                 <CustomerAvatar name={customer.name} className="h-12 w-12" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium text-charcoal">{customer.name}</span>
-                  <span className="mt-1 block truncate text-xs text-ink-muted">{customer.phone}</span>
+                  <span className="mt-1 block truncate text-xs text-ink-muted">
+                    {customer.code} · {customer.phone}
+                  </span>
                 </span>
                 <span className="counter inline-flex shrink-0 items-center rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep">
                   {formatPoints(customer.pointsBalance)} pts

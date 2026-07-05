@@ -22,6 +22,11 @@ export function CustomerCreateForm() {
         <div className="rounded-md border border-sage-tint bg-sage-wash p-4">
           <Pill icon={KeyRound}>Temporary password</Pill>
           <p className="mt-3 font-mono text-sm text-charcoal">{state.temporaryPassword}</p>
+          {state.customerCode ? (
+            <p className="mt-2 font-mono text-sm uppercase tracking-[0.08em] text-matcha-deep">
+              {state.customerCode}
+            </p>
+          ) : null}
           <p className="mt-2 text-xs text-ink-muted">{state.email} can sign in with this password.</p>
         </div>
       ) : null}

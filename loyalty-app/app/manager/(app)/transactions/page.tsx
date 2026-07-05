@@ -24,15 +24,23 @@ function parseDateFilter(value: string | undefined, boundary: "start" | "end") {
 export default async function ManagerTransactionsPage({
   searchParams
 }: {
-  searchParams: Promise<{ type?: string; branchId?: string; customerId?: string; from?: string; to?: string }>;
+  searchParams: Promise<{
+    type?: string;
+    branchId?: string;
+    customer?: string;
+    customerId?: string;
+    from?: string;
+    to?: string;
+  }>;
 }) {
   const params = await searchParams;
   const type = params.type === "earn" || params.type === "redeem" || params.type === "manual" ? params.type : undefined;
+  const customerQuery = params.customer ?? params.customerId;
   const [transactions, branches] = await Promise.all([
     listTransactionsWithLabels({
       type,
       branchId: params.branchId || undefined,
-      customerId: params.customerId || undefined,
+      customerQuery: customerQuery || undefined,
       from: parseDateFilter(params.from, "start"),
       to: parseDateFilter(params.to, "end")
     }),
@@ -72,15 +80,15 @@ export default async function ManagerTransactionsPage({
           />
         </label>
         <label
-          htmlFor="transactions-customer-id"
+          htmlFor="transactions-customer"
           className="grid min-w-0 gap-1 text-xs font-medium text-ink-muted"
         >
-          Customer ID
+          Customer code
           <input
-            id="transactions-customer-id"
-            name="customerId"
-            defaultValue={params.customerId ?? ""}
-            placeholder="UUID or QR code"
+            id="transactions-customer"
+            name="customer"
+            defaultValue={customerQuery ?? ""}
+            placeholder="CM-7K2P9Q"
             className="h-11 min-h-tap w-full min-w-0 rounded-md border border-line bg-cream px-3 text-sm text-charcoal placeholder:text-ink-faint focus:border-matcha-deep focus:outline-none"
           />
         </label>

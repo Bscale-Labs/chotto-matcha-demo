@@ -29,6 +29,20 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
             Name
             <TrackedInput id="customer-name" name="name" required defaultValue={customer.name} className={inputClass} />
           </label>
+          <label htmlFor="customer-code" className="grid gap-2 text-sm font-medium text-charcoal">
+            Customer code
+            <TrackedInput
+              id="customer-code"
+              name="code"
+              readOnly
+              defaultValue={customer.code}
+              className={lockedInputClass}
+              aria-describedby="customer-code-lock"
+            />
+            <span id="customer-code-lock" className="text-xs font-normal text-ink-muted">
+              Used for QR lookup and transaction search.
+            </span>
+          </label>
           <label htmlFor="customer-email" className="grid gap-2 text-sm font-medium text-charcoal">
             Email
             <TrackedInput

@@ -56,6 +56,7 @@ export const staff: Staff[] = [
 export const customers: Customer[] = [
   {
     id: "cust-lia",
+    code: "CM-000002",
     email: "lia@example.com",
     name: "Lia Tan",
     phone: "+63 917 222 0147",
@@ -64,6 +65,7 @@ export const customers: Customer[] = [
   },
   {
     id: "cust-marco",
+    code: "CM-000003",
     email: "marco@example.com",
     name: "Marco Lim",
     phone: "+63 905 882 1101",
@@ -72,6 +74,7 @@ export const customers: Customer[] = [
   },
   {
     id: "cust-nina",
+    code: "CM-000004",
     email: "nina@example.com",
     name: "Nina Ong",
     phone: "+63 998 441 2085",

@@ -150,6 +150,7 @@ export const customers = pgTable(
       .notNull()
       .unique()
       .references(() => user.id, { onDelete: "cascade" }),
+    code: text("code").notNull(),
     email: text("email").notNull(),
     name: text("name").notNull(),
     phone: text("phone").notNull(),
@@ -159,6 +160,7 @@ export const customers = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (t) => ({
+    codeIdx: uniqueIndex("customers_code_idx").on(t.code),
     emailIdx: uniqueIndex("customers_email_idx").on(t.email),
     phoneIdx: uniqueIndex("customers_phone_idx").on(t.phone),
     activeIdx: index("customers_active_idx").on(t.active)

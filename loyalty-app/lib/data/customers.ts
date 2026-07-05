@@ -1,8 +1,9 @@
 import "server-only";
 
-import { asc, desc, eq, or } from "drizzle-orm";
+import { asc, desc, eq, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { customers, transactions } from "@/db/schema";
+import { normalizeCustomerCode } from "@/lib/customers/code";
 
 export async function listCustomers() {
   return db.query.customers.findMany({ orderBy: [asc(customers.name)] });
@@ -21,11 +22,17 @@ export async function getCustomerByPhone(phone: string) {
 }
 
 export async function findCustomer(identifier: string) {
+  const value = identifier.trim();
+  const normalizedCode = normalizeCustomerCode(value);
+  const normalizedCodeNoDash = normalizedCode.replace(/-/g, "");
+
   return db.query.customers.findFirst({
     where: or(
-      eq(customers.id, identifier),
-      eq(customers.email, identifier),
-      eq(customers.phone, identifier)
+      eq(customers.id, value),
+      eq(customers.code, normalizedCode),
+      sql`replace(upper(${customers.code}), '-', '') = ${normalizedCodeNoDash}`,
+      eq(customers.email, value),
+      eq(customers.phone, value)
     )
   });
 }

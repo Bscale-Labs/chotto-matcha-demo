@@ -21,6 +21,7 @@ export type Staff = {
 
 export type Customer = {
   id: string;
+  code: string;
   email: string;
   name: string;
   phone: string;

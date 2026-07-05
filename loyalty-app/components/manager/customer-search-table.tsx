@@ -11,6 +11,7 @@ import { getTier, tierIcon, type Tier } from "@/lib/loyalty";
 
 export type CustomerSearchRow = {
   id: string;
+  code: string;
   email: string;
   name: string;
   phone: string;
@@ -71,10 +72,14 @@ export function CustomerSearchTable({
         <input
           name="q"
           defaultValue={initialQuery ?? ""}
-          placeholder="Search name, email, or phone"
+          aria-label="Search customers"
+          placeholder="Search code, name, email, or phone"
           className="flex-1 bg-transparent text-sm placeholder:text-ink-faint focus:outline-none"
         />
-        <button className="-my-1 inline-flex min-h-tap min-w-[70px] items-center justify-center rounded-md px-2 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest">
+        <button
+          type="submit"
+          className="-my-1 inline-flex min-h-tap min-w-[70px] items-center justify-center rounded-md px-2 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+        >
           {isPending ? (
             <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.8} aria-label="Searching" />
           ) : (
@@ -92,7 +97,10 @@ export function CustomerSearchTable({
             const tier = getTier(customer.pointsBalance, rewardTiers);
             return [
               <span key={`${customer.id}-name`} className="font-medium text-charcoal">
-                {customer.name}
+                <span className="block truncate">{customer.name}</span>
+                <span className="counter mt-1 block text-xs font-medium uppercase tracking-[0.08em] text-matcha-deep">
+                  {customer.code}
+                </span>
               </span>,
               <div key={`${customer.id}-contact`} className="grid">
                 <span className="text-sm text-charcoal">{customer.email}</span>

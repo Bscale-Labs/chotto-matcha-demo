@@ -22,6 +22,7 @@ import { auth } from "@/lib/auth/server";
 import { sendSignInLink } from "@/lib/auth/magic-link";
 import { hashDemoPin, isValidPin } from "@/lib/auth/pin";
 import { requireManagerSession } from "@/lib/auth/session";
+import { generateCustomerCode } from "@/lib/customers/code";
 import { manualAdjustPoints } from "@/lib/data/transactions";
 import { listCustomersForManager } from "@/lib/data/manager";
 import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
@@ -35,6 +36,7 @@ export type CreateAccountState = {
   invitationFailed?: boolean;
   email?: string;
   name?: string;
+  customerCode?: string;
 };
 
 function text(formData: FormData, key: string) {
@@ -595,6 +597,7 @@ export async function createCustomerAccount(_: CreateAccountState, formData: For
     const email = nonEmpty(formData, "email").toLowerCase();
     const phone = nonEmpty(formData, "phone");
     const password = temporaryPassword();
+    const customerCode = generateCustomerCode();
 
     await auth.api.signUpEmail({ body: { email, password, name } });
     const authUser = await getAuthUserByEmail(email);
@@ -604,6 +607,7 @@ export async function createCustomerAccount(_: CreateAccountState, formData: For
       await tx.insert(customers).values({
         id: randomUUID(),
         authUserId: authUser.id,
+        code: customerCode,
         email,
         name,
         phone,
@@ -619,7 +623,14 @@ export async function createCustomerAccount(_: CreateAccountState, formData: For
       invitationFailed = true;
     }
     revalidatePath("/manager/customers");
-    return { temporaryPassword: password, invitationSent: !invitationFailed, invitationFailed, email, name };
+    return {
+      temporaryPassword: password,
+      invitationSent: !invitationFailed,
+      invitationFailed,
+      email,
+      name,
+      customerCode
+    };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not create customer account" };
   }
@@ -668,6 +679,7 @@ export async function searchManagerCustomers(query: string) {
   return {
     customers: customerRows.map((customer) => ({
       id: customer.id,
+      code: customer.code,
       email: customer.email,
       name: customer.name,
       phone: customer.phone,

@@ -64,6 +64,7 @@ export async function listBranchCustomerAccounts(branchId: string, limit = 80) {
   return db
     .select({
       id: customers.id,
+      code: customers.code,
       name: customers.name,
       email: customers.email,
       phone: customers.phone,
@@ -74,7 +75,7 @@ export async function listBranchCustomerAccounts(branchId: string, limit = 80) {
     .from(customers)
     .innerJoin(transactions, eq(customers.id, transactions.customerId))
     .where(and(eq(customers.active, true), eq(transactions.branchId, branchId)))
-    .groupBy(customers.id, customers.name, customers.email, customers.phone, customers.pointsBalance)
+    .groupBy(customers.id, customers.code, customers.name, customers.email, customers.phone, customers.pointsBalance)
     .orderBy(desc(lastActivity))
     .limit(limit);
 }

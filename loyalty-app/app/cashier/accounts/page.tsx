@@ -46,7 +46,9 @@ export default async function CashierAccountsPage() {
                   <CustomerAvatar name={account.name} className="h-12 w-12 shrink-0" />
                   <span className="min-w-0">
                     <span className="block truncate font-medium text-charcoal">{account.name}</span>
-                    <span className="mt-1 block truncate text-xs text-ink-muted">{account.phone}</span>
+                    <span className="mt-1 block truncate text-xs text-ink-muted">
+                      {account.code} · {account.phone}
+                    </span>
                   </span>
                 </span>
                 <span className="grid gap-2 sm:min-w-[18rem] sm:grid-cols-[1fr_auto] sm:items-center">

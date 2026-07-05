@@ -57,6 +57,13 @@
       "when": 1783238111879,
       "tag": "0007_young_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783240111429,
+      "tag": "0008_free_gateway",
+      "breakpoints": true
     }
   ]
 }

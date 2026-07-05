@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   branches,
@@ -11,6 +11,7 @@ import {
   transactions,
   userRoles
 } from "@/db/schema";
+import { normalizeCustomerCode } from "@/lib/customers/code";
 
 export async function listManagerStaff() {
   return db
@@ -52,6 +53,7 @@ export async function listCustomersForManager(search?: string) {
   return db.query.customers.findMany({
     where: value
       ? or(
+          ilike(customers.code, `%${value}%`),
           ilike(customers.name, `%${value}%`),
           ilike(customers.email, `%${value}%`),
           ilike(customers.phone, `%${value}%`)
@@ -64,16 +66,28 @@ export async function listCustomersForManager(search?: string) {
 export type TransactionFilters = {
   type?: "earn" | "redeem" | "manual";
   branchId?: string;
-  customerId?: string;
+  customerQuery?: string;
   from?: Date;
   to?: Date;
 };
 
 export async function listTransactionsWithLabels(filters: TransactionFilters = {}, limit = 100) {
+  const customerQuery = filters.customerQuery?.trim();
+  const normalizedCustomerCode = customerQuery ? normalizeCustomerCode(customerQuery) : "";
+  const normalizedCustomerCodeNoDash = normalizedCustomerCode.replace(/-/g, "");
   const clauses = [
     filters.type ? eq(transactions.type, filters.type) : undefined,
     filters.branchId ? eq(transactions.branchId, filters.branchId) : undefined,
-    filters.customerId ? eq(transactions.customerId, filters.customerId) : undefined,
+    customerQuery
+      ? or(
+          eq(transactions.customerId, customerQuery),
+          eq(customers.code, normalizedCustomerCode),
+          sql`replace(upper(${customers.code}), '-', '') = ${normalizedCustomerCodeNoDash}`,
+          ilike(customers.name, `%${customerQuery}%`),
+          ilike(customers.email, `%${customerQuery}%`),
+          ilike(customers.phone, `%${customerQuery}%`)
+        )
+      : undefined,
     filters.from ? gte(transactions.createdAt, filters.from) : undefined,
     filters.to ? lte(transactions.createdAt, filters.to) : undefined
   ].filter(Boolean);

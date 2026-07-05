@@ -42,7 +42,7 @@ export default async function CustomerQrPage() {
   const { customer } = await requireCustomerSession();
   const rewardTiers = await listConfiguredRewardTiers();
   const tier = getTier(customer.pointsBalance, rewardTiers);
-  const cells = buildPattern(customer.id);
+  const cells = buildPattern(customer.code);
 
   return (
     <CustomerShell>
@@ -75,7 +75,7 @@ export default async function CustomerQrPage() {
           ))}
         </div>
         <p className="mt-4 font-mono text-[11px] uppercase tracking-eyebrow text-ink-muted">
-          {customer.id}
+          {customer.code}
         </p>
       </div>
 

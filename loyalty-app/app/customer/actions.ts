@@ -7,6 +7,7 @@ import { db } from "@/db/client";
 import { customers, user, userRoles } from "@/db/schema";
 import { auth } from "@/lib/auth/server";
 import { sendSignInLink } from "@/lib/auth/magic-link";
+import { generateCustomerCode } from "@/lib/customers/code";
 
 export type SignupState = {
   error?: string;
@@ -39,6 +40,7 @@ export async function signUpCustomer(_: SignupState, formData: FormData): Promis
       await tx.insert(customers).values({
         id: randomUUID(),
         authUserId: authUser.id,
+        code: generateCustomerCode(),
         email,
         name,
         phone,

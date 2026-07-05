@@ -53,6 +53,7 @@ const demoUsers = [
     name: "Lesmon Saluta",
     staffProfileId: "staff-lesmon",
     customerId: "cust-lesmon",
+    customerCode: "CM-000001",
     phone: "+63 917 000 0000",
     pointsBalance: 980,
     roles: ["manager", "customer"] as const
@@ -77,6 +78,7 @@ const demoUsers = [
     email: "lia@example.com",
     name: "Lia Tan",
     customerId: "cust-lia",
+    customerCode: "CM-000002",
     phone: "+63 917 222 0147",
     pointsBalance: 1280,
     roles: ["customer"] as const
@@ -85,6 +87,7 @@ const demoUsers = [
     email: "marco@example.com",
     name: "Marco Lim",
     customerId: "cust-marco",
+    customerCode: "CM-000003",
     phone: "+63 905 882 1101",
     pointsBalance: 420,
     roles: ["customer"] as const
@@ -93,6 +96,7 @@ const demoUsers = [
     email: "nina@example.com",
     name: "Nina Ong",
     customerId: "cust-nina",
+    customerCode: "CM-000004",
     phone: "+63 998 441 2085",
     pointsBalance: 2460,
     roles: ["customer"] as const
@@ -478,6 +482,7 @@ async function main() {
         .values({
           id: demoUser.customerId,
           authUserId: authUser.id,
+          code: demoUser.customerCode,
           email: demoUser.email,
           name: demoUser.name,
           phone: demoUser.phone,
@@ -488,6 +493,7 @@ async function main() {
           target: customers.id,
           set: {
             authUserId: authUser.id,
+            code: demoUser.customerCode,
             email: demoUser.email,
             name: demoUser.name,
             phone: demoUser.phone,

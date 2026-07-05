@@ -17,6 +17,7 @@ export default async function ManagerCustomersPage({
   ]);
   const customerRows = customers.map((customer) => ({
     id: customer.id,
+    code: customer.code,
     email: customer.email,
     name: customer.name,
     phone: customer.phone,
