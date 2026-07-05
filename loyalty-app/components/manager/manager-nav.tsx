@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { clsx } from "clsx";
@@ -8,7 +7,6 @@ import {
   BadgeCheck,
   BarChart3,
   Building2,
-  ChevronDown,
   Gift,
   LoaderCircle,
   Medal,
@@ -35,152 +33,26 @@ const items: NavItem[] = [
   { href: "/manager/transactions", label: "Transactions", icon: ReceiptText }
 ];
 
-const itemClass = (active: boolean) =>
-  clsx(
-    "flex items-center gap-2 whitespace-nowrap rounded-pill px-3 py-2 text-sm font-medium transition-colors duration-fast ease-out-soft",
-    active ? "action-lacquer" : "text-charcoal hover:bg-sage-wash hover:text-matcha-deep"
-  );
-
 function PendingIndicator({ active }: { active: boolean }) {
   const { pending } = useLinkStatus();
 
-  if (!pending) return null;
-
   return (
-    <>
-      <LoaderCircle
-        className={clsx("h-3.5 w-3.5 animate-spin", active ? "text-cream" : "text-matcha-deep")}
-        strokeWidth={1.9}
-        aria-hidden="true"
-      />
-      <span className="sr-only">Loading</span>
-    </>
-  );
-}
-
-function RewardsNavItem({
-  branches,
-  isActive,
-  isRewardSection,
-  selectedBranchId
-}: {
-  branches: Array<{ id: string; name: string }>;
-  isActive: boolean;
-  isRewardSection: boolean;
-  selectedBranchId: string | null;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const hasBranches = branches.length > 0;
-
-  useEffect(() => {
-    function onPointerDown(event: PointerEvent) {
-      if (!ref.current?.contains(event.target as Node)) setOpen(false);
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className="relative"
-      onMouseEnter={() => hasBranches && setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+    <span
+      className="ml-auto grid h-4 w-4 shrink-0 place-items-center"
+      aria-live="polite"
+      aria-atomic="true"
     >
-      <div
-        className={clsx(
-          "flex items-center rounded-pill transition-colors duration-fast ease-out-soft",
-          isActive ? "action-lacquer" : "hover:bg-sage-wash"
-        )}
-      >
-        <Link
-          href="/manager/rewards"
-          aria-current={isActive ? "page" : undefined}
-          className={clsx(
-            "flex items-center gap-2 whitespace-nowrap rounded-pill py-2 pl-3 text-sm font-medium transition-colors duration-fast ease-out-soft",
-            hasBranches ? "pr-1" : "pr-3",
-            isActive ? "text-cream" : "text-charcoal hover:text-matcha-deep"
-          )}
-        >
-          <Gift
-            className={clsx("h-4 w-4 shrink-0", isActive ? "text-cream" : "text-matcha-deep")}
-            strokeWidth={1.75}
+      {pending ? (
+        <>
+          <LoaderCircle
+            className={clsx("h-4 w-4 animate-spin", active ? "text-cream" : "text-matcha-deep")}
+            strokeWidth={1.9}
             aria-hidden="true"
           />
-          <span>Rewards</span>
-          <PendingIndicator active={isActive} />
-        </Link>
-        {hasBranches ? (
-          <button
-            type="button"
-            aria-label="Toggle branch menu"
-            aria-haspopup="menu"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-            className={clsx(
-              "mr-1 grid h-7 w-7 shrink-0 place-items-center rounded-pill transition-colors duration-fast ease-out-soft",
-              isActive ? "text-cream hover:bg-white/10" : "text-ink-muted hover:text-matcha-deep"
-            )}
-          >
-            <ChevronDown
-              className={clsx("h-4 w-4 transition-transform duration-fast", open && "rotate-180")}
-              strokeWidth={2}
-              aria-hidden="true"
-            />
-          </button>
-        ) : null}
-      </div>
-
-      {open && hasBranches ? (
-        <div
-          role="menu"
-          className="surface-glass-strong absolute left-0 top-full z-30 mt-1.5 min-w-[204px] rounded-lg p-1.5"
-        >
-          <Link
-            href="/manager/rewards"
-            role="menuitem"
-            aria-current={isRewardSection && !selectedBranchId ? "page" : undefined}
-            onClick={() => setOpen(false)}
-            className={clsx(
-              "flex min-h-[40px] items-center rounded-md px-3 text-sm font-medium transition-colors duration-fast ease-out-soft",
-              isRewardSection && !selectedBranchId
-                ? "action-lacquer text-cream"
-                : "text-charcoal hover:bg-sage-wash hover:text-matcha-deep"
-            )}
-          >
-            All branches
-          </Link>
-          {branches.map((branch) => {
-            const branchActive = isRewardSection && selectedBranchId === branch.id;
-            return (
-              <Link
-                key={branch.id}
-                href={`/manager/rewards?branchId=${branch.id}`}
-                role="menuitem"
-                aria-current={branchActive ? "page" : undefined}
-                onClick={() => setOpen(false)}
-                className={clsx(
-                  "flex min-h-[40px] items-center rounded-md px-3 text-sm font-medium transition-colors duration-fast ease-out-soft",
-                  branchActive
-                    ? "action-lacquer text-cream"
-                    : "text-charcoal hover:bg-sage-wash hover:text-matcha-deep"
-                )}
-              >
-                <span className="min-w-0 flex-1 truncate">{branch.name}</span>
-              </Link>
-            );
-          })}
-        </div>
+          <span className="sr-only">Loading</span>
+        </>
       ) : null}
-    </div>
+    </span>
   );
 }
 
@@ -192,44 +64,65 @@ export function ManagerNav({
   const pathname = usePathname() ?? "/manager";
   const searchParams = useSearchParams();
   const selectedRewardBranchId = searchParams.get("branchId");
-  const isRewardSection = pathname === "/manager/rewards" || pathname.startsWith("/manager/rewards/");
 
   return (
-    <nav className="flex flex-wrap items-center gap-1">
+    <nav className="grid gap-0.5">
       {items.map((item) => {
-        if (item.href === "/manager/rewards") {
-          return (
-            <RewardsNavItem
-              key={item.href}
-              branches={branches}
-              isActive={isRewardSection}
-              isRewardSection={isRewardSection}
-              selectedBranchId={selectedRewardBranchId}
-            />
-          );
-        }
-
+        const isRewardSection = pathname === "/manager/rewards" || pathname.startsWith("/manager/rewards/");
+        const isRewardParent = item.href === "/manager/rewards";
         const isActive =
           item.href === "/manager"
             ? pathname === "/manager"
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            : isRewardParent
+              ? isRewardSection && !selectedRewardBranchId
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
-
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={isActive ? "page" : undefined}
-            className={itemClass(isActive)}
-          >
-            <Icon
-              className={clsx("h-4 w-4 shrink-0", isActive ? "text-cream" : "text-matcha-deep")}
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-            <span>{item.label}</span>
-            <PendingIndicator active={isActive} />
-          </Link>
+          <div key={item.href}>
+            <Link
+              href={item.href}
+              aria-current={isActive ? "page" : undefined}
+              className={clsx(
+                "flex min-h-[52px] items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-colors duration-fast ease-out-soft",
+                isActive
+                  ? "action-lacquer"
+                  : "text-charcoal hover:bg-sage-wash hover:text-matcha-deep"
+              )}
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <Icon
+                  className={clsx("h-5 w-5 shrink-0", isActive ? "text-cream" : "text-matcha-deep")}
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                <span className="truncate">{item.label}</span>
+              </span>
+              <PendingIndicator active={isActive} />
+            </Link>
+            {item.children === "rewardBranches" && branches.length > 0 ? (
+              <div className="ml-5 mt-1 grid gap-0.5 border-l border-line-soft pl-3">
+                {branches.map((branch) => {
+                  const isBranchActive = isRewardSection && selectedRewardBranchId === branch.id;
+                  return (
+                    <Link
+                      key={branch.id}
+                      href={`/manager/rewards?branchId=${branch.id}`}
+                      aria-current={isBranchActive ? "page" : undefined}
+                      className={clsx(
+                        "flex min-h-[46px] items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-fast ease-out-soft",
+                        isBranchActive
+                          ? "action-lacquer"
+                          : "text-ink-muted hover:bg-sage-wash hover:text-matcha-deep"
+                      )}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{branch.name}</span>
+                      <PendingIndicator active={isBranchActive} />
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
         );
       })}
     </nav>
