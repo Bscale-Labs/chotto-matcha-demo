@@ -77,7 +77,6 @@ export default async function ManagerTransactionsPage({
           </Button>
         </form>
         <DataTable
-          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["When", "Member", "Staff", "Branch", "Type", "Bill", "Points"]}
           rows={transactions.map(({ transaction, customerName, staffName, branchName, rewardName }) => {
             return [

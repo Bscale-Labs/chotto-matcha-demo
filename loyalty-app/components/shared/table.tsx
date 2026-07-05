@@ -21,7 +21,7 @@ export function DataTable({
   return (
     <div
       className={clsx(
-        "surface-paper overflow-auto overscroll-none rounded-lg",
+        "surface-paper max-h-none overflow-auto overscroll-none rounded-lg lg:max-h-[calc(100vh-18rem)]",
         className
       )}
     >

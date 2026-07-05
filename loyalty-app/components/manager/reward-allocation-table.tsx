@@ -86,14 +86,14 @@ export function RewardAllocationTable({
   );
 
   return (
-    <div className="overflow-x-auto overscroll-x-none rounded-lg border border-line-soft">
+    <div className="max-h-none overflow-auto overscroll-none rounded-lg border border-line-soft lg:max-h-[calc(100vh-18rem)]">
       <table className="w-full min-w-[520px] border-collapse text-left text-sm">
         <thead>
           <tr className="bg-matcha-deep text-cream">
-            <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
+            <th className="sticky top-0 z-10 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
               Branch
             </th>
-            <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
+            <th className="sticky top-0 z-10 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
               Stock
             </th>
           </tr>

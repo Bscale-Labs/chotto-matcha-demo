@@ -51,7 +51,6 @@ export default async function ManagerRewardsPage({
           </Button>
         </div>
         <DataTable
-          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={
             selectedBranch
               ? ["Reward", "Type", "Cost", "Branch stock", "Branch status"]

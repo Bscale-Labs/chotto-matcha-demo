@@ -20,7 +20,6 @@ export default async function ManagerStaffPage({
           <Button href="/manager/staff/new" icon={Plus}>Add staff</Button>
         </div>
         <DataTable
-          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["Name", "Role", "Branch", "PIN", "Status"]}
           rowHrefs={staff.map(({ profile }) => `/manager/staff/${profile.id}/edit`)}
           rowKeys={staff.map(({ profile }) => profile.id)}

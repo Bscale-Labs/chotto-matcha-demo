@@ -20,7 +20,6 @@ export default async function ManagerBranchesPage({
           <Button href="/manager/branches/new" icon={Plus}>Add branch</Button>
         </div>
         <DataTable
-          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["Branch", "Address", "Google Maps", "Status"]}
           rowHrefs={branches.map((branch) => `/manager/branches/${branch.id}/edit`)}
           rowKeys={branches.map((branch) => branch.id)}

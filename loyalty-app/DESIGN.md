@@ -151,6 +151,8 @@ These rules apply across customer, cashier, manager, and shared UI unless a role
 - Sticky elements must remain visually stable at scroll boundaries.
 - Scroll containers that own sticky children should contain overscroll when edge bounce would move the sticky layer.
 - Long operational tables own their row scroll; their headers stay pinned inside the table scrollport.
+- Tables size to their rows by default; do not stretch a table to fill empty page space when there are only a few rows.
+- Apply a max-height scroll cap only once table content is long enough to overflow.
 - Full-page scroll is appropriate for narrative, short forms, customer reward browsing, and cashier flows that do not contain dense tables.
 - Horizontal overflow stays inside the component that needs it; avoid whole-page horizontal scroll.
 - Focus states and focused inputs must not be hidden under sticky bars.
@@ -639,6 +641,8 @@ Rules:
 - Table containers should use Paper or Ceramic, not Clear Glass.
 - Headers should be high contrast and sticky only when useful.
 - Long operational tables should own their own scrollport; the page title and surrounding controls should not scroll with table rows.
+- Short tables should stop after their last row instead of filling the available page height.
+- Use a capped table scroll area for long datasets, not a permanent full-height table shell for every dataset.
 - Sticky table headers must stay pinned inside the table scrollport.
 - Table scrollports must contain overscroll so hitting the top or bottom does not bounce the page or move sticky headers.
 - Numeric cells use tabular numbers.
@@ -921,6 +925,8 @@ Use:
 - Sticky headers inside the table scroll container
 - Overscroll containment on table scroll containers
 - Stable row and header dimensions
+- Content-height tables for short datasets
+- Max-height scroll caps for long datasets
 - Row-level links with full-row hit areas when the row navigates
 
 Avoid:
@@ -929,6 +935,7 @@ Avoid:
 - Centered dense text
 - Hidden horizontal overflow without cue
 - Page-level scrolling for long table bodies on desktop manager pages
+- Stretching short tables to fill the viewport with empty surface area
 - Sticky headers that depend on the page scroll instead of the table scroll
 - Scroll bounce that moves a sticky table header at the top or bottom edge
 

@@ -39,7 +39,6 @@ export default async function ManagerCustomersPage({
           </button>
         </form>
         <DataTable
-          className="min-h-[360px] flex-1 lg:min-h-0"
           headers={["Name", "Contact", "Tier", "Points", "Status"]}
           rowHrefs={customers.map((customer) => `/manager/customers/${customer.id}/edit`)}
           rowKeys={customers.map((customer) => customer.id)}

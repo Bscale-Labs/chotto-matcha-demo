@@ -16,7 +16,6 @@ export default async function ManagerPage() {
             Recent ledger
           </h2>
           <DataTable
-            className="min-h-0 flex-1"
             headers={["When", "Branch", "Type", "Points"]}
             rows={transactionRows.map(({ transaction, branchName }) => [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
