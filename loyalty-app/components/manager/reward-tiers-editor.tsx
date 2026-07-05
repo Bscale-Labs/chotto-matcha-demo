@@ -168,6 +168,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
       successTitle="Reward tiers saved"
       errorTitle="Could not save reward tiers"
       onSuccess={clearEditState}
+      refreshOnSuccess={false}
       className="surface-paper overflow-hidden rounded-lg"
     >
       <div
@@ -238,10 +239,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     value={row.name}
                     autoFocus={activeCell === cellKey(row.id, "name")}
                     onChange={(event) => updateRow(row.id, { name: event.target.value })}
-                    className={clsx(
-                      fieldClass,
-                      (nameEditing || fieldChanged(row, "name")) && FIELD_CHANGED_CLASS
-                    )}
+                    className={clsx(fieldClass, fieldChanged(row, "name") && FIELD_CHANGED_CLASS)}
                   />
                 </label>
               ) : (
@@ -274,7 +272,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     className={clsx(
                       fieldClass,
                       "counter font-semibold",
-                      (minEditing || fieldChanged(row, "min")) && FIELD_CHANGED_CLASS
+                      fieldChanged(row, "min") && FIELD_CHANGED_CLASS
                     )}
                   />
                 </label>
@@ -300,10 +298,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     value={row.vibe}
                     autoFocus={activeCell === cellKey(row.id, "vibe")}
                     onChange={(event) => updateRow(row.id, { vibe: event.target.value })}
-                    className={clsx(
-                      fieldClass,
-                      (vibeEditing || fieldChanged(row, "vibe")) && FIELD_CHANGED_CLASS
-                    )}
+                    className={clsx(fieldClass, fieldChanged(row, "vibe") && FIELD_CHANGED_CLASS)}
                   />
                 </label>
               ) : (

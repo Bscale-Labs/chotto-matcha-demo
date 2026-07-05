@@ -3,7 +3,7 @@ config({ path: ".env.local" });
 
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { db, schema } from "./client";
 import {
@@ -42,6 +42,10 @@ const auth = betterAuth({
 });
 
 const DEMO_PASSWORD = "demopass123";
+
+function isStaffSeedRole(role: string) {
+  return role === "manager" || role === "cashier" || role === "branch_manager";
+}
 
 const demoUsers = [
   {
@@ -429,7 +433,7 @@ async function main() {
         });
 
       for (const role of demoUser.roles) {
-        if (role === "manager" || role === "cashier") {
+        if (isStaffSeedRole(role)) {
           await db
             .delete(staffRoleDetails)
             .where(eq(staffRoleDetails.staffProfileId, demoUser.staffProfileId));
@@ -438,7 +442,7 @@ async function main() {
             .where(
               and(
                 eq(userRoles.authUserId, authUser.id),
-                or(eq(userRoles.role, "manager"), eq(userRoles.role, "cashier"))
+                inArray(userRoles.role, ["manager", "cashier", "branch_manager"])
               )
             );
           break;
@@ -446,7 +450,7 @@ async function main() {
       }
 
       for (const role of demoUser.roles) {
-        if (role === "manager" || role === "cashier") {
+        if (isStaffSeedRole(role)) {
           await db.insert(userRoles).values({ authUserId: authUser.id, role }).onConflictDoNothing();
           await db
             .insert(staffRoleDetails)

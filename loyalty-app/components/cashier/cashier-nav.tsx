@@ -1,9 +1,9 @@
 "use client";
 
-import Link, { useLinkStatus } from "next/link";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { LayoutDashboard, LoaderCircle, ScanLine, Settings } from "lucide-react";
+import { LayoutDashboard, ScanLine, Settings, UsersRound } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -13,32 +13,18 @@ type NavItem = {
   icon: ComponentType<LucideProps>;
 };
 
-const items: NavItem[] = [
+const baseItems: NavItem[] = [
   { href: "/cashier", label: "Dashboard", icon: LayoutDashboard },
   { href: "/cashier/identify", label: "Identify", icon: ScanLine }
 ];
 
-function PendingIndicator({ active }: { active: boolean }) {
-  const { pending } = useLinkStatus();
+const managerItems: NavItem[] = [
+  { href: "/cashier/accounts", label: "Accounts", icon: UsersRound }
+];
 
-  return (
-    <span className="grid h-4 w-4 place-items-center" aria-live="polite" aria-atomic="true">
-      {pending ? (
-        <>
-          <LoaderCircle
-            className={clsx("h-4 w-4 animate-spin", active ? "text-matcha-deep" : "text-cream")}
-            strokeWidth={1.9}
-            aria-hidden="true"
-          />
-          <span className="sr-only">Loading</span>
-        </>
-      ) : null}
-    </span>
-  );
-}
-
-export function CashierNav() {
+export function CashierNav({ canManageAccounts = false }: { canManageAccounts?: boolean }) {
   const pathname = usePathname() ?? "/cashier";
+  const items = canManageAccounts ? [...baseItems, ...managerItems] : baseItems;
 
   return (
     <nav className="relative z-10 flex h-full flex-col">
@@ -67,7 +53,6 @@ export function CashierNav() {
                 aria-hidden="true"
               />
               {item.label}
-              <PendingIndicator active={isActive} />
             </Link>
           );
         })}

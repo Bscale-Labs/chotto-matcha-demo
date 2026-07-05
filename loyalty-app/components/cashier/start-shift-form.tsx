@@ -5,11 +5,17 @@ import { ArrowRight, Delete, KeyRound } from "lucide-react";
 import { startCashierShift } from "@/app/cashier/actions";
 import { Button } from "@/components/shared/button";
 import { CustomerAvatar } from "@/components/cashier/cashier-visuals";
+import { staffRoleLabel } from "@/lib/roles/staff";
+
+const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 type CashierOption = {
   profile: {
     id: string;
     name: string;
+  };
+  detail: {
+    role: string;
   };
   branch: {
     name: string;
@@ -30,7 +36,6 @@ export function StartShiftForm({
   const [selectedCashierId, setSelectedCashierId] = useState(preferredCashier?.profile.id ?? "");
   const [pin, setPin] = useState("");
   const selectedCashier = cashiers.find(({ profile }) => profile.id === selectedCashierId);
-  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
   function chooseCashier(profileId: string) {
     setSelectedCashierId(profileId);
@@ -44,7 +49,7 @@ export function StartShiftForm({
   return (
     <form action={startCashierShift} className="mt-7 grid gap-5 lg:grid-cols-[1fr_184px]">
       <div className="grid gap-3">
-        {orderedCashiers.map(({ profile, branch }) => {
+        {orderedCashiers.map(({ profile, detail, branch }) => {
           const selected = selectedCashierId === profile.id;
           return (
             <label
@@ -54,7 +59,9 @@ export function StartShiftForm({
               <CustomerAvatar name={profile.name} className="h-12 w-12" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium text-charcoal">{profile.name}</span>
-                <span className="mt-1 block truncate text-xs text-ink-muted">{branch.name}</span>
+                <span className="mt-1 block truncate text-xs text-ink-muted">
+                  {staffRoleLabel(detail.role)} · {branch.name}
+                </span>
               </span>
               <input
                 type="radio"
@@ -78,7 +85,6 @@ export function StartShiftForm({
             inputMode="numeric"
             pattern="[0-9]*"
             autoComplete="off"
-            autoFocus
             value={pin}
             onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
             className="h-12 w-full min-w-0 rounded-md border border-line bg-cream px-4 text-center text-lg tracking-[0.4em] text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
@@ -86,7 +92,7 @@ export function StartShiftForm({
           />
         </label>
         <div className="mt-3 grid grid-cols-3 gap-2">
-          {digits.map((digit) => (
+          {DIGITS.map((digit) => (
             <button
               key={digit}
               type="button"

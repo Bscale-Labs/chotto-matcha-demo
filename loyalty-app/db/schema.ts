@@ -10,7 +10,7 @@ import {
   uniqueIndex
 } from "drizzle-orm/pg-core";
 
-export const appRole = pgEnum("app_role", ["customer", "cashier", "manager"]);
+export const appRole = pgEnum("app_role", ["customer", "cashier", "branch_manager", "manager"]);
 export const rewardType = pgEnum("reward_type", ["item", "merch"]);
 export const transactionType = pgEnum("transaction_type", ["earn", "redeem", "manual"]);
 export const orgConfigValueType = pgEnum("org_config_value_type", [

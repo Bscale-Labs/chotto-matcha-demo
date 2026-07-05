@@ -75,7 +75,12 @@ export async function sendTransactionalEmail({
 
 export async function sendMagicLinkEmail({ to, url, intent, role }: MagicLinkEmailInput) {
   const safeUrl = escapeHtml(url);
-  const normalizedRole = role ? role.charAt(0).toUpperCase() + role.slice(1) : "Chotto Matcha";
+  const normalizedRole = role
+    ? role
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ")
+    : "Chotto Matcha";
   const subject = intent === "invite" ? `Your ${normalizedRole} sign-in link` : "Sign in to Chotto Matcha";
   const heading = intent === "invite" ? "Your account is ready." : "Sign in to Chotto Matcha.";
   const body =

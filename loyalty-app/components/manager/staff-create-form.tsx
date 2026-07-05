@@ -17,29 +17,38 @@ export function StaffCreateForm({ branches }: { branches: { id: string; name: st
     <form action={formAction} className="grid gap-4">
       <Input label="Name" name="name" required />
       <Input label="Email" name="email" type="email" required />
-      <label className="grid gap-2 text-sm font-medium text-charcoal">
+      <label htmlFor="staff-create-role" className="grid gap-2 text-sm font-medium text-charcoal">
         Role
         <Select
+          id="staff-create-role"
           name="role"
           defaultValue="cashier"
           options={[
             { value: "cashier", label: "Cashier" },
+            { value: "branch_manager", label: "Branch Manager" },
             { value: "manager", label: "Manager" }
           ]}
         />
       </label>
-      <label className="grid gap-2 text-sm font-medium text-charcoal">
+      <label htmlFor="staff-create-branch" className="grid gap-2 text-sm font-medium text-charcoal">
         Branch
         <Select
+          id="staff-create-branch"
           name="branchId"
           defaultValue=""
           options={[
-            { value: "", label: "All branches / manager" },
+            { value: "", label: "All branches / global manager" },
             ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
           ]}
         />
       </label>
-      <Input label="Cashier PIN" name="pin" inputMode="numeric" pattern="[0-9]*" hint="Required for cashiers." />
+      <Input
+        label="Cashier / branch manager PIN"
+        name="pin"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        hint="Required for cashiers and branch managers."
+      />
       {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
       {state.temporaryPassword ? (
         <div className="rounded-md border border-sage-tint bg-sage-wash p-4">

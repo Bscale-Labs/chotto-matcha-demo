@@ -53,9 +53,10 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
         <input type="hidden" name="active" value={active ? "true" : "false"} />
 
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_160px]">
-          <label className="grid min-w-0 gap-2 text-sm font-medium text-charcoal">
+          <label htmlFor="branch-name" className="grid min-w-0 gap-2 text-sm font-medium text-charcoal">
             Branch name
             <TrackedInput
+              id="branch-name"
               name="name"
               required
               defaultValue={branch?.name}
@@ -63,9 +64,10 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
               className={inputClass}
             />
           </label>
-          <label className="grid min-w-0 gap-2 text-sm font-medium text-charcoal">
+          <label htmlFor="branch-code" className="grid min-w-0 gap-2 text-sm font-medium text-charcoal">
             Branch code
             <TrackedInput
+              id="branch-code"
               name="code"
               defaultValue={branch?.code ?? ""}
               placeholder="BGC"
@@ -74,9 +76,10 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
           </label>
         </div>
 
-        <label className="grid gap-2 text-sm font-medium text-charcoal">
+        <label htmlFor="branch-address" className="grid gap-2 text-sm font-medium text-charcoal">
           Address
           <TrackedTextarea
+            id="branch-address"
             name="address"
             required
             defaultValue={branch?.address}
@@ -85,9 +88,10 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
           />
         </label>
 
-        <label className="grid gap-2 text-sm font-medium text-charcoal">
+        <label htmlFor="branch-google-maps-url" className="grid gap-2 text-sm font-medium text-charcoal">
           Google Maps link
           <TrackedInput
+            id="branch-google-maps-url"
             name="googleMapsUrl"
             type="url"
             defaultValue={branch?.googleMapsUrl ?? ""}
@@ -96,37 +100,35 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
           />
         </label>
 
-        <div className="grid gap-2">
-          <span className="text-sm font-medium text-charcoal">Status</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-line-soft bg-cream px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="text-sm font-medium text-charcoal">Status</span>
+            <span
+              className={clsx(
+                "rounded-pill px-3 py-1 text-xs font-medium",
+                active ? "bg-sage-wash text-matcha-deep" : "bg-line-soft text-ink-muted"
+              )}
+            >
+              {active ? "Open" : "Closed"}
+            </span>
+          </div>
           <button
             type="button"
             role="switch"
             aria-checked={active}
+            aria-label={active ? "Close branch" : "Open branch"}
             onClick={() => setActive((current) => !current)}
-            className="flex min-h-[60px] items-center justify-between gap-4 rounded-md border border-line bg-milk px-4 text-left transition-colors duration-fast ease-out-soft hover:border-matcha-deep focus:outline-none focus:shadow-focus"
+            className={clsx(
+              "relative h-8 w-14 shrink-0 rounded-pill border transition-colors duration-fast ease-out-soft focus:outline-none focus:shadow-focus",
+              active ? "border-matcha-deep bg-matcha-deep" : "border-line bg-line-soft"
+            )}
           >
-            <span>
-              <span className="block text-base font-medium text-charcoal">
-                {active ? "Open" : "Closed"}
-              </span>
-              <span className="block text-sm text-ink-muted">
-                {active ? "Branch is available to cashiers and rewards." : "Branch is hidden from active workflows."}
-              </span>
-            </span>
             <span
-              aria-hidden="true"
               className={clsx(
-                "relative h-8 w-14 shrink-0 rounded-pill border transition-colors duration-fast ease-out-soft",
-                active ? "border-matcha-deep bg-matcha-deep" : "border-line bg-line-soft"
+                "absolute left-1 top-1 h-6 w-6 rounded-pill bg-cream shadow-sm transition-transform duration-fast ease-out-soft",
+                active && "translate-x-6"
               )}
-            >
-              <span
-                className={clsx(
-                  "absolute top-1 h-6 w-6 rounded-full bg-cream shadow-sm transition-transform duration-fast ease-out-soft",
-                  active ? "translate-x-6" : "translate-x-1"
-                )}
-              />
-            </span>
+            />
           </button>
         </div>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
+import type { Role } from "@/lib/types";
 
 export function EmailLoginForm({
   callbackURL,
@@ -13,7 +14,7 @@ export function EmailLoginForm({
 }: {
   callbackURL: string;
   placeholder?: string;
-  role?: "customer" | "cashier" | "manager";
+  role?: Role;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");

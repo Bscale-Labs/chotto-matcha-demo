@@ -4,8 +4,8 @@ import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useId,
   useMemo,
@@ -52,7 +52,7 @@ type DirtyContextValue = {
 const DirtyFieldsContext = createContext<DirtyContextValue | null>(null);
 
 function useDirtyContext(): DirtyContextValue {
-  const ctx = useContext(DirtyFieldsContext);
+  const ctx = use(DirtyFieldsContext);
   if (!ctx) {
     throw new Error("Tracked fields must be rendered inside a <DirtyForm> or <DirtyFieldsProvider>.");
   }
@@ -131,6 +131,7 @@ type DirtyFormProps = {
   successTitle?: ReactNode;
   successMessage?: ReactNode;
   errorTitle?: ReactNode;
+  refreshOnSuccess?: boolean;
 };
 
 /**
@@ -145,7 +146,8 @@ export function DirtyForm({
   className,
   successTitle,
   successMessage,
-  errorTitle
+  errorTitle,
+  refreshOnSuccess = true
 }: DirtyFormProps) {
   const router = useRouter();
   const { showSuccess, showError } = useToast();
@@ -156,7 +158,7 @@ export function DirtyForm({
     ? async (formData: FormData) => {
         try {
           await action(formData);
-          router.refresh();
+          if (refreshOnSuccess) router.refresh();
           showSuccess(successTitle, successMessage);
           reset();
         } catch (error) {
@@ -177,42 +179,37 @@ export function DirtyForm({
 /** Shared change-tracking behaviour for a single uncontrolled field. */
 function useTrackedField(defaultValue: unknown, getCurrentValue: () => string) {
   const ctx = useDirtyContext();
+  const { mode, report, release, resetSignal } = ctx;
   const fieldId = useId();
-  const baselineRef = useRef(toComparable(defaultValue));
-  const changedRef = useRef(false);
-  const [changed, setChanged] = useState(false);
+  const [fieldState, setFieldState] = useState(() => ({
+    baseline: toComparable(defaultValue),
+    changed: false,
+    resetSignal
+  }));
 
-  // After a save, the field's live DOM value IS the new saved value — re-baseline
-  // to it and drop the highlight.
-  useEffect(() => {
-    if (ctx.resetSignal === 0) return;
-    baselineRef.current = getCurrentValue();
-    changedRef.current = false;
-    // Re-baseline to the just-saved value and drop the highlight. Fires once per
-    // save (resetSignal change), not in a render loop.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setChanged(false);
-    ctx.report(fieldId, false);
-    // getCurrentValue reads a stable ref; only re-run when a save fires.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctx.resetSignal]);
+  if (fieldState.resetSignal !== resetSignal) {
+    setFieldState({
+      baseline: getCurrentValue(),
+      changed: false,
+      resetSignal
+    });
+  }
 
-  useEffect(() => () => ctx.release(fieldId), [ctx, fieldId]);
+  useEffect(() => () => release(fieldId), [release, fieldId]);
 
   // Called from input event handlers (never during render), so reporting up to
   // the provider here is safe.
   const setValue = useCallback(
     (nextValue: string) => {
-      const isChanged = nextValue !== baselineRef.current;
-      if (isChanged === changedRef.current) return;
-      changedRef.current = isChanged;
-      setChanged(isChanged);
-      ctx.report(fieldId, isChanged);
+      const isChanged = nextValue !== fieldState.baseline;
+      if (isChanged === fieldState.changed) return;
+      setFieldState((prev) => ({ ...prev, changed: isChanged }));
+      report(fieldId, isChanged);
     },
-    [ctx, fieldId]
+    [fieldId, fieldState.baseline, fieldState.changed, report]
   );
 
-  const showChanged = ctx.mode === "edit" && changed;
+  const showChanged = mode === "edit" && fieldState.changed && fieldState.resetSignal === resetSignal;
   return { setValue, showChanged };
 }
 
@@ -223,7 +220,8 @@ type TrackedInputProps = InputHTMLAttributes<HTMLInputElement> & {
 
 export function TrackedInput({ defaultValue, className, onChange, sanitize, ...rest }: TrackedInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { setValue, showChanged } = useTrackedField(defaultValue, () => toComparable(inputRef.current?.value ?? ""));
+  const getCurrentValue = useCallback(() => toComparable(inputRef.current?.value ?? ""), []);
+  const { setValue, showChanged } = useTrackedField(defaultValue, getCurrentValue);
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     if (sanitize) event.target.value = sanitize(event.target.value);
@@ -246,7 +244,8 @@ type TrackedTextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export function TrackedTextarea({ defaultValue, className, onChange, ...rest }: TrackedTextareaProps) {
   const areaRef = useRef<HTMLTextAreaElement>(null);
-  const { setValue, showChanged } = useTrackedField(defaultValue, () => toComparable(areaRef.current?.value ?? ""));
+  const getCurrentValue = useCallback(() => toComparable(areaRef.current?.value ?? ""), []);
+  const { setValue, showChanged } = useTrackedField(defaultValue, getCurrentValue);
 
   function handleChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setValue(toComparable(event.target.value));
@@ -265,6 +264,7 @@ export function TrackedTextarea({ defaultValue, className, onChange, ...rest }: 
 }
 
 type TrackedSelectProps = {
+  id?: string;
   name: string;
   options: { value: string; label: string }[];
   defaultValue?: string;
@@ -277,8 +277,10 @@ type TrackedSelectProps = {
 };
 
 export function TrackedSelect({ defaultValue, className, onValueChange, ...rest }: TrackedSelectProps) {
-  const valueRef = useRef(toComparable(defaultValue));
-  const { setValue, showChanged } = useTrackedField(defaultValue, () => valueRef.current);
+  const valueRef = useRef<string | null>(null);
+  if (valueRef.current === null) valueRef.current = toComparable(defaultValue);
+  const getCurrentValue = useCallback(() => valueRef.current ?? "", []);
+  const { setValue, showChanged } = useTrackedField(defaultValue, getCurrentValue);
 
   function handleValueChange(value: string) {
     valueRef.current = toComparable(value);

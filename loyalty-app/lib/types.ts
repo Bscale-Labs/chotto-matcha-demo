@@ -1,4 +1,4 @@
-export type Role = "customer" | "cashier" | "manager";
+export type Role = "customer" | "cashier" | "branch_manager" | "manager";
 
 export type Branch = {
   id: string;
@@ -13,7 +13,7 @@ export type Staff = {
   id: string;
   email: string;
   name: string;
-  role: "cashier" | "manager";
+  role: "cashier" | "branch_manager" | "manager";
   pinSet: boolean;
   branchId?: string;
   active: boolean;

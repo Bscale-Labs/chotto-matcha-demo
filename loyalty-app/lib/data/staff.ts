@@ -1,8 +1,8 @@
 import "server-only";
 
-import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { branches, staffProfiles, staffRoleDetails, userRoles } from "@/db/schema";
+import { branches, customers, staffProfiles, staffRoleDetails, transactions, userRoles } from "@/db/schema";
 
 export async function listStaffProfiles() {
   return db.query.staffProfiles.findMany({ orderBy: [asc(staffProfiles.name)] });
@@ -28,7 +28,7 @@ export async function listCashiersForBranch(branchId: string) {
     .where(
       and(
         eq(staffProfiles.active, true),
-        eq(staffRoleDetails.role, "cashier"),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
         eq(staffRoleDetails.branchId, branchId)
       )
     )
@@ -49,11 +49,32 @@ export async function listActiveCashiersWithBranches() {
     .where(
       and(
         eq(staffProfiles.active, true),
-        eq(userRoles.role, "cashier"),
-        eq(staffRoleDetails.role, "cashier"),
+        inArray(userRoles.role, ["cashier", "branch_manager"]),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
         eq(branches.active, true),
         isNotNull(staffRoleDetails.pinHash)
       )
     )
     .orderBy(asc(branches.name), asc(staffProfiles.name));
+}
+
+export async function listBranchCustomerAccounts(branchId: string, limit = 80) {
+  const lastActivity = sql<Date>`max(${transactions.createdAt})`;
+
+  return db
+    .select({
+      id: customers.id,
+      name: customers.name,
+      email: customers.email,
+      phone: customers.phone,
+      pointsBalance: customers.pointsBalance,
+      lastActivityAt: lastActivity,
+      branchTransactions: sql<number>`count(${transactions.id})::int`
+    })
+    .from(customers)
+    .innerJoin(transactions, eq(customers.id, transactions.customerId))
+    .where(and(eq(customers.active, true), eq(transactions.branchId, branchId)))
+    .groupBy(customers.id, customers.name, customers.email, customers.phone, customers.pointsBalance)
+    .orderBy(desc(lastActivity))
+    .limit(limit);
 }

@@ -16,8 +16,8 @@ function getColumnTemplate(headers: string[]) {
       return "minmax(15rem,1.45fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr) minmax(12rem,1.05fr) minmax(9rem,0.8fr)";
     case "Name|Role|Branch|PIN|Status":
       return "minmax(12rem,1.15fr) minmax(9rem,0.75fr) minmax(12rem,1.15fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr)";
-    case "When|Member|Staff|Branch|Type|Bill|Points":
-      return "minmax(9rem,1fr) minmax(11rem,1.05fr) minmax(10rem,1fr) minmax(12rem,1.05fr) minmax(11rem,1.05fr) minmax(7rem,0.65fr) minmax(8rem,0.7fr)";
+    case "Date|Member|Staff|Branch|Type|Bill|Points":
+      return "minmax(10rem,1.05fr) minmax(11rem,1.05fr) minmax(10rem,1fr) minmax(12rem,1.05fr) minmax(11rem,1.05fr) minmax(7rem,0.65fr) minmax(8rem,0.7fr)";
     default:
       return `repeat(${headers.length}, minmax(0, 1fr))`;
   }
@@ -45,30 +45,23 @@ export function DataTable({
   return (
     <div className={clsx("surface-paper overflow-hidden rounded-lg", className)}>
       <div className="overflow-x-auto overscroll-x-none">
-        <div className="min-w-[640px] text-left text-sm" role="table">
-          <div className="bg-matcha-deep text-cream" role="rowgroup">
-            <div
-              className="grid"
-              role="row"
-              style={{ gridTemplateColumns: columnTemplate }}
-            >
+        <table className="min-w-[640px] w-full table-fixed text-left text-sm">
+          <thead className="block bg-matcha-deep text-cream">
+            <tr className="grid" style={{ gridTemplateColumns: columnTemplate }}>
               {headers.map((header) => (
-                <div
+                <th
                   key={header}
+                  scope="col"
                   className="min-w-0 bg-matcha-deep px-5 py-3.5 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85 first:rounded-tl-lg last:rounded-tr-lg"
-                  role="columnheader"
                 >
                   {header}
-                </div>
+                </th>
               ))}
-            </div>
-          </div>
-          <div
-            className="max-h-none overflow-y-auto overscroll-none lg:max-h-[calc(100vh-21rem)]"
-            role="rowgroup"
-          >
+            </tr>
+          </thead>
+          <tbody className="block max-h-none overflow-y-auto overscroll-none lg:max-h-[calc(100vh-21rem)]">
             {rows.map((row, rowIndex) => (
-              <div
+              <tr
                 key={rowKeys?.[rowIndex] ?? rowIndex}
                 className={clsx(
                   "grid",
@@ -76,11 +69,10 @@ export function DataTable({
                   rowHrefs?.[rowIndex] ? "cursor-pointer hover:bg-sage-wash/60" : "hover:bg-stone/50",
                   highlightKey && rowKeys?.[rowIndex] === highlightKey && "row-flash"
                 )}
-                role="row"
                 style={{ gridTemplateColumns: columnTemplate }}
               >
                 {row.map((cell, cellIndex) => (
-                  <div key={cellIndex} className="min-w-0 px-5 py-4 text-charcoal" role="cell">
+                  <td key={cellIndex} className="min-w-0 px-5 py-4 text-charcoal">
                     {rowHrefs?.[rowIndex] ? (
                       <Link
                         href={rowHrefs[rowIndex]}
@@ -91,12 +83,12 @@ export function DataTable({
                     ) : (
                       cell
                     )}
-                  </div>
+                  </td>
                 ))}
-              </div>
+              </tr>
             ))}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );

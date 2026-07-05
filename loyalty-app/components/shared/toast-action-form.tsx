@@ -11,6 +11,7 @@ type ToastActionFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "action" |
   successMessage?: ReactNode;
   errorTitle: ReactNode;
   onSuccess?: () => void;
+  refreshOnSuccess?: boolean;
 };
 
 export function ToastActionForm({
@@ -20,6 +21,7 @@ export function ToastActionForm({
   successMessage,
   errorTitle,
   onSuccess,
+  refreshOnSuccess = true,
   ...props
 }: ToastActionFormProps) {
   const router = useRouter();
@@ -31,7 +33,7 @@ export function ToastActionForm({
       action={async (formData) => {
         try {
           await action(formData);
-          router.refresh();
+          if (refreshOnSuccess) router.refresh();
           showSuccess(successTitle, successMessage);
           onSuccess?.();
         } catch (error) {

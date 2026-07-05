@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes, randomUUID } from "node:crypto";
-import { and, eq, inArray, or, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
@@ -23,6 +23,9 @@ import { sendSignInLink } from "@/lib/auth/magic-link";
 import { hashDemoPin, isValidPin } from "@/lib/auth/pin";
 import { requireManagerSession } from "@/lib/auth/session";
 import { manualAdjustPoints } from "@/lib/data/transactions";
+import { listCustomersForManager } from "@/lib/data/manager";
+import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
+import { isBranchShiftRole, isStaffRole } from "@/lib/roles/staff";
 import { deleteAssetObject, getAssetUrl, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
@@ -315,30 +318,30 @@ export async function updateRewardTiers(formData: FormData) {
         .where(inArray(rewardTiers.id, survivingIds));
     }
 
-    // Insert new tiers, update surviving ones, in ascending sort order.
-    for (const tier of nextTiers) {
-      await tx
-        .insert(rewardTiers)
-        .values({
+    // Insert new tiers and update surviving ones in a single round trip.
+    await tx
+      .insert(rewardTiers)
+      .values(
+        nextTiers.map((tier) => ({
           id: tier.id,
           name: tier.name,
           description: tier.description,
           minPoints: tier.minPoints,
           sortOrder: tier.sortOrder,
           active: true
-        })
-        .onConflictDoUpdate({
-          target: rewardTiers.id,
-          set: {
-            name: tier.name,
-            description: tier.description,
-            minPoints: tier.minPoints,
-            sortOrder: tier.sortOrder,
-            active: true,
-            updatedAt: new Date()
-          }
-        });
-    }
+        }))
+      )
+      .onConflictDoUpdate({
+        target: rewardTiers.id,
+        set: {
+          name: sql`excluded.name`,
+          description: sql`excluded.description`,
+          minPoints: sql`excluded.min_points`,
+          sortOrder: sql`excluded.sort_order`,
+          active: true,
+          updatedAt: new Date()
+        }
+      });
   });
 
   revalidatePath("/manager/reward-tiers");
@@ -461,9 +464,10 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
     const role = text(formData, "role");
     const branchId = text(formData, "branchId") || null;
     const pin = text(formData, "pin");
-    if (role !== "manager" && role !== "cashier") throw new Error("Invalid staff role");
-    if (role === "cashier" && !branchId) throw new Error("Cashiers require a branch");
-    if (role === "cashier" && !isValidPin(pin)) throw new Error("Cashier PIN must be 4 to 8 digits");
+    if (!isStaffRole(role)) throw new Error("Invalid staff role");
+    const branchScoped = isBranchShiftRole(role);
+    if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
+    if (branchScoped && !isValidPin(pin)) throw new Error("PIN must be 4 to 8 digits");
 
     const password = temporaryPassword();
     await auth.api.signUpEmail({ body: { email, password, name } });
@@ -483,8 +487,8 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
       await tx.insert(staffRoleDetails).values({
         staffProfileId,
         role,
-        branchId: role === "cashier" ? branchId : null,
-        pinHash: role === "cashier" ? hashDemoPin(pin) : null
+        branchId: branchScoped ? branchId : null,
+        pinHash: branchScoped ? hashDemoPin(pin) : null
       });
     });
 
@@ -492,7 +496,7 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
     try {
       await sendSignInLink({
         email,
-        callbackURL: role === "cashier" ? "/cashier" : "/manager",
+        callbackURL: branchScoped ? "/cashier" : "/manager",
         intent: "invite",
         role
       });
@@ -510,41 +514,44 @@ export async function updateStaff(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
   const name = nonEmpty(formData, "name");
-  const email = nonEmpty(formData, "email").toLowerCase();
   const role = text(formData, "role");
   const branchId = text(formData, "branchId") || null;
   const pin = text(formData, "pin");
-  if (role !== "manager" && role !== "cashier") throw new Error("Invalid staff role");
-  if (role === "cashier" && !branchId) throw new Error("Cashiers require a branch");
-  if (pin && !isValidPin(pin)) throw new Error("Cashier PIN must be 4 to 8 digits");
+  if (!isStaffRole(role)) throw new Error("Invalid staff role");
+  const branchScoped = isBranchShiftRole(role);
+  if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
+  if (pin && !isValidPin(pin)) throw new Error("PIN must be 4 to 8 digits");
 
   await db.transaction(async (tx) => {
-    const profile = await tx.query.staffProfiles.findFirst({ where: eq(staffProfiles.id, id) });
+    const [profile] = await tx
+      .update(staffProfiles)
+      .set({ name, updatedAt: new Date() })
+      .where(eq(staffProfiles.id, id))
+      .returning({ authUserId: staffProfiles.authUserId });
     if (!profile) throw new Error("Staff profile not found");
     const existingDetail = await tx.query.staffRoleDetails.findFirst({
       where: eq(staffRoleDetails.staffProfileId, id)
     });
-    if (role === "cashier" && !pin && !existingDetail?.pinHash) {
-      throw new Error("New cashier role requires a PIN");
+    if (branchScoped && !pin && !existingDetail?.pinHash) {
+      throw new Error("New cashier or branch manager role requires a PIN");
     }
 
-    await tx.update(user).set({ name, email, updatedAt: new Date() }).where(eq(user.id, profile.authUserId));
-    await tx.update(staffProfiles).set({ name, email, updatedAt: new Date() }).where(eq(staffProfiles.id, id));
+    await tx.update(user).set({ name, updatedAt: new Date() }).where(eq(user.id, profile.authUserId));
     await tx.delete(staffRoleDetails).where(eq(staffRoleDetails.staffProfileId, id));
     await tx
       .delete(userRoles)
       .where(
         and(
           eq(userRoles.authUserId, profile.authUserId),
-          or(eq(userRoles.role, "manager"), eq(userRoles.role, "cashier"))
+          inArray(userRoles.role, ["manager", "cashier", "branch_manager"])
         )
       );
     await tx.insert(userRoles).values({ authUserId: profile.authUserId, role });
     await tx.insert(staffRoleDetails).values({
       staffProfileId: id,
       role,
-      branchId: role === "cashier" ? branchId : null,
-      pinHash: role === "cashier" ? (pin ? hashDemoPin(pin) : existingDetail?.pinHash ?? null) : null
+      branchId: branchScoped ? branchId : null,
+      pinHash: branchScoped ? (pin ? hashDemoPin(pin) : existingDetail?.pinHash ?? null) : null
     });
   });
 
@@ -560,7 +567,12 @@ export async function resetStaffPin(formData: FormData) {
   await db
     .update(staffRoleDetails)
     .set({ pinHash: hashDemoPin(pin), updatedAt: new Date() })
-    .where(and(eq(staffRoleDetails.staffProfileId, id), eq(staffRoleDetails.role, "cashier")));
+    .where(
+      and(
+        eq(staffRoleDetails.staffProfileId, id),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"])
+      )
+    );
   revalidatePath("/manager/staff");
 }
 
@@ -574,7 +586,6 @@ export async function setStaffActive(formData: FormData) {
     .where(eq(staffProfiles.id, id));
   revalidatePath("/manager/staff");
   revalidatePath(`/manager/staff/${id}/edit`);
-  redirect(`/manager/staff?changed=${id}&toast=${active ? "staff-activated" : "staff-deactivated"}`);
 }
 
 export async function createCustomerAccount(_: CreateAccountState, formData: FormData): Promise<CreateAccountState> {
@@ -622,13 +633,13 @@ export async function updateCustomer(formData: FormData) {
   const phone = nonEmpty(formData, "phone");
 
   await db.transaction(async (tx) => {
-    const customer = await tx.query.customers.findFirst({ where: eq(customers.id, id) });
-    if (!customer) throw new Error("Customer not found");
-    await tx.update(user).set({ name, email, updatedAt: new Date() }).where(eq(user.id, customer.authUserId));
-    await tx
+    const [customer] = await tx
       .update(customers)
       .set({ name, email, phone, updatedAt: new Date() })
-      .where(eq(customers.id, id));
+      .where(eq(customers.id, id))
+      .returning({ authUserId: customers.authUserId });
+    if (!customer) throw new Error("Customer not found");
+    await tx.update(user).set({ name, email, updatedAt: new Date() }).where(eq(user.id, customer.authUserId));
   });
 
   revalidatePath("/manager/customers");
@@ -645,7 +656,32 @@ export async function setCustomerActive(formData: FormData) {
     .where(eq(customers.id, id));
   revalidatePath("/manager/customers");
   revalidatePath(`/manager/customers/${id}/edit`);
-  redirect(`/manager/customers?changed=${id}&toast=${active ? "customer-activated" : "customer-deactivated"}`);
+}
+
+export async function searchManagerCustomers(query: string) {
+  await requireManagerSession();
+  const [customerRows, tierRows] = await Promise.all([
+    listCustomersForManager(query),
+    listConfiguredRewardTiers()
+  ]);
+
+  return {
+    customers: customerRows.map((customer) => ({
+      id: customer.id,
+      email: customer.email,
+      name: customer.name,
+      phone: customer.phone,
+      pointsBalance: customer.pointsBalance,
+      active: customer.active
+    })),
+    rewardTiers: tierRows.map((tier) => ({
+      id: tier.id,
+      name: tier.name,
+      min: tier.min,
+      max: tier.max,
+      vibe: tier.vibe
+    }))
+  };
 }
 
 export async function adjustCustomerPoints(formData: FormData) {
@@ -670,17 +706,17 @@ export async function updateSettings(formData: FormData) {
 
   await db
     .insert(orgConfig)
-    .values({ key: "earn_rate", value: String(earnRate), valueType: "number" })
+    .values([
+      { key: "earn_rate", value: String(earnRate), valueType: "number" },
+      { key: "org_name", value: orgName, valueType: "string" }
+    ])
     .onConflictDoUpdate({
       target: orgConfig.key,
-      set: { value: String(earnRate), valueType: "number", updatedAt: new Date() }
-    });
-  await db
-    .insert(orgConfig)
-    .values({ key: "org_name", value: orgName, valueType: "string" })
-    .onConflictDoUpdate({
-      target: orgConfig.key,
-      set: { value: orgName, valueType: "string", updatedAt: new Date() }
+      set: {
+        value: sql`excluded.value`,
+        valueType: sql`excluded.value_type`,
+        updatedAt: new Date()
+      }
     });
 
   revalidatePath("/manager/settings");

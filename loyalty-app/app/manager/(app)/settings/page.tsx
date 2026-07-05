@@ -14,6 +14,7 @@ export default async function ManagerSettingsPage() {
           action={updateSettings}
           successTitle="Settings saved"
           errorTitle="Could not save settings"
+          refreshOnSuccess={false}
           className="surface-paper rounded-lg p-7"
         >
           <div className="grid gap-6 md:grid-cols-2">

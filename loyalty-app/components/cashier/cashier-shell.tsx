@@ -6,10 +6,12 @@ import { endCashierShift } from "@/app/cashier/actions";
 
 export function CashierShell({
   children,
-  sessionLabel = "Shift setup"
+  sessionLabel = "Shift setup",
+  canManageAccounts = false
 }: {
   children: React.ReactNode;
   sessionLabel?: string;
+  canManageAccounts?: boolean;
 }) {
   return (
     <main className="cashier-surface min-h-screen py-4">
@@ -39,7 +41,7 @@ export function CashierShell({
         </header>
         <div className="grid gap-4 lg:grid-cols-[116px_1fr]">
           <aside className="cashier-rail rounded-lg p-3 lg:sticky lg:top-4 lg:h-[calc(100vh-6.5rem)] lg:min-h-[620px]">
-            <CashierNav />
+            <CashierNav canManageAccounts={canManageAccounts} />
           </aside>
           <section className="min-w-0">{children}</section>
         </div>

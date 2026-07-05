@@ -22,7 +22,13 @@ export async function listManagerStaff() {
     .from(staffProfiles)
     .innerJoin(staffRoleDetails, eq(staffProfiles.id, staffRoleDetails.staffProfileId))
     .leftJoin(branches, eq(staffRoleDetails.branchId, branches.id))
-    .where(or(eq(staffRoleDetails.role, "manager"), eq(staffRoleDetails.role, "cashier")))
+    .where(
+      or(
+        eq(staffRoleDetails.role, "manager"),
+        eq(staffRoleDetails.role, "cashier"),
+        eq(staffRoleDetails.role, "branch_manager")
+      )
+    )
     .orderBy(asc(staffProfiles.name), asc(staffRoleDetails.role));
 }
 
@@ -90,6 +96,6 @@ export async function listTransactionsWithLabels(filters: TransactionFilters = {
     .limit(limit);
 }
 
-export async function getUserRoleIdsForRole(role: "cashier" | "manager" | "customer") {
+export async function getUserRoleIdsForRole(role: "cashier" | "branch_manager" | "manager" | "customer") {
   return db.select({ authUserId: userRoles.authUserId }).from(userRoles).where(eq(userRoles.role, role));
 }

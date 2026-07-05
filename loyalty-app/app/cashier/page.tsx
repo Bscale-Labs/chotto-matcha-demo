@@ -9,6 +9,8 @@ import { Brand } from "@/components/shared/brand";
 import { StartShiftForm } from "@/components/cashier/start-shift-form";
 import { endCashierShift } from "@/app/cashier/actions";
 import { CustomerAvatar, StartShiftStillLife, StorefrontSketch } from "@/components/cashier/cashier-visuals";
+import { requireCashierShiftSession } from "@/lib/auth/session";
+import { staffRoleLabel } from "@/lib/roles/staff";
 
 export default async function CashierPage({
   searchParams
@@ -24,6 +26,7 @@ export default async function CashierPage({
     ? await Promise.all([getStaffProfileById(shift.staffProfileId), getBranchById(shift.branchId)])
     : [null, null];
   const activeShift = Boolean(activeProfile?.active && activeBranch?.active);
+  const activeSession = activeShift ? await requireCashierShiftSession() : null;
 
   if (!activeShift) {
     return (
@@ -71,9 +74,11 @@ export default async function CashierPage({
   if (!activeProfile || !activeBranch) {
     throw new Error("Active cashier shift is missing profile or branch data");
   }
+  const activeRole = activeSession?.roleDetail.role ?? "cashier";
+  const canManageAccounts = activeRole === "branch_manager";
 
   return (
-    <CashierShell sessionLabel={`${activeBranch.name} · ${activeProfile.name}`}>
+    <CashierShell sessionLabel={`${activeBranch.name} · ${activeProfile.name}`} canManageAccounts={canManageAccounts}>
       <div className="grid items-start gap-4 lg:grid-cols-[0.74fr_1.26fr]">
         <section className="cashier-panel rounded-lg p-6">
           <Eyebrow className="text-matcha-deep">Your shift</Eyebrow>
@@ -83,7 +88,7 @@ export default async function CashierPage({
               <h1 className="font-display text-[34px] font-medium leading-[38px] text-charcoal">
                 {activeProfile.name}
               </h1>
-              <p className="mt-1 text-sm text-ink-muted">Cashier · Started today</p>
+              <p className="mt-1 text-sm text-ink-muted">{staffRoleLabel(activeRole)} · Started today</p>
               <span className="mt-3 inline-flex rounded-pill bg-sage-wash px-3 py-1 text-xs font-medium text-matcha-deep">
                 Active
               </span>

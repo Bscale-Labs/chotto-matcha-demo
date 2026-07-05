@@ -12,18 +12,18 @@ import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
 
 export default async function CashierCustomerPage({ params }: { params: Promise<{ id: string }> }) {
-  const { profile, branch } = await requireCashierShiftSession();
-  const { id } = await params;
-  const customer = await getCustomerById(id);
-  if (!customer?.active) notFound();
-  const [recentTransactions, rewardTiers] = await Promise.all([
-    getCustomerRecentTransactions(customer.id, 2),
+  const [{ profile, branch, roleDetail }, { id }] = await Promise.all([requireCashierShiftSession(), params]);
+  const [customer, recentTransactions, rewardTiers] = await Promise.all([
+    getCustomerById(id),
+    getCustomerRecentTransactions(id, 2),
     listConfiguredRewardTiers()
   ]);
+  if (!customer?.active) notFound();
   const tier = getTier(customer.pointsBalance, rewardTiers);
+  const canManageAccounts = roleDetail.role === "branch_manager";
 
   return (
-    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} canManageAccounts={canManageAccounts}>
       <div className="mb-4">
         <Button href="/cashier/identify" variant="tertiary" icon={ArrowLeft}>
           Back to lookup

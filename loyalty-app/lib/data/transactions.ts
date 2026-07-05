@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
 import {
@@ -63,11 +63,11 @@ export async function awardPoints(input: AwardPointsInput) {
     const staffRole = await tx.query.staffRoleDetails.findFirst({
       where: and(
         eq(staffRoleDetails.staffProfileId, input.staffProfileId),
-        eq(staffRoleDetails.role, "cashier"),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
         eq(staffRoleDetails.branchId, input.branchId)
       )
     });
-    if (!staffRole) throw new Error("Cashier is not assigned to this branch");
+    if (!staffRole) throw new Error("Staff member is not assigned to this branch");
 
     const staff = await tx.query.staffProfiles.findFirst({
       where: and(eq(staffProfiles.id, input.staffProfileId), eq(staffProfiles.active, true))
@@ -120,11 +120,11 @@ export async function redeemReward(input: RedeemRewardInput) {
     const staffRole = await tx.query.staffRoleDetails.findFirst({
       where: and(
         eq(staffRoleDetails.staffProfileId, input.staffProfileId),
-        eq(staffRoleDetails.role, "cashier"),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
         eq(staffRoleDetails.branchId, input.branchId)
       )
     });
-    if (!staffRole) throw new Error("Cashier is not assigned to this branch");
+    if (!staffRole) throw new Error("Staff member is not assigned to this branch");
 
     const staff = await tx.query.staffProfiles.findFirst({
       where: and(eq(staffProfiles.id, input.staffProfileId), eq(staffProfiles.active, true))

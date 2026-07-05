@@ -13,14 +13,15 @@ export default async function CashierAwardPage({
 }: {
   searchParams: Promise<{ customerId?: string; bill?: string }>;
 }) {
-  const { profile, branch } = await requireCashierShiftSession();
+  const { profile, branch, roleDetail } = await requireCashierShiftSession();
   const { customerId, bill } = await searchParams;
   if (!customerId) notFound();
   const [customer, earnRate] = await Promise.all([getCustomerById(customerId), getEarnRate()]);
   if (!customer?.active) notFound();
+  const canManageAccounts = roleDetail.role === "branch_manager";
 
   return (
-    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} canManageAccounts={canManageAccounts}>
       <div className="mb-4">
         <Button href={`/cashier/customer/${customer.id}`} variant="tertiary" icon={ArrowLeft}>
           Back to member
