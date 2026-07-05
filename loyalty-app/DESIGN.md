@@ -575,6 +575,7 @@ Rules:
 ### Buttons
 
 Existing primitive: `components/shared/button.tsx`
+Related primitive: `components/shared/tooltip.tsx`
 
 Rules:
 
@@ -583,6 +584,8 @@ Rules:
 - Secondary uses milk/cream with border.
 - Tertiary is quiet and compact.
 - Icon buttons are at least `44px` by `44px`.
+- Icon-only buttons must have an `aria-label` and the shared Tooltip; do not rely on native `title` tooltips.
+- Tooltip labels are short action names such as "Edit tier", "Dismiss", or "Scan".
 - Cashier primary actions may be larger than `44px` because speed matters.
 - Button labels use verbs: "Earn points", "Redeem reward", "Save changes".
 - Do not use vague labels like "Continue" when a specific action is known.
@@ -591,6 +594,19 @@ Rules:
 - Submit buttons must show a pending state for the round trip, using specific labels such as "Saving...", "Creating...", or "Uploading...".
 - Keep button footprint stable across normal, disabled, and pending states so rows and toolbars do not shift.
 - Row-level save actions may be hidden until dirty, but reserve their layout space when hiding them.
+
+### Tooltips
+
+Existing primitive: `components/shared/tooltip.tsx`
+
+Rules:
+
+- Use for icon-only actions, dense table/editor controls, and hover-only metadata.
+- Keep copy under four words where possible.
+- Tooltips appear on hover and keyboard focus.
+- Do not show tooltips on ordinary text buttons whose label is already clear.
+- Do not use native `title` attributes for interactive controls.
+- Tooltips clarify an action; they must not hide required instructions or validation.
 
 ### Cards
 

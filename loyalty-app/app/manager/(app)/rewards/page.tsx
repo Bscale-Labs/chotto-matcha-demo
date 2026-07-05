@@ -4,6 +4,7 @@ import { Button } from "@/components/shared/button";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Pill } from "@/components/shared/pill";
+import { Tooltip } from "@/components/shared/tooltip";
 import { listBranches } from "@/lib/data/branches";
 import { listRewardsForManager } from "@/lib/data/rewards";
 import { formatPoints } from "@/lib/formatters";
@@ -16,19 +17,16 @@ function AvailableBranches({
   branchNames: string[];
 }) {
   const label = count === 1 ? "1 branch in stock" : `${count} branches in stock`;
-  const title = branchNames.length > 0
-    ? `Available at: ${branchNames.join(", ")}`
-    : "No branches currently have stock available";
+  const tooltip = branchNames.length > 0
+    ? branchNames.join(", ")
+    : "No branches available";
 
   return (
-    <span className="group relative inline-flex w-fit" title={title}>
+    <Tooltip label={tooltip} align="start" contentClassName="whitespace-normal">
       <span className="text-sm text-ink-muted">
         {count > 0 ? label : "No stock"}
       </span>
-      <span className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-max max-w-56 rounded-md border border-line-soft bg-cream px-3 py-2 text-xs font-medium leading-5 text-charcoal shadow-sm group-hover:block group-focus-within:block">
-        {branchNames.length > 0 ? branchNames.join(", ") : "No branches available"}
-      </span>
-    </span>
+    </Tooltip>
   );
 }
 

@@ -2,6 +2,7 @@ import { Leaf, X } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
+import { Tooltip } from "@/components/shared/tooltip";
 
 export type ToastTone = "sage" | "glass" | "error";
 
@@ -51,14 +52,16 @@ export function Toast({
         ) : null}
       </div>
       {onDismiss ? (
-        <button
-          type="button"
-          onClick={onDismiss}
-          aria-label="Dismiss"
-          className="-mr-1 -mt-1 grid h-8 w-8 place-items-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-tint hover:text-matcha-deep"
-        >
-          <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        <Tooltip label="Dismiss" align="end">
+          <button
+            type="button"
+            onClick={onDismiss}
+            aria-label="Dismiss"
+            className="-mr-1 -mt-1 grid h-8 w-8 place-items-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-tint hover:text-matcha-deep"
+          >
+            <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+          </button>
+        </Tooltip>
       ) : null}
     </div>
   );

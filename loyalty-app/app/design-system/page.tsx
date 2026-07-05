@@ -5,6 +5,7 @@ import { Button } from "@/components/shared/button";
 import { Pill } from "@/components/shared/pill";
 import { Input } from "@/components/shared/input";
 import { Toast } from "@/components/shared/toast";
+import { Tooltip } from "@/components/shared/tooltip";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
 import { RewardCard } from "@/components/customer/reward-card";
@@ -325,6 +326,15 @@ export default function DesignSystemPage() {
                 <Button variant="secondary">Skip for now</Button>
                 <Button variant="tertiary">See all</Button>
                 <Button variant="icon" icon={QrCode} aria-label="Scan" />
+                <Tooltip label="Search members">
+                  <button
+                    type="button"
+                    aria-label="Search members"
+                    className="gloss grid h-11 w-11 place-items-center rounded-pill border border-line bg-milk text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
+                  >
+                    <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                  </button>
+                </Tooltip>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Button icon={Check}>Confirm</Button>

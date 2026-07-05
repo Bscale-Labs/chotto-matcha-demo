@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 import type { LucideProps } from "lucide-react";
 import { clsx } from "clsx";
+import { Tooltip } from "@/components/shared/tooltip";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon";
 export type ButtonSize = "md" | "lg";
@@ -33,6 +34,7 @@ type CommonProps = {
   size?: ButtonSize;
   icon?: ComponentType<LucideProps>;
   iconPosition?: "leading" | "trailing";
+  tooltip?: ReactNode;
   className?: string;
   children?: ReactNode;
 };
@@ -52,9 +54,23 @@ type ButtonAsLink = CommonProps &
 type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 export function Button(props: ButtonProps) {
-  const { variant = "primary", size = "md", icon: Icon, iconPosition = "leading", className, children, ...rest } = props;
+  const {
+    variant = "primary",
+    size = "md",
+    icon: Icon,
+    iconPosition = "leading",
+    tooltip,
+    className,
+    children,
+    ...rest
+  } = props;
   const classes = clsx(base, variants[variant], sizes[variant]?.[size], className);
   const iconSize = variant === "icon" ? "h-5 w-5" : variant === "tertiary" ? "h-3.5 w-3.5" : "h-4 w-4";
+  const inferredTooltip =
+    tooltip ??
+    (variant === "icon" && !children
+      ? (rest as { "aria-label"?: ReactNode })["aria-label"]
+      : undefined);
 
   const inner = (
     <>
@@ -70,16 +86,18 @@ export function Button(props: ButtonProps) {
 
   if ("href" in rest && rest.href) {
     const { href, ...anchorRest } = rest as ButtonAsLink;
-    return (
+    const link = (
       <Link href={href} className={classes} {...anchorRest}>
         {inner}
       </Link>
     );
+    return inferredTooltip ? <Tooltip label={inferredTooltip}>{link}</Tooltip> : link;
   }
 
-  return (
+  const button = (
     <button className={classes} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>
       {inner}
     </button>
   );
+  return inferredTooltip ? <Tooltip label={inferredTooltip}>{button}</Tooltip> : button;
 }

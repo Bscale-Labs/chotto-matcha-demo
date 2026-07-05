@@ -7,6 +7,7 @@ import { updateRewardTiers } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
 import { FIELD_CHANGED_CLASS } from "@/components/shared/dirty-form";
 import { SubmitButton } from "@/components/shared/submit-button";
+import { Tooltip } from "@/components/shared/tooltip";
 import { ToastActionForm } from "@/components/shared/toast-action-form";
 import { formatPoints } from "@/lib/formatters";
 import { tierIcon } from "@/lib/loyalty";
@@ -272,38 +273,41 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                 {isEditing ? (
                   <>
                     {rows.length > 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => removeRow(row.id)}
-                        aria-label={`Remove ${row.name.trim() || "tier"}`}
-                        title="Remove tier"
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
-                      >
-                        <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                      </button>
+                      <Tooltip label="Remove tier">
+                        <button
+                          type="button"
+                          onClick={() => removeRow(row.id)}
+                          aria-label={`Remove ${row.name.trim() || "tier"}`}
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
+                        >
+                          <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                        </button>
+                      </Tooltip>
                     ) : null}
                     {!isNew ? (
-                      <button
-                        type="button"
-                        onClick={() => finishEditingRow(row.id)}
-                        aria-label={`Done editing ${row.name.trim() || "tier"}`}
-                        title="Done editing"
-                        className={iconButtonClass}
-                      >
-                        <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                      </button>
+                      <Tooltip label="Done editing">
+                        <button
+                          type="button"
+                          onClick={() => finishEditingRow(row.id)}
+                          aria-label={`Done editing ${row.name.trim() || "tier"}`}
+                          className={iconButtonClass}
+                        >
+                          <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                        </button>
+                      </Tooltip>
                     ) : null}
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => editRow(row.id)}
-                    aria-label={`Edit ${row.name.trim() || "tier"}`}
-                    title="Edit tier"
-                    className={iconButtonClass}
-                  >
-                    <Pencil className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                  </button>
+                  <Tooltip label="Edit tier">
+                    <button
+                      type="button"
+                      onClick={() => editRow(row.id)}
+                      aria-label={`Edit ${row.name.trim() || "tier"}`}
+                      className={iconButtonClass}
+                    >
+                      <Pencil className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                    </button>
+                  </Tooltip>
                 )}
               </div>
             </section>
