@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes, randomUUID } from "node:crypto";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
@@ -297,6 +297,27 @@ export async function updateRewardTiers(formData: FormData) {
   }
 
   await db.transaction(async (tx) => {
+    const existing = await tx.select({ id: rewardTiers.id }).from(rewardTiers);
+    const existingIds = new Set(existing.map((row) => row.id));
+    const submittedIds = new Set(nextTiers.map((tier) => tier.id));
+
+    // Delete tiers the manager removed in the editor.
+    const removedIds = existing.filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
+    if (removedIds.length > 0) {
+      await tx.delete(rewardTiers).where(inArray(rewardTiers.id, removedIds));
+    }
+
+    // Park surviving rows above the live sort range so the renumber below can't
+    // transiently violate the unique reward_tiers_sort_order_idx.
+    const survivingIds = nextTiers.filter((tier) => existingIds.has(tier.id)).map((tier) => tier.id);
+    if (survivingIds.length > 0) {
+      await tx
+        .update(rewardTiers)
+        .set({ sortOrder: sql`${rewardTiers.sortOrder} + 100000` })
+        .where(inArray(rewardTiers.id, survivingIds));
+    }
+
+    // Insert new tiers, update surviving ones, in ascending sort order.
     for (const tier of nextTiers) {
       await tx
         .insert(rewardTiers)
