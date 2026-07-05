@@ -26,7 +26,9 @@ export async function ManagerShell({ children }: { children: React.ReactNode }) 
               </div>
             </div>
           </aside>
-          <section className="min-w-0 lg:h-full lg:overflow-y-auto lg:pr-2">{children}</section>
+          <section className="manager-scroll-region min-w-0 lg:h-full lg:overflow-y-auto lg:pr-2">
+            {children}
+          </section>
         </div>
       </div>
     </main>

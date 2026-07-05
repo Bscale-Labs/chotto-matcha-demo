@@ -711,6 +711,13 @@ Use glass for:
 - Modals
 - Toasts
 
+Sticky title rule:
+
+- The first page-level title row in every manager route stays sticky at the top of the manager scroll region.
+- Keep that sticky title layer opaque and compact, using the stone manager background with diffusion rather than a full glass card.
+- If the title row includes the primary create action, the action sticks with the title.
+- Filters may be sticky only when they serve the table immediately below; do not stack a second sticky glass layer under the title unless the workflow needs it.
+
 Avoid:
 
 - Oversized heroes

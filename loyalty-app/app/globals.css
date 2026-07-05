@@ -303,6 +303,18 @@ input:focus-visible {
   pointer-events: none;
 }
 
+/* Manager page title rail — the first section header stays available while
+   dense tables and forms scroll below it. */
+.manager-scroll-region > :first-child > :first-child {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin-inline: -2px;
+  padding-bottom: var(--s-4);
+  background:
+    linear-gradient(180deg, var(--stone) 0%, rgba(243, 241, 236, 0.96) 72%, rgba(243, 241, 236, 0));
+}
+
 /* Graceful degradation — glass must still look intentional */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .surface-glass,
