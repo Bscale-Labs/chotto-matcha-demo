@@ -594,6 +594,7 @@ Rules:
 - Submit buttons must show a pending state for the round trip, using specific labels such as "Saving...", "Creating...", or "Uploading...".
 - Keep button footprint stable across normal, disabled, and pending states so rows and toolbars do not shift.
 - Row-level save actions may be hidden until dirty, but reserve their layout space when hiding them.
+- Inline-edit tables should not add a right-side edit button; the editable cell itself is the edit trigger.
 
 ### Tooltips
 
@@ -665,6 +666,8 @@ Rules:
 - Row hover should be subtle and should not shift layout.
 - Empty states should include the next action.
 - Horizontal overflow must remain inside the table container and should not create full-page horizontal scroll.
+- Editable table cells enter edit mode when the cell is clicked, not through a separate right-side edit column.
+- Open editable cells keep the soft changed-state highlight until Save clears the form state.
 
 ### Modals And Sheets
 

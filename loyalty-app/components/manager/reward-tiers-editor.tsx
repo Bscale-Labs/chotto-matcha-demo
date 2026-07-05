@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { clsx } from "clsx";
-import { Check, Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { updateRewardTiers } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
 import { FIELD_CHANGED_CLASS } from "@/components/shared/dirty-form";
@@ -14,6 +14,7 @@ import { tierIcon } from "@/lib/loyalty";
 
 type EditorTier = { id: string; name: string; min: number; vibe: string };
 type Row = { id: string; name: string; min: string; vibe: string };
+type EditableField = "name" | "min" | "vibe";
 
 function makeId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -58,16 +59,17 @@ function formatMinPoints(value: string) {
 }
 
 const editorGrid =
-  "lg:grid-cols-[180px_minmax(160px,0.9fr)_150px_minmax(260px,1.3fr)_88px]";
+  "lg:grid-cols-[180px_minmax(160px,0.9fr)_150px_minmax(260px,1.3fr)]";
 
 const fieldClass =
   "h-11 w-full min-w-0 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus";
 
 const displayCellClass =
-  "flex min-h-11 min-w-0 items-center rounded-md px-3 text-sm text-charcoal";
+  "flex min-h-11 w-full min-w-0 items-center rounded-md px-3 text-left text-sm text-charcoal transition-colors duration-fast ease-out-soft hover:bg-sage-wash/60 focus:outline-none focus:shadow-focus";
 
-const iconButtonClass =
-  "inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-wash hover:text-matcha-deep";
+function cellKey(id: string, field: EditableField) {
+  return `${id}:${field}`;
+}
 
 export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[] }) {
   const [rows, setRows] = useState<Row[]>(
@@ -78,7 +80,8 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
       vibe: tier.vibe
     }))
   );
-  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
+  const [editingCells, setEditingCells] = useState<Set<string>>(new Set());
+  const [activeCell, setActiveCell] = useState<string | null>(null);
 
   // Baseline the fields against the saved tiers (keyed by id). After a save the
   // page refreshes with the new values, so highlights and the dirty gate clear
@@ -113,28 +116,30 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
   function addRow() {
     const id = makeId();
     setRows((prev) => [...prev, { id, name: "", min: "", vibe: "" }]);
-    setEditingIds((prev) => new Set(prev).add(id));
+    setEditingCells((prev) => {
+      const next = new Set(prev);
+      next.add(cellKey(id, "name"));
+      next.add(cellKey(id, "min"));
+      next.add(cellKey(id, "vibe"));
+      return next;
+    });
+    setActiveCell(cellKey(id, "name"));
   }
 
   function removeRow(id: string) {
     setRows((prev) => (prev.length > 1 ? prev.filter((row) => row.id !== id) : prev));
-    setEditingIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
+    setEditingCells((prev) => new Set([...prev].filter((key) => !key.startsWith(`${id}:`))));
+    setActiveCell((prev) => (prev?.startsWith(`${id}:`) ? null : prev));
   }
 
-  function editRow(id: string) {
-    setEditingIds((prev) => new Set(prev).add(id));
+  function editCell(id: string, field: EditableField) {
+    const key = cellKey(id, field);
+    setEditingCells((prev) => new Set(prev).add(key));
+    setActiveCell(key);
   }
 
-  function finishEditingRow(id: string) {
-    setEditingIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
+  function isCellEditing(row: Row, field: EditableField) {
+    return !baselineById.has(row.id) || editingCells.has(cellKey(row.id, field));
   }
 
   return (
@@ -154,14 +159,15 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
         <span>Name</span>
         <span>Minimum points</span>
         <span>Badge copy</span>
-        <span className="sr-only">Actions</span>
       </div>
 
       <div>
         {displayRows.map((row, index) => {
           const Icon = tierIcon(row.id, index);
-          const isNew = !baselineById.has(row.id);
-          const isEditing = isNew || editingIds.has(row.id);
+          const nameEditing = isCellEditing(row, "name");
+          const minEditing = isCellEditing(row, "min");
+          const vibeEditing = isCellEditing(row, "vibe");
+          const rowEditing = nameEditing || minEditing || vibeEditing;
 
           return (
             <section
@@ -172,15 +178,11 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
               )}
             >
               <input type="hidden" name="tierId" value={row.id} />
-              {!isEditing ? (
-                <>
-                  <input type="hidden" name={`name-${row.id}`} value={row.name} />
-                  <input type="hidden" name={`minPoints-${row.id}`} value={row.min} />
-                  <input type="hidden" name={`description-${row.id}`} value={row.vibe} />
-                </>
-              ) : null}
+              {!nameEditing ? <input type="hidden" name={`name-${row.id}`} value={row.name} /> : null}
+              {!minEditing ? <input type="hidden" name={`minPoints-${row.id}`} value={row.min} /> : null}
+              {!vibeEditing ? <input type="hidden" name={`description-${row.id}`} value={row.vibe} /> : null}
 
-              <div className="flex min-w-0 items-center gap-3 lg:block">
+              <div className="flex min-w-0 items-start justify-between gap-3">
                 <div className="min-w-0">
                   <span className="inline-flex max-w-full items-center gap-1.5 rounded-pill bg-sage-wash px-3 py-1.5 text-sm font-medium text-matcha-deep">
                     <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
@@ -192,32 +194,49 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     {formatRange(displayRows, index)} pts
                   </p>
                 </div>
+                {rowEditing && rows.length > 1 ? (
+                  <Tooltip label="Remove tier" align="end">
+                    <button
+                      type="button"
+                      onClick={() => removeRow(row.id)}
+                      aria-label={`Remove ${row.name.trim() || "tier"}`}
+                      className="-mr-2 -mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
+                    >
+                      <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                    </button>
+                  </Tooltip>
+                ) : null}
               </div>
 
-              {isEditing ? (
+              {nameEditing ? (
                 <label className="grid gap-2 text-sm font-medium text-charcoal lg:block">
                   <span className="lg:sr-only">Name</span>
                   <input
                     name={`name-${row.id}`}
                     required
                     value={row.name}
+                    autoFocus={activeCell === cellKey(row.id, "name")}
                     onChange={(event) => updateRow(row.id, { name: event.target.value })}
                     className={clsx(
                       fieldClass,
-                      fieldChanged(row, "name") && FIELD_CHANGED_CLASS
+                      (nameEditing || fieldChanged(row, "name")) && FIELD_CHANGED_CLASS
                     )}
                   />
                 </label>
               ) : (
                 <div className="grid gap-1 text-sm font-medium text-charcoal lg:block">
                   <span className="text-xs font-medium text-ink-muted lg:sr-only">Name</span>
-                  <span className={clsx(displayCellClass, fieldChanged(row, "name") && FIELD_CHANGED_CLASS)}>
+                  <button
+                    type="button"
+                    onClick={() => editCell(row.id, "name")}
+                    className={clsx(displayCellClass, fieldChanged(row, "name") && FIELD_CHANGED_CLASS)}
+                  >
                     {row.name}
-                  </span>
+                  </button>
                 </div>
               )}
 
-              {isEditing ? (
+              {minEditing ? (
                 <label className="grid gap-2 text-sm font-medium text-charcoal lg:block">
                   <span className="lg:sr-only">Minimum points</span>
                   <input
@@ -227,89 +246,57 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={row.min}
+                    autoFocus={activeCell === cellKey(row.id, "min")}
                     onChange={(event) =>
                       updateRow(row.id, { min: event.target.value.replace(/[^0-9]/g, "") })
                     }
                     className={clsx(
                       fieldClass,
                       "counter font-semibold",
-                      fieldChanged(row, "min") && FIELD_CHANGED_CLASS
+                      (minEditing || fieldChanged(row, "min")) && FIELD_CHANGED_CLASS
                     )}
                   />
                 </label>
               ) : (
                 <div className="grid gap-1 text-sm font-medium text-charcoal lg:block">
                   <span className="text-xs font-medium text-ink-muted lg:sr-only">Minimum points</span>
-                  <span className={clsx(displayCellClass, "counter font-semibold", fieldChanged(row, "min") && FIELD_CHANGED_CLASS)}>
+                  <button
+                    type="button"
+                    onClick={() => editCell(row.id, "min")}
+                    className={clsx(displayCellClass, "counter font-semibold", fieldChanged(row, "min") && FIELD_CHANGED_CLASS)}
+                  >
                     {formatMinPoints(row.min)}
-                  </span>
+                  </button>
                 </div>
               )}
 
-              {isEditing ? (
+              {vibeEditing ? (
                 <label className="grid gap-2 text-sm font-medium text-charcoal lg:block">
                   <span className="lg:sr-only">Badge copy</span>
                   <input
                     name={`description-${row.id}`}
                     required
                     value={row.vibe}
+                    autoFocus={activeCell === cellKey(row.id, "vibe")}
                     onChange={(event) => updateRow(row.id, { vibe: event.target.value })}
                     className={clsx(
                       fieldClass,
-                      fieldChanged(row, "vibe") && FIELD_CHANGED_CLASS
+                      (vibeEditing || fieldChanged(row, "vibe")) && FIELD_CHANGED_CLASS
                     )}
                   />
                 </label>
               ) : (
                 <div className="grid gap-1 text-sm font-medium text-charcoal lg:block">
                   <span className="text-xs font-medium text-ink-muted lg:sr-only">Badge copy</span>
-                  <span className={clsx(displayCellClass, "text-ink-muted", fieldChanged(row, "vibe") && FIELD_CHANGED_CLASS)}>
+                  <button
+                    type="button"
+                    onClick={() => editCell(row.id, "vibe")}
+                    className={clsx(displayCellClass, "text-ink-muted", fieldChanged(row, "vibe") && FIELD_CHANGED_CLASS)}
+                  >
                     {row.vibe}
-                  </span>
+                  </button>
                 </div>
               )}
-
-              <div className="flex justify-end gap-1">
-                {isEditing ? (
-                  <>
-                    {rows.length > 1 ? (
-                      <Tooltip label="Remove tier">
-                        <button
-                          type="button"
-                          onClick={() => removeRow(row.id)}
-                          aria-label={`Remove ${row.name.trim() || "tier"}`}
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
-                        >
-                          <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                        </button>
-                      </Tooltip>
-                    ) : null}
-                    {!isNew ? (
-                      <Tooltip label="Done editing">
-                        <button
-                          type="button"
-                          onClick={() => finishEditingRow(row.id)}
-                          aria-label={`Done editing ${row.name.trim() || "tier"}`}
-                          className={iconButtonClass}
-                        >
-                          <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                        </button>
-                      </Tooltip>
-                    ) : null}
-                  </>
-                ) : (
-                  <Tooltip label="Edit tier">
-                    <button
-                      type="button"
-                      onClick={() => editRow(row.id)}
-                      aria-label={`Edit ${row.name.trim() || "tier"}`}
-                      className={iconButtonClass}
-                    >
-                      <Pencil className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                    </button>
-                  </Tooltip>
-                )}
-              </div>
             </section>
           );
         })}
