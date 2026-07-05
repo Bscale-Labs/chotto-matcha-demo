@@ -79,7 +79,7 @@ export default async function CustomerQrPage() {
         </p>
       </div>
 
-      <div className="mt-6 flex items-center justify-between rounded-md border border-line-soft bg-cream p-4">
+      <div className="surface-paper mt-6 flex items-center justify-between rounded-md p-4">
         <div>
           <p className="text-xs uppercase tracking-eyebrow text-ink-muted">Status</p>
           <p className="mt-1 font-medium text-charcoal">{tier.name}</p>

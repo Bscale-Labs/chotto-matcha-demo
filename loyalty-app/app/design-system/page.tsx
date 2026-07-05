@@ -172,7 +172,10 @@ export default function DesignSystemPage() {
 
             {/* Scroll edge diffusion — glass sitting above scrolling content */}
             <div className="relative mt-4 h-28 overflow-hidden rounded-lg border border-line-soft bg-rice">
-              <div className="surface-glass absolute inset-x-0 top-0 z-10 flex items-center gap-2 rounded-none px-5 py-3">
+              <div
+                className="surface-glass absolute inset-x-0 top-0 z-10 flex items-center gap-2 rounded-none px-5 py-3"
+                style={{ position: "absolute" }}
+              >
                 <span className="text-sm font-semibold text-charcoal">Sticky glass header</span>
                 <span className="counter text-xs text-ink-muted">.scroll-edge-diffuse below</span>
               </div>

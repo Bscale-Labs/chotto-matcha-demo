@@ -1,4 +1,5 @@
 import { Brand } from "@/components/shared/brand";
+import { Button } from "@/components/shared/button";
 
 export default function ManagerAccessDeniedPage() {
   return (
@@ -7,7 +8,7 @@ export default function ManagerAccessDeniedPage() {
         <div className="flex justify-center">
           <Brand href="/" size="md" />
         </div>
-        <section className="rounded-lg border border-line-soft bg-cream p-8 shadow-sm">
+        <section className="surface-paper rounded-lg p-8">
           <p className="eyebrow text-matcha-deep">Hold on</p>
           <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
             No manager profile yet.
@@ -17,12 +18,9 @@ export default function ManagerAccessDeniedPage() {
             manager to grant access, or sign out and try a different account.
           </p>
           <form action="/manager/logout" method="post" className="mt-6">
-            <button
-              type="submit"
-              className="inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-cream px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep"
-            >
+            <Button type="submit" variant="secondary">
               Sign out
-            </button>
+            </Button>
           </form>
         </section>
       </div>

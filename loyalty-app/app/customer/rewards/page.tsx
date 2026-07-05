@@ -23,7 +23,7 @@ export default async function CustomerRewardsPage() {
           {formatPoints(customer.pointsBalance)} points to spend, slowly.
         </p>
         <div className="sticky top-2 z-20 mt-5">
-          <div className="surface-glass flex gap-1.5 overflow-x-auto rounded-pill p-1.5">
+          <div className="surface-glass flex gap-1.5 overflow-x-auto overscroll-x-contain rounded-pill p-1.5">
             {filters.map((filter, index) => (
               <button
                 key={filter}

@@ -69,7 +69,7 @@ export function StartShiftForm({
         })}
       </div>
 
-      <div className="rounded-md border border-line-soft bg-milk p-3.5 shadow-sm">
+      <div className="surface-paper rounded-md p-3.5">
         <label className="grid gap-2 text-xs font-semibold uppercase tracking-eyebrow text-ink-muted">
           Enter PIN
           <input

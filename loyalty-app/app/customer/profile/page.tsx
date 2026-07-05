@@ -20,7 +20,7 @@ export default async function CustomerProfilePage() {
 
   return (
     <CustomerShell>
-      <section className="rounded-xl border border-line-soft bg-cream p-6 text-center">
+      <section className="surface-paper rounded-xl p-6 text-center">
         <span className="mx-auto grid h-20 w-20 place-items-center rounded-pill bg-matcha-deep font-display text-2xl font-semibold text-cream">
           {initials(customer.name)}
         </span>
@@ -38,7 +38,7 @@ export default async function CustomerProfilePage() {
       </section>
 
       <section className="mt-5 grid gap-2">
-        <div className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4">
+        <div className="surface-paper flex items-center gap-3 rounded-md p-4">
           <span className="grid h-10 w-10 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
             <Mail className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           </span>
@@ -47,7 +47,7 @@ export default async function CustomerProfilePage() {
             <p className="truncate text-sm text-charcoal">{customer.email}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4">
+        <div className="surface-paper flex items-center gap-3 rounded-md p-4">
           <span className="grid h-10 w-10 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
             <Phone className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           </span>
@@ -70,7 +70,7 @@ export default async function CustomerProfilePage() {
                 className={
                   isCurrent
                     ? "flex items-center gap-3 rounded-md border border-matcha-deep/20 bg-sage-wash p-4"
-                    : "flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4"
+                    : "surface-paper flex items-center gap-3 rounded-md p-4"
                 }
               >
                 <span

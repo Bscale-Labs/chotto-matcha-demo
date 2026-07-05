@@ -1,5 +1,6 @@
 import { Clock3, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { Brand } from "@/components/shared/brand";
+import { Button } from "@/components/shared/button";
 import { CashierNav } from "@/components/cashier/cashier-nav";
 import { endCashierShift } from "@/app/cashier/actions";
 
@@ -25,16 +26,14 @@ export function CashierShell({
               Cashier tablet
             </span>
             <form action={endCashierShift}>
-              <button className="gloss inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
-                <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              <Button type="submit" variant="secondary" icon={LogOut} className="px-4">
                 End shift
-              </button>
+              </Button>
             </form>
             <form action="/cashier/logout" method="post">
-              <button className="gloss inline-flex min-h-tap items-center gap-2 rounded-pill border border-line bg-milk px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
-                <ShieldCheck className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              <Button type="submit" variant="secondary" icon={ShieldCheck} className="px-4">
                 Reset device
-              </button>
+              </Button>
             </form>
           </div>
         </header>

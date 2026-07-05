@@ -38,7 +38,7 @@ export function AwardPointsForm({
     <form action={awardCustomerPoints} className="mt-6">
         <input type="hidden" name="customerId" value={customerId} />
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <div className="rounded-md border border-line-soft bg-milk p-4 shadow-sm">
+        <div className="surface-paper rounded-md p-4">
           <label className="grid gap-2 text-xs font-semibold uppercase tracking-eyebrow text-ink-muted">
             Bill total
             <input
@@ -88,7 +88,7 @@ export function AwardPointsForm({
 
         <div className="grid gap-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-md border border-line-soft bg-milk p-5 shadow-sm">
+            <div className="surface-paper rounded-md p-5">
               <p className="eyebrow text-ink-muted">Bill total</p>
               <p className="counter mt-4 text-[40px] font-semibold leading-none tracking-tight text-charcoal">
                 {formatPeso(safeBillTotal)}
@@ -104,7 +104,7 @@ export function AwardPointsForm({
             </div>
           </div>
 
-          <div className="rounded-md border border-line-soft bg-milk p-5">
+          <div className="surface-paper rounded-md p-5">
             <dl className="grid gap-3 text-sm">
               <div className="flex justify-between gap-4">
                 <dt className="text-ink-muted">Bill total</dt>

@@ -39,7 +39,7 @@ export default async function CustomerActivityPage() {
       </section>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-md border border-line-soft bg-cream p-4">
+        <div className="surface-paper rounded-md p-4">
           <p className="eyebrow text-ink-muted">All-time points</p>
           <p className="counter mt-3 font-display text-[28px] font-medium leading-none text-charcoal">
             {formatPoints(earned)}
@@ -66,7 +66,7 @@ export default async function CustomerActivityPage() {
           return (
             <li
               key={transaction.id}
-              className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4"
+              className="surface-paper flex items-center gap-3 rounded-md p-4"
             >
               <span
                 className={

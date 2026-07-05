@@ -158,7 +158,7 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
     <DirtyFieldsProvider value={ctx}>
       <form
         action={submit}
-        className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6"
+        className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6"
       >
         {reward ? <input type="hidden" name="id" value={reward.id} /> : null}
         <input type="hidden" name="imageAssetId" value={selectedAssetId} />
@@ -358,7 +358,7 @@ export function RewardDetailsForm(props: RewardDetailsFormProps) {
                   )}
                 </label>
               </div>
-              <div className="grid max-h-[260px] gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
+              <div className="grid max-h-[260px] gap-3 overflow-y-auto overscroll-contain pr-1 sm:grid-cols-3">
                 {assetPool.length > 0 ? (
                   assetPool.map((asset) => (
                     <div

@@ -91,7 +91,7 @@ export default async function CustomerHome() {
             <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
           </Link>
         </header>
-        <ul className="divide-y divide-line-soft overflow-hidden rounded-sm border border-line-soft bg-milk shadow-sm">
+        <ul className="surface-paper divide-y divide-line-soft overflow-hidden rounded-sm">
           {recent.map((transaction) => {
             const earned = transaction.pointsDelta > 0;
             const label =

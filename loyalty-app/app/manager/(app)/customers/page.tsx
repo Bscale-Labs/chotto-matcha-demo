@@ -26,7 +26,7 @@ export default async function ManagerCustomersPage({
           <SectionTitle title="Members" />
           <Button href="/manager/customers/new" icon={Plus}>Add customer</Button>
         </div>
-        <form className="ml-auto flex w-full max-w-lg items-center gap-2 rounded-md border border-line bg-cream px-4 py-3 focus-within:border-matcha-deep focus-within:shadow-focus">
+        <form className="surface-paper ml-auto flex w-full max-w-lg items-center gap-2 rounded-md px-4 py-3 focus-within:border-matcha-deep focus-within:shadow-focus">
           <Search className="h-4 w-4 text-ink-muted" strokeWidth={1.75} aria-hidden="true" />
           <input
             name="q"

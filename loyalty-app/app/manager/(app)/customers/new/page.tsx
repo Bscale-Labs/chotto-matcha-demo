@@ -5,7 +5,7 @@ export default function NewCustomerPage() {
   return (
     <div className="space-y-7">
         <SectionTitle title="Add customer" />
-        <section className="max-w-2xl rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper max-w-2xl rounded-lg p-6">
           <CustomerCreateForm />
         </section>
       </div>

@@ -42,7 +42,10 @@ export default async function CashierPage({
               <aside className="relative hidden min-h-[520px] overflow-hidden border-r border-line-soft bg-cream lg:block">
                 <StartShiftStillLife className="absolute inset-0 h-full w-full object-[50%_50%]" />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(250,247,242,0.08),rgba(24,56,31,0.12))]" />
-                <div className="absolute bottom-7 left-7 right-7 flex items-center gap-2 rounded-md bg-[rgba(250,247,242,0.9)] p-3 text-xs text-ink-muted shadow-sm backdrop-blur">
+                <div
+                  className="surface-glass absolute bottom-7 left-7 right-7 flex items-center gap-2 rounded-md p-3 text-xs text-ink-muted"
+                  style={{ position: "absolute" }}
+                >
                   <ShieldCheck className="h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
                   Secure device. Shift activity is protected.
                 </div>
@@ -106,11 +109,11 @@ export default async function CashierPage({
               </h2>
               <p className="mt-2 text-sm leading-6 text-ink-muted">{activeBranch.address}</p>
               <div className="mt-5 grid gap-3 text-sm text-ink-muted sm:grid-cols-2">
-                <div className="rounded-md border border-line-soft bg-stone p-4">
+                <div className="surface-paper rounded-md p-4">
                   <Clock3 className="mb-3 h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
                   Shift-ready tablet
                 </div>
-                <div className="rounded-md border border-line-soft bg-stone p-4">
+                <div className="surface-paper rounded-md p-4">
                   <UserRoundCheck className="mb-3 h-4 w-4 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
                   Member lookup enabled
                 </div>

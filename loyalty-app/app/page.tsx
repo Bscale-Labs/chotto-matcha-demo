@@ -63,7 +63,7 @@ export default function Home() {
               <a
                 key={surface.href}
                 href={surface.href}
-                className="group flex items-center gap-5 rounded-lg border border-line-soft bg-cream p-5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep"
+                className="surface-paper group flex items-center gap-5 rounded-lg p-5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep"
               >
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-pill bg-sage-wash text-matcha-deep transition-colors duration-fast ease-out-soft group-hover:bg-matcha-deep group-hover:text-cream">
                   <surface.icon className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />

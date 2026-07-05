@@ -14,9 +14,9 @@ type ActionLinkProps = {
 
 const variants = {
   primary:
-    "min-h-tap rounded-pill bg-matcha-deep px-6 py-[14px] text-cream hover:bg-forest active:bg-charcoal shadow-sm",
+    "min-h-tap rounded-pill action-lacquer px-6 py-[14px]",
   secondary:
-    "min-h-tap rounded-pill border border-line bg-cream px-6 py-[14px] text-charcoal hover:border-matcha-deep hover:text-matcha-deep active:bg-sage-wash",
+    "gloss min-h-tap rounded-pill border border-line bg-milk px-6 py-[14px] text-charcoal hover:border-matcha-deep hover:text-matcha-deep active:bg-sage-wash",
   tertiary:
     "min-h-tap rounded-sm px-2 py-1 text-matcha-deep hover:bg-sage-wash active:bg-sage-tint"
 } as const;

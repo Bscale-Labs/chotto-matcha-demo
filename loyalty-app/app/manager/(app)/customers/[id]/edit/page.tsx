@@ -21,7 +21,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-7">
         <SectionTitle title="Edit customer" />
-        <DirtyForm mode="edit" action={updateCustomer} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <DirtyForm mode="edit" action={updateCustomer} className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <input type="hidden" name="id" value={customer.id} />
           <TrackedInput name="name" required defaultValue={customer.name} className={inputClass} />
           <TrackedInput name="email" required type="email" defaultValue={customer.email} className={inputClass} />
@@ -31,7 +31,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
             <DirtySaveButton pendingLabel="Saving…">Save customer</DirtySaveButton>
           </div>
         </DirtyForm>
-        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Points
           </h2>
@@ -46,20 +46,20 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
             <input
               name="pointsDelta"
               type="number"
-              className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none"
+              className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus"
               placeholder="±"
               aria-label="Points delta"
             />
             <input
               name="reason"
-              className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none"
+              className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus"
               placeholder="Reason"
               aria-label="Reason"
             />
             <Button type="submit">Apply</Button>
           </ToastActionForm>
         </section>
-        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Status
           </h2>

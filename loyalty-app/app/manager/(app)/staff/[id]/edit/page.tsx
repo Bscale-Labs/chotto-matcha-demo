@@ -22,7 +22,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   return (
     <div className="space-y-7">
         <SectionTitle title="Edit staff" />
-        <DirtyForm mode="edit" action={updateStaff} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <DirtyForm mode="edit" action={updateStaff} className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <input type="hidden" name="id" value={staff.profile.id} />
           <TrackedInput name="name" required defaultValue={staff.profile.name} className={inputClass} />
           <TrackedInput name="email" required type="email" defaultValue={staff.profile.email} className={inputClass} />
@@ -50,7 +50,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
             <DirtySaveButton pendingLabel="Saving…">Save staff</DirtySaveButton>
           </div>
         </DirtyForm>
-        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Status
           </h2>

@@ -47,7 +47,7 @@ export function BranchDetailsForm(props: BranchDetailsFormProps) {
     <DirtyFieldsProvider value={ctx}>
       <form
         action={isEdit ? updateBranch : createBranch}
-        className="grid max-w-2xl gap-5 rounded-lg border border-line-soft bg-cream p-6"
+        className="surface-paper grid max-w-2xl gap-5 rounded-lg p-6"
       >
         {branch ? <input type="hidden" name="id" value={branch.id} /> : null}
         <input type="hidden" name="active" value={active ? "true" : "false"} />

@@ -32,7 +32,7 @@ export default async function CashierIdentifyPage() {
               <span className="text-xs font-medium uppercase tracking-eyebrow text-ink-faint">or</span>
               <span className="h-px flex-1 bg-line" />
             </div>
-            <label className="mx-auto mt-5 flex max-w-xs items-center gap-2 rounded-md border border-line bg-milk px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
+            <label className="surface-paper mx-auto mt-5 flex max-w-xs items-center gap-2 rounded-md px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
               <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               <input
                 placeholder="Enter phone or name manually"
@@ -43,7 +43,7 @@ export default async function CashierIdentifyPage() {
         </section>
         <aside className="cashier-panel rounded-lg p-5">
           <Eyebrow className="text-matcha-deep">Lookup</Eyebrow>
-          <label className="mt-4 flex items-center gap-2 rounded-md border border-line bg-milk px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
+          <label className="surface-paper mt-4 flex items-center gap-2 rounded-md px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
             <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             <input
               placeholder="Search phone or name"

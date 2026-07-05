@@ -37,7 +37,7 @@ export default async function EditRewardPage({
           }}
           assetPool={assetPool}
         />
-        <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper grid max-w-2xl gap-4 rounded-lg p-6">
           <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Branch allocation
           </h2>

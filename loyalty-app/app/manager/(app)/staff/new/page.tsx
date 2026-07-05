@@ -8,7 +8,7 @@ export default async function NewStaffPage() {
   return (
     <div className="space-y-7">
         <SectionTitle title="Add staff" />
-        <section className="max-w-2xl rounded-lg border border-line-soft bg-cream p-6">
+        <section className="surface-paper max-w-2xl rounded-lg p-6">
           <StaffCreateForm branches={branches.map((branch) => ({ id: branch.id, name: branch.name }))} />
         </section>
       </div>
