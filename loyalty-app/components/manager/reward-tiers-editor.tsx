@@ -182,7 +182,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
               {!minEditing ? <input type="hidden" name={`minPoints-${row.id}`} value={row.min} /> : null}
               {!vibeEditing ? <input type="hidden" name={`description-${row.id}`} value={row.vibe} /> : null}
 
-              <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center justify-between gap-3">
                 <div className="min-w-0">
                   <span className="inline-flex max-w-full items-center gap-1.5 rounded-pill bg-sage-wash px-3 py-1.5 text-sm font-medium text-matcha-deep">
                     <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
@@ -200,7 +200,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                       type="button"
                       onClick={() => removeRow(row.id)}
                       aria-label={`Remove ${row.name.trim() || "tier"}`}
-                      className="-mr-2 -mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
+                      className="-mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
                     >
                       <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                     </button>
