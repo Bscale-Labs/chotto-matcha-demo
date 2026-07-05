@@ -1,5 +1,6 @@
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
+import { Button } from "@/components/shared/button";
 import { Select } from "@/components/shared/select";
 import { listBranches } from "@/lib/data/branches";
 import { listTransactionsWithLabels } from "@/lib/data/manager";
@@ -71,9 +72,9 @@ export default async function ManagerTransactionsPage({
               className="h-11 min-h-tap rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
             />
           </label>
-          <button className="min-h-tap self-end rounded-md action-lacquer px-4 text-sm font-semibold md:col-span-2 lg:col-span-1">
+          <Button type="submit" className="self-end rounded-md px-4 text-sm font-semibold md:col-span-2 lg:col-span-1">
             Filter
-          </button>
+          </Button>
         </form>
         <DataTable
           className="min-h-[360px] flex-1 lg:min-h-0"

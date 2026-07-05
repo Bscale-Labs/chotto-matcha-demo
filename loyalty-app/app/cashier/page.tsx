@@ -93,10 +93,9 @@ export default async function CashierPage({
             End shift when taking a break or at end of day.
           </p>
           <form action={endCashierShift} className="mt-5">
-            <button className="gloss inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-pill border border-line bg-milk px-5 text-sm font-medium text-charcoal transition-colors hover:border-matcha-deep hover:text-matcha-deep">
-              <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            <Button type="submit" variant="secondary" icon={LogOut} className="w-full px-5">
               End shift
-            </button>
+            </Button>
           </form>
         </section>
 
