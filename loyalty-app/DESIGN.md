@@ -615,7 +615,7 @@ Rules:
 - Error text should be specific and close to the field.
 - Inputs should not be highly transparent.
 - Focus should change border and show a visible focus ring.
-- In edit mode, changed fields keep a visible changed-state outline until saved or reverted.
+- In edit mode, changed fields keep a soft shadow highlight until saved or reverted; do not add a hard border for dirty state.
 - Reverting a field to its saved value clears the changed state and can disable Save again.
 - Uploading, selecting, and saving are separate actions: uploading an asset should not silently choose it or mark the enclosing form dirty.
 
@@ -905,7 +905,7 @@ Avoid:
 
 Save behavior:
 
-- Edit forms compare against saved values; changed fields stay marked until save or revert.
+- Edit forms compare against saved values; changed fields stay softly highlighted until save or revert.
 - Create forms do not need dirty gating because all values are new.
 - Save success clears changed states and should refresh the relevant server-rendered data.
 - Save errors should leave entered values visible and explain what to fix.

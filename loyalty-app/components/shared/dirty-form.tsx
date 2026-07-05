@@ -25,7 +25,7 @@ import { getToastErrorMessage, useToast } from "@/components/shared/toast-provid
  * Shared "dirty form" primitives. Two behaviours, applied consistently across
  * every edit form:
  *   1. Save enables only once something differs from its saved value.
- *   2. Each changed field carries a matcha outline (`.field-changed`) that
+ *   2. Each changed field carries a soft sage highlight (`.field-changed`) that
  *      clears the moment the form is saved.
  *
  * A field is "changed" by comparing its live value to the baseline it mounted

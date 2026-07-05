@@ -264,11 +264,11 @@ input:focus-visible {
   0%,
   22% {
     background-color: var(--sage-wash);
-    box-shadow: inset 3px 0 0 var(--matcha-deep);
+    box-shadow: 0 0 0 3px rgba(168, 180, 138, 0.48);
   }
   100% {
     background-color: transparent;
-    box-shadow: inset 0 0 0 rgba(47, 75, 46, 0);
+    box-shadow: 0 0 0 0 rgba(168, 180, 138, 0);
   }
 }
 
@@ -278,11 +278,9 @@ input:focus-visible {
 
 /* Field-level unsaved-change cue — persists while an input differs from its
    saved value, and clears on save. Same matcha/sage language as .row-flash, but
-   an outline (not a fill) so it reads as "edited, not yet saved". Held on hover
-   too so it isn't overridden by a control's hover border. */
+   without a hard border so it reads as "edited, not yet saved". */
 .field-changed,
 .field-changed:hover {
-  border-color: var(--matcha-deep);
   box-shadow: 0 0 0 3px var(--sage-tint);
 }
 
@@ -291,7 +289,7 @@ input:focus-visible {
   .row-flash {
     animation: none;
     background-color: var(--sage-wash);
-    box-shadow: inset 3px 0 0 var(--matcha-deep);
+    box-shadow: 0 0 0 3px rgba(168, 180, 138, 0.48);
   }
 }
 
