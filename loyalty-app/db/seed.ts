@@ -56,7 +56,9 @@ const demoUsers = [
     customerCode: "CM-000001",
     phone: "+63 917 000 0000",
     pointsBalance: 980,
-    roles: ["manager", "customer"] as const
+    roles: ["manager", "branch_manager", "customer"] as const,
+    branchId: "branch-bgc",
+    pin: "1234"
   },
   {
     email: "mika@chottomatcha.ph",
@@ -455,20 +457,21 @@ async function main() {
 
       for (const role of demoUser.roles) {
         if (isStaffSeedRole(role)) {
+          const branchScoped = role === "cashier" || role === "branch_manager";
           await db.insert(userRoles).values({ authUserId: authUser.id, role }).onConflictDoNothing();
           await db
             .insert(staffRoleDetails)
             .values({
               staffProfileId: demoUser.staffProfileId,
               role,
-              branchId: "branchId" in demoUser ? demoUser.branchId : null,
-              pinHash: "pin" in demoUser && demoUser.pin ? hashDemoPin(demoUser.pin) : null
+              branchId: branchScoped && "branchId" in demoUser ? demoUser.branchId : null,
+              pinHash: branchScoped && "pin" in demoUser && demoUser.pin ? hashDemoPin(demoUser.pin) : null
             })
             .onConflictDoUpdate({
               target: [staffRoleDetails.staffProfileId, staffRoleDetails.role],
               set: {
-                branchId: "branchId" in demoUser ? demoUser.branchId : null,
-                pinHash: "pin" in demoUser && demoUser.pin ? hashDemoPin(demoUser.pin) : null,
+                branchId: branchScoped && "branchId" in demoUser ? demoUser.branchId : null,
+                pinHash: branchScoped && "pin" in demoUser && demoUser.pin ? hashDemoPin(demoUser.pin) : null,
                 updatedAt: new Date()
               }
             });

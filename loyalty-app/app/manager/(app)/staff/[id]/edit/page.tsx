@@ -12,7 +12,7 @@ import { StaffEditAssignmentFields } from "@/components/manager/staff-assignment
 import { updateStaff } from "@/app/manager/actions";
 import { listActiveBranches } from "@/lib/data/branches";
 import { getManagerStaffProfile } from "@/lib/data/manager";
-import { isStaffRole } from "@/lib/roles/staff";
+import { isBranchShiftRole, type BranchShiftRole } from "@/lib/roles/staff";
 
 const inputClass =
   "rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus";
@@ -23,7 +23,10 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const [staff, branches] = await Promise.all([getManagerStaffProfile(id), listActiveBranches()]);
   if (!staff) notFound();
-  const initialRole = isStaffRole(staff.detail.role) ? staff.detail.role : "cashier";
+  const adminRole = staff.roles.find(({ detail }) => detail.role === "manager");
+  const branchRole = staff.roles.find(({ detail }) => isBranchShiftRole(detail.role));
+  const initialBranchRole: BranchShiftRole =
+    branchRole && isBranchShiftRole(branchRole.detail.role) ? branchRole.detail.role : "branch_manager";
 
   return (
     <div className="space-y-7">
@@ -52,8 +55,9 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
         </label>
         <StaffEditAssignmentFields
           branches={branches}
-          initialBranchId={staff.detail.branchId ?? ""}
-          initialRole={initialRole}
+          initialAdminAccess={Boolean(adminRole)}
+          initialBranchId={branchRole?.detail.branchId ?? ""}
+          initialBranchRole={initialBranchRole}
         />
         <TrackedPinInput
           id="staff-pin"

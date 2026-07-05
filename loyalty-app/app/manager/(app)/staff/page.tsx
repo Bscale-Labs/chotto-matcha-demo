@@ -22,7 +22,7 @@ export default async function ManagerStaffPage({
       <DataTable
         headers={["Name", "Role", "Branch", "PIN", "Status"]}
         rowHrefs={staff.map(({ profile }) => `/manager/staff/${profile.id}/edit`)}
-        rowKeys={staff.map(({ profile }) => profile.id)}
+        rowKeys={staff.map(({ profile, detail }) => `${profile.id}-${detail.role}`)}
         highlightKey={changed}
         rows={staff.map(({ profile, detail, branchName }) => [
           <span key={`${profile.id}-name`} className="font-medium text-charcoal">

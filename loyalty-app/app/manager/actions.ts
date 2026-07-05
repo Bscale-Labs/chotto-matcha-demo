@@ -26,7 +26,7 @@ import { generateCustomerCode } from "@/lib/customers/code";
 import { manualAdjustPoints } from "@/lib/data/transactions";
 import { listCustomersForManager } from "@/lib/data/manager";
 import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
-import { isBranchShiftRole, isStaffRole } from "@/lib/roles/staff";
+import { isBranchShiftRole, type BranchShiftRole, type StaffRole } from "@/lib/roles/staff";
 import { deleteAssetObject, getAssetUrl, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
@@ -67,8 +67,33 @@ function optionalText(formData: FormData, key: string) {
   return text(formData, key) || null;
 }
 
+function staffAssignmentFromForm(formData: FormData): StaffAssignmentInput {
+  const branchId = text(formData, "branchId") || null;
+  const rawBranchRole = text(formData, "branchRole");
+  const adminAccess = text(formData, "adminAccess") === "true";
+  let branchRole: BranchShiftRole | null = null;
+  if (branchId) {
+    if (!isBranchShiftRole(rawBranchRole)) throw new Error("Branch login requires cashier or branch manager role");
+    branchRole = rawBranchRole;
+  }
+  if (!adminAccess && !branchId) throw new Error("Select admin dashboard access or a branch login");
+
+  const roles: StaffRole[] = [];
+  if (adminAccess) roles.push("manager");
+  if (branchRole) roles.push(branchRole);
+  return { adminAccess, branchId, branchRole, roles };
+}
+
 const imageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const maxImageSize = 5 * 1024 * 1024;
+const staffAccessRoles = ["manager", "cashier", "branch_manager"] as const;
+
+type StaffAssignmentInput = {
+  adminAccess: boolean;
+  branchId: string | null;
+  branchRole: BranchShiftRole | null;
+  roles: StaffRole[];
+};
 
 function sanitizeFilename(filename: string) {
   return filename
@@ -463,14 +488,9 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
   try {
     const name = nonEmpty(formData, "name");
     const email = nonEmpty(formData, "email").toLowerCase();
-    const role = text(formData, "role");
-    const branchId = text(formData, "branchId") || null;
+    const assignment = staffAssignmentFromForm(formData);
     const pin = text(formData, "pin");
-    if (!isStaffRole(role)) throw new Error("Invalid staff role");
-    const branchScoped = isBranchShiftRole(role);
-    if (role === "manager" && branchId) throw new Error("Admin must use all branches");
-    if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
-    if (branchScoped && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
+    if (assignment.branchRole && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 
     const password = temporaryPassword();
     await auth.api.signUpEmail({ body: { email, password, name } });
@@ -486,22 +506,24 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
         name,
         active: true
       });
-      await tx.insert(userRoles).values({ authUserId: authUser.id, role });
-      await tx.insert(staffRoleDetails).values({
-        staffProfileId,
-        role,
-        branchId: branchScoped ? branchId : null,
-        pinHash: branchScoped ? hashDemoPin(pin) : null
-      });
+      await tx.insert(userRoles).values(assignment.roles.map((role) => ({ authUserId: authUser.id, role })));
+      await tx.insert(staffRoleDetails).values(
+        assignment.roles.map((role) => ({
+          staffProfileId,
+          role,
+          branchId: role === assignment.branchRole ? assignment.branchId : null,
+          pinHash: role === assignment.branchRole ? hashDemoPin(pin) : null
+        }))
+      );
     });
 
     let invitationFailed = false;
     try {
       await sendSignInLink({
         email,
-        callbackURL: branchScoped ? "/cashier" : "/manager",
+        callbackURL: assignment.adminAccess ? "/manager" : "/cashier",
         intent: "invite",
-        role
+        role: assignment.adminAccess ? "manager" : assignment.branchRole ?? "cashier"
       });
     } catch {
       invitationFailed = true;
@@ -517,13 +539,8 @@ export async function updateStaff(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
   const name = nonEmpty(formData, "name");
-  const role = text(formData, "role");
-  const branchId = text(formData, "branchId") || null;
+  const assignment = staffAssignmentFromForm(formData);
   const pin = text(formData, "pin");
-  if (!isStaffRole(role)) throw new Error("Invalid staff role");
-  const branchScoped = isBranchShiftRole(role);
-  if (role === "manager" && branchId) throw new Error("Admin must use all branches");
-  if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
   if (pin && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 
   await db.transaction(async (tx) => {
@@ -533,30 +550,54 @@ export async function updateStaff(formData: FormData) {
       .where(eq(staffProfiles.id, id))
       .returning({ authUserId: staffProfiles.authUserId });
     if (!profile) throw new Error("Staff profile not found");
-    const existingDetail = await tx.query.staffRoleDetails.findFirst({
-      where: eq(staffRoleDetails.staffProfileId, id)
+    const existingBranchDetail = await tx.query.staffRoleDetails.findFirst({
+      where: and(
+        eq(staffRoleDetails.staffProfileId, id),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"])
+      )
     });
-    if (branchScoped && !pin && !existingDetail?.pinHash) {
+    if (assignment.branchRole && !pin && !existingBranchDetail?.pinHash) {
       throw new Error("New cashier or branch manager role requires a PIN");
     }
+    const removedRoles = staffAccessRoles.filter((role) => !assignment.roles.includes(role));
 
     await tx.update(user).set({ name, updatedAt: new Date() }).where(eq(user.id, profile.authUserId));
-    await tx.delete(staffRoleDetails).where(eq(staffRoleDetails.staffProfileId, id));
+    await tx
+      .delete(staffRoleDetails)
+      .where(and(eq(staffRoleDetails.staffProfileId, id), inArray(staffRoleDetails.role, removedRoles)));
     await tx
       .delete(userRoles)
-      .where(
-        and(
-          eq(userRoles.authUserId, profile.authUserId),
-          inArray(userRoles.role, ["manager", "cashier", "branch_manager"])
-        )
-      );
-    await tx.insert(userRoles).values({ authUserId: profile.authUserId, role });
-    await tx.insert(staffRoleDetails).values({
-      staffProfileId: id,
-      role,
-      branchId: branchScoped ? branchId : null,
-      pinHash: branchScoped ? (pin ? hashDemoPin(pin) : existingDetail?.pinHash ?? null) : null
-    });
+      .where(and(eq(userRoles.authUserId, profile.authUserId), inArray(userRoles.role, removedRoles)));
+    if (assignment.branchRole) {
+      const oppositeBranchRole = assignment.branchRole === "cashier" ? "branch_manager" : "cashier";
+      await tx
+        .delete(staffRoleDetails)
+        .where(and(eq(staffRoleDetails.staffProfileId, id), eq(staffRoleDetails.role, oppositeBranchRole)));
+      await tx
+        .delete(userRoles)
+        .where(and(eq(userRoles.authUserId, profile.authUserId), eq(userRoles.role, oppositeBranchRole)));
+    }
+    for (const role of assignment.roles) {
+      await tx.insert(userRoles).values({ authUserId: profile.authUserId, role }).onConflictDoNothing();
+      await tx
+        .insert(staffRoleDetails)
+        .values({
+          staffProfileId: id,
+          role,
+          branchId: role === assignment.branchRole ? assignment.branchId : null,
+          pinHash:
+            role === assignment.branchRole ? (pin ? hashDemoPin(pin) : existingBranchDetail?.pinHash ?? null) : null
+        })
+        .onConflictDoUpdate({
+          target: [staffRoleDetails.staffProfileId, staffRoleDetails.role],
+          set: {
+            branchId: role === assignment.branchRole ? assignment.branchId : null,
+            pinHash:
+              role === assignment.branchRole ? (pin ? hashDemoPin(pin) : existingBranchDetail?.pinHash ?? null) : null,
+            updatedAt: new Date()
+          }
+        });
+    }
   });
 
   revalidatePath("/manager/staff");

@@ -64,6 +64,13 @@
       "when": 1783240111429,
       "tag": "0008_free_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783241466530,
+      "tag": "0009_optimal_sister_grimm",
+      "breakpoints": true
     }
   ]
 }

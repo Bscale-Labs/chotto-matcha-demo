@@ -137,7 +137,6 @@ export const staffRoleDetails = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.staffProfileId, t.role] }),
-    staffProfileUniqueIdx: uniqueIndex("staff_role_details_staff_profile_unique_idx").on(t.staffProfileId),
     roleBranchIdx: index("staff_role_details_role_branch_idx").on(t.role, t.branchId)
   })
 );

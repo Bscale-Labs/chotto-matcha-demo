@@ -45,7 +45,12 @@ export async function getManagerStaffProfile(id: string) {
     .leftJoin(branches, eq(staffRoleDetails.branchId, branches.id))
     .where(eq(staffProfiles.id, id));
 
-  return rows[0] ?? null;
+  const first = rows[0];
+  if (!first) return null;
+  return {
+    profile: first.profile,
+    roles: rows.map(({ detail, branchName }) => ({ detail, branchName }))
+  };
 }
 
 export async function listCustomersForManager(search?: string) {
