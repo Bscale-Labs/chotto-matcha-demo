@@ -34,10 +34,7 @@ export function ManagerProfileMenu({ name }: { name: string }) {
   return (
     <div ref={menuRef} className="relative">
       {open ? (
-        <div
-          style={{ position: "absolute", left: 0, right: 0, bottom: "100%" }}
-          className="surface-glass-strong z-20 mb-2 rounded-lg p-1.5"
-        >
+        <div className="surface-glass-strong absolute right-0 top-full z-30 mt-2 min-w-[204px] rounded-lg p-1.5">
           <Link
             href="/manager/settings"
             className="flex min-h-tap items-center gap-2 rounded-md px-3 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:bg-sage-wash hover:text-matcha-deep"
@@ -60,15 +57,15 @@ export function ManagerProfileMenu({ name }: { name: string }) {
       <button
         type="button"
         aria-expanded={open}
-        className="gloss flex min-h-[56px] w-full items-center gap-3 rounded-lg border border-line-soft bg-milk p-2.5 text-left transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash"
+        className="gloss flex min-h-tap items-center gap-2.5 rounded-pill border border-line-soft bg-milk py-1.5 pl-1.5 pr-2 text-left transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash sm:pr-3.5"
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-pill bg-matcha-deep text-sm font-semibold text-cream">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-matcha-deep text-xs font-semibold text-cream">
           {initials(name)}
         </span>
-        <span className="min-w-0 flex-1">
+        <span className="hidden min-w-0 max-w-[160px] sm:block">
           <span className="block truncate text-sm font-medium text-charcoal">{name}</span>
-          <span className="mt-0.5 block text-xs text-ink-muted">Manager</span>
+          <span className="-mt-0.5 block text-xs text-ink-muted">Manager</span>
         </span>
       </button>
     </div>
