@@ -1,6 +1,5 @@
 import { SectionTitle } from "@/components/shared/section-title";
-import { Button } from "@/components/shared/button";
-import { ToastActionForm } from "@/components/shared/toast-action-form";
+import { DirtyForm, DirtySaveButton, TrackedInput } from "@/components/shared/dirty-form";
 import { updateSettings } from "@/app/manager/actions";
 import { getOrgDisplayConfig } from "@/lib/data/org-config";
 
@@ -10,7 +9,8 @@ export default async function ManagerSettingsPage() {
   return (
     <div className="space-y-7">
         <SectionTitle title="Settings" />
-        <ToastActionForm
+        <DirtyForm
+          mode="edit"
           action={updateSettings}
           successTitle="Settings saved"
           errorTitle="Could not save settings"
@@ -19,7 +19,7 @@ export default async function ManagerSettingsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <p className="eyebrow text-ink-muted">Earn rate</p>
-              <input
+              <TrackedInput
                 name="earnRate"
                 type="number"
                 min="0.01"
@@ -33,7 +33,7 @@ export default async function ManagerSettingsPage() {
             </div>
             <div>
               <p className="eyebrow text-ink-muted">Display name</p>
-              <input
+              <TrackedInput
                 name="orgName"
                 defaultValue={orgConfig.orgName}
                 className="mt-3 min-h-tap w-full rounded-md border border-line bg-cream px-4 py-3 text-base text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
@@ -44,9 +44,9 @@ export default async function ManagerSettingsPage() {
             </div>
           </div>
           <div className="mt-6 flex justify-end">
-            <Button type="submit">Save settings</Button>
+            <DirtySaveButton pendingLabel="Saving…">Save settings</DirtySaveButton>
           </div>
-        </ToastActionForm>
+        </DirtyForm>
       </div>
   );
 }

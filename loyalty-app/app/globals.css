@@ -276,6 +276,16 @@ input:focus-visible {
   animation: row-flash 2.4s var(--ease-out) forwards;
 }
 
+/* Field-level unsaved-change cue — persists while an input differs from its
+   saved value, and clears on save. Same matcha/sage language as .row-flash, but
+   an outline (not a fill) so it reads as "edited, not yet saved". Held on hover
+   too so it isn't overridden by a control's hover border. */
+.field-changed,
+.field-changed:hover {
+  border-color: var(--matcha-deep);
+  box-shadow: 0 0 0 3px var(--sage-tint);
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* No fade — hold a static highlight so the change is still obvious. */
   .row-flash {

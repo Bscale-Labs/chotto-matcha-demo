@@ -1,10 +1,18 @@
 import { notFound } from "next/navigation";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Button } from "@/components/shared/button";
-import { Select } from "@/components/shared/select";
+import {
+  DirtyForm,
+  DirtySaveButton,
+  TrackedInput,
+  TrackedSelect
+} from "@/components/shared/dirty-form";
 import { setStaffActive, updateStaff } from "@/app/manager/actions";
 import { listActiveBranches } from "@/lib/data/branches";
 import { getManagerStaffProfile } from "@/lib/data/manager";
+
+const inputClass =
+  "rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus";
 
 export default async function EditStaffPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,11 +22,11 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   return (
     <div className="space-y-7">
         <SectionTitle title="Edit staff" />
-        <form action={updateStaff} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
+        <DirtyForm mode="edit" action={updateStaff} className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
           <input type="hidden" name="id" value={staff.profile.id} />
-          <input name="name" required defaultValue={staff.profile.name} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <input name="email" required type="email" defaultValue={staff.profile.email} className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
-          <Select
+          <TrackedInput name="name" required defaultValue={staff.profile.name} className={inputClass} />
+          <TrackedInput name="email" required type="email" defaultValue={staff.profile.email} className={inputClass} />
+          <TrackedSelect
             name="role"
             defaultValue={staff.detail.role}
             aria-label="Role"
@@ -27,7 +35,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
               { value: "manager", label: "Manager" }
             ]}
           />
-          <Select
+          <TrackedSelect
             name="branchId"
             defaultValue={staff.detail.branchId ?? ""}
             aria-label="Branch"
@@ -36,12 +44,12 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
               ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
             ]}
           />
-          <input name="pin" inputMode="numeric" placeholder="New cashier PIN; leave blank to keep current" className="rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus" />
+          <TrackedInput name="pin" inputMode="numeric" defaultValue="" placeholder="New cashier PIN; leave blank to keep current" className={inputClass} />
           <div className="flex justify-end gap-3">
             <Button href="/manager/staff" variant="secondary">Cancel</Button>
-            <Button type="submit">Save staff</Button>
+            <DirtySaveButton pendingLabel="Saving…">Save staff</DirtySaveButton>
           </div>
-        </form>
+        </DirtyForm>
         <section className="grid max-w-2xl gap-4 rounded-lg border border-line-soft bg-cream p-6">
           <h2 className="font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
             Status

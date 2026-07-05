@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { clsx } from "clsx";
 import { updateRewardAllocation } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
+import { FIELD_CHANGED_CLASS } from "@/components/shared/dirty-form";
 import { ToastActionForm } from "@/components/shared/toast-action-form";
 
 type Branch = {
@@ -46,7 +48,10 @@ function StockCell({
         value={value}
         placeholder="Always available"
         aria-label={`${branch.name} stock`}
-        className="h-11 w-40 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
+        className={clsx(
+          "h-11 w-40 rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus",
+          dirty && FIELD_CHANGED_CLASS
+        )}
         onChange={(event) => {
           const nextValue = event.target.value.replace(/\D/g, "");
           setValue(nextValue);
