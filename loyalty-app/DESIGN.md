@@ -111,6 +111,12 @@ Avoid these qualities:
 7. Motion confirms state.
    Motion may make a control feel alive, but it must never delay cashier or manager work.
 
+8. Scroll has one owner.
+   Each screen should have a clear scroll container. Sticky titles, sticky controls, and sticky table headers must attach to that container deliberately, not accidentally through page overflow.
+
+9. State must be explicit.
+   Saves, uploads, filters, row changes, loading, errors, and success confirmation need visible states. Users should never have to infer whether an action happened.
+
 ## Layer Model
 
 The app has five conceptual layers. Design decisions should start here.
@@ -126,6 +132,45 @@ The app has five conceptual layers. Design decisions should start here.
 Key rule:
 
 > Glass belongs mostly to layers 2 and 3. Content belongs to layer 1.
+
+## Global Layout And Interaction Rules
+
+These rules apply across customer, cashier, manager, and shared UI unless a role-specific section says otherwise.
+
+### Page Structure
+
+- The first viewport should show the actual usable workflow, not explanatory or marketing content.
+- Each page has one primary content flow and one clear primary action area.
+- Fixed or sticky UI must be intentional: navigation, page title rows, filters, action bars, table headers, and confirmation controls.
+- Do not stack sticky bars unless each layer has a different job and the combined height still leaves enough work area.
+- Repeated work surfaces should use stable grids, fixed-format rows, or predictable columns so labels, counts, and controls do not jump.
+- When content can overflow, decide whether the page owns scroll or a specific region owns scroll. Do not let both compete.
+
+### Scroll And Sticky Behavior
+
+- Sticky elements must remain visually stable at scroll boundaries.
+- Scroll containers that own sticky children should contain overscroll when edge bounce would move the sticky layer.
+- Long operational tables own their row scroll; their headers stay pinned inside the table scrollport.
+- Full-page scroll is appropriate for narrative, short forms, customer reward browsing, and cashier flows that do not contain dense tables.
+- Horizontal overflow stays inside the component that needs it; avoid whole-page horizontal scroll.
+- Focus states and focused inputs must not be hidden under sticky bars.
+
+### Action And Save Behavior
+
+- Primary actions should be obvious, specific, and stable in position.
+- Edit forms enable Save only when saved data has changed.
+- Create forms can keep Save/Create enabled because all values are new.
+- Submit actions show pending state and prevent duplicate submission.
+- Successful actions confirm what changed through a toast, inline message, row highlight, or state change.
+- Failed actions keep the user's input visible and explain what to fix.
+- Uploading a file, selecting an uploaded file, and saving the form are separate interaction steps unless the UI explicitly says otherwise.
+
+### Data-Derived Interfaces
+
+- If order is implied by a visible numeric or date field, derive ordering from that data instead of asking the user to reorder manually.
+- If a calculated range depends on neighboring rows, show the calculated range next to the editable value.
+- Derived state should update immediately in the UI when possible, and must be enforced again on save.
+- Validation should match the mental model shown on screen. If tiers are ordered by points, errors should talk about point thresholds, not hidden sort order.
 
 ## Material Vocabulary
 
@@ -593,7 +638,7 @@ Rules:
 - Tables are manager-first and operational.
 - Table containers should use Paper or Ceramic, not Clear Glass.
 - Headers should be high contrast and sticky only when useful.
-- Long manager tables should own their own scrollport; the page title and surrounding controls should not scroll with table rows.
+- Long operational tables should own their own scrollport; the page title and surrounding controls should not scroll with table rows.
 - Sticky table headers must stay pinned inside the table scrollport.
 - Table scrollports must contain overscroll so hitting the top or bottom does not bounce the page or move sticky headers.
 - Numeric cells use tabular numbers.
@@ -887,9 +932,9 @@ Avoid:
 - Sticky headers that depend on the page scroll instead of the table scroll
 - Scroll bounce that moves a sticky table header at the top or bottom edge
 
-### Manager CRUD Lists
+### Operational CRUD Lists
 
-Manager list pages are work surfaces.
+Operational list pages are work surfaces. This pattern is required for manager lists and should be reused anywhere the app presents dense records, searchable rows, or repeated admin-style actions.
 
 Use:
 
@@ -906,9 +951,9 @@ Avoid:
 - Multiple competing sticky bars
 - Table filters with large glass shadows
 
-### Editable Manager Tables
+### Editable Operational Tables
 
-Use this pattern for compact, repeatable configuration such as reward tiers and branch allocation.
+Use this pattern for compact, repeatable configuration such as reward tiers, branch allocation, inventory rows, and any future cashier or manager setup screen with repeated editable records.
 
 Use:
 
