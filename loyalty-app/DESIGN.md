@@ -540,6 +540,10 @@ Rules:
 - Button labels use verbs: "Earn points", "Redeem reward", "Save changes".
 - Do not use vague labels like "Continue" when a specific action is known.
 - Disabled buttons need a visible disabled state and, where possible, nearby reason text.
+- Edit-form save buttons are disabled until a saved value has actually changed.
+- Submit buttons must show a pending state for the round trip, using specific labels such as "Saving...", "Creating...", or "Uploading...".
+- Keep button footprint stable across normal, disabled, and pending states so rows and toolbars do not shift.
+- Row-level save actions may be hidden until dirty, but reserve their layout space when hiding them.
 
 ### Cards
 
@@ -564,6 +568,9 @@ Rules:
 - Error text should be specific and close to the field.
 - Inputs should not be highly transparent.
 - Focus should change border and show a visible focus ring.
+- In edit mode, changed fields keep a visible changed-state outline until saved or reverted.
+- Reverting a field to its saved value clears the changed state and can disable Save again.
+- Uploading, selecting, and saving are separate actions: uploading an asset should not silently choose it or mark the enclosing form dirty.
 
 ### Pills And Badges
 
@@ -586,9 +593,13 @@ Rules:
 - Tables are manager-first and operational.
 - Table containers should use Paper or Ceramic, not Clear Glass.
 - Headers should be high contrast and sticky only when useful.
+- Long manager tables should own their own scrollport; the page title and surrounding controls should not scroll with table rows.
+- Sticky table headers must stay pinned inside the table scrollport.
+- Table scrollports must contain overscroll so hitting the top or bottom does not bounce the page or move sticky headers.
 - Numeric cells use tabular numbers.
 - Row hover should be subtle and should not shift layout.
 - Empty states should include the next action.
+- Horizontal overflow must remain inside the table container and should not create full-page horizontal scroll.
 
 ### Modals And Sheets
 
@@ -704,6 +715,14 @@ Material balance:
 - Inter-dominant typography
 - Dense tables and filters
 
+Page model:
+
+- Manager pages use a single shell-level scroll region on desktop.
+- The first page-level title row is sticky at the top of that manager scroll region.
+- For list pages, keep the title/action row first, filters second when present, and the table as the remaining flexible area.
+- Do not make the whole page scroll when the main content is a long table; the table body should be the scrollable area.
+- Use `min-h-0`/stable flex sizing for table regions so sticky headers and page titles do not fight the browser layout.
+
 Use glass for:
 
 - Top account/session bar
@@ -718,6 +737,23 @@ Sticky title rule:
 - If the title row includes the primary create action, the action sticks with the title.
 - Filters may be sticky only when they serve the table immediately below; do not stack a second sticky glass layer under the title unless the workflow needs it.
 
+Filters and controls:
+
+- Manager filter bars are Paper or Ceramic by default.
+- Do not use Milk Glass or large floating shadows for ordinary table filters.
+- Filter controls should sit close to the table they affect and align to a predictable grid.
+- Filter submits are explicit actions unless the interaction is deliberately live-search.
+- Date, branch, type, and search filters should preserve table height and avoid moving the table header when applied.
+
+Manager editors:
+
+- Dense multi-row editors should behave like editable tables, not stacked feature cards.
+- Define column labels once in a header row on desktop; hide repeated labels only where the header remains visible.
+- Row actions should be compact, stable, and aligned at the row edge. Use icon-only buttons for familiar row actions such as remove, with accessible labels.
+- Do not create a decorative metadata rail when the same information can live in the row's first column.
+- Keep editor row heights compact and consistent; inputs should align vertically across rows.
+- When row order is implied by data, derive the order from that data instead of asking the manager to manually reorder. Reward tiers are ordered by minimum points.
+
 Avoid:
 
 - Oversized heroes
@@ -725,6 +761,8 @@ Avoid:
 - Playfair inside data-heavy panels
 - Blur behind tables
 - Glass-heavy CRUD forms
+- Nested scrolling regions except when a table explicitly owns its body scroll.
+- Floating shadows on ordinary filter panels.
 
 Manager screen checklist:
 
@@ -733,6 +771,9 @@ Manager screen checklist:
 - Are totals and date ranges clear?
 - Are empty states actionable?
 - Is the primary create/save action obvious but not oversized?
+- Does the sticky title remain stable while table rows scroll?
+- Does the table header stay pinned at the top of its own scroll area without bounce at the edges?
+- Does an edit screen clearly show what changed and whether Save is available?
 
 ## Screen Pattern Rules
 
@@ -800,12 +841,26 @@ Use:
 - Close error messages
 - Specific submit labels
 - Mobile keyboard hints
+- Dirty-state tracking on edit forms
+- Disabled Save until a real change exists
+- Pending labels and disabled submit state during async saves
+- Toast or inline confirmation that states what changed
 
 Avoid:
 
 - Placeholder-only labels
 - Glass input fields over texture
 - Form sections inside multiple nested cards
+- Save buttons that remain visually primary when nothing changed
+- Silent saves without feedback
+
+Save behavior:
+
+- Edit forms compare against saved values; changed fields stay marked until save or revert.
+- Create forms do not need dirty gating because all values are new.
+- Save success clears changed states and should refresh the relevant server-rendered data.
+- Save errors should leave entered values visible and explain what to fix.
+- Destructive or status-changing actions sit in their own section and use exact labels such as "Deactivate member".
 
 ### Data Tables
 
@@ -818,12 +873,57 @@ Use:
 - Empty/loading/error states
 - Persistent filters when useful
 - Tabular numbers
+- Sticky headers inside the table scroll container
+- Overscroll containment on table scroll containers
+- Stable row and header dimensions
+- Row-level links with full-row hit areas when the row navigates
 
 Avoid:
 
 - Frosted table bodies
 - Centered dense text
 - Hidden horizontal overflow without cue
+- Page-level scrolling for long table bodies on desktop manager pages
+- Sticky headers that depend on the page scroll instead of the table scroll
+- Scroll bounce that moves a sticky table header at the top or bottom edge
+
+### Manager CRUD Lists
+
+Manager list pages are work surfaces.
+
+Use:
+
+- Sticky page title/action row
+- Optional Paper/Ceramic filter row
+- One flexible table region below
+- Primary create action in the title row
+- Highlight the row just created or updated
+
+Avoid:
+
+- Marketing-style hero composition
+- Card stacks above tables unless they are actual metrics or controls
+- Multiple competing sticky bars
+- Table filters with large glass shadows
+
+### Editable Manager Tables
+
+Use this pattern for compact, repeatable configuration such as reward tiers and branch allocation.
+
+Use:
+
+- A single header row defining columns on desktop
+- Compact aligned inputs inside each row
+- Hidden repeated labels only when the header is present
+- Icon-only row actions for familiar actions, with `aria-label`
+- Data-derived ordering where possible
+
+Avoid:
+
+- Large independent cards for every editable row
+- Left-side metadata rails that make fields uneven
+- Manual reorder controls for threshold-based data
+- Changing row height when Save, Remove, or pending states appear
 
 ## Motion
 
@@ -964,6 +1064,13 @@ Before adding new UI:
 3. Add a role-specific component if the behavior belongs only to customer/cashier/manager.
 4. Add one-off classes only for genuinely one-off layouts.
 
+Interaction priority:
+
+1. Use shared form primitives for pending submit state, dirty tracking, and toast-backed server actions.
+2. Use the shared table for manager list data so sticky headers, row links, and overscroll containment stay consistent.
+3. Use role-specific components for dense editable tables when shared read-only tables are not the right fit.
+4. Add bespoke interaction state only when the shared primitives cannot express the workflow.
+
 ### Token Priority
 
 Before hard-coding a value:
@@ -983,6 +1090,13 @@ Per viewport, stay roughly within this budget:
 
 If everything is glass, nothing is glass.
 
+Manager material discipline:
+
+- Ordinary filter bars, CRUD forms, and editable rows are Paper or Ceramic.
+- A filter bar may use Milk Glass only when it is intentionally sticky and visually separated from content passing beneath it.
+- Tables never use blur or transparency for their body.
+- Sticky title bars use opaque diffusion, not a floating glass card.
+
 ### Do Not Add
 
 - Gradient orbs
@@ -993,6 +1107,8 @@ If everything is glass, nothing is glass.
 - Glass form fields over textured backgrounds
 - Text that depends on background blur to become readable
 - Marketing hero layouts inside app surfaces
+- Independent page scroll and table scroll fighting over the same content.
+- Manual ordering controls when the order can be derived from a visible numeric field.
 
 ## QA Checklist
 
@@ -1016,6 +1132,11 @@ Run this before shipping UI changes.
 - Hover, active, disabled, loading, empty, and error states exist where needed.
 - Focus state is visible and not obscured.
 - Reduced motion still communicates state.
+- Edit saves are disabled until something is dirty.
+- Pending saves show a pending label and prevent duplicate submits.
+- Save success or failure is visible through toast or inline feedback.
+- Sticky titles and table headers remain stable while scrolling.
+- Table scroll containers do not bounce or chain scroll into the page at their edges.
 
 ### Role Fit
 
@@ -1031,6 +1152,9 @@ Run this before shipping UI changes.
 - Works with unsupported `backdrop-filter`.
 - Has reduced transparency and increased contrast fallbacks when glass is used.
 - Updates `/design-system` when a reusable token, material, or component changes.
+- Uses the shared `DataTable` for manager list tables unless a custom editable table is required.
+- Uses `min-h-0`, flex sizing, and overscroll containment where nested scroll regions are intentional.
+- Keeps generated file churn out of commits when build tools rewrite local route typings or caches.
 
 ## Definition Of Done For New UI
 
@@ -1058,6 +1182,10 @@ A UI change is done when:
 | Is this cashier-critical? | Larger, more opaque, less motion |
 | Is this manager-dense? | Opaque, compact, Inter-first |
 | Is contrast questionable? | Increase opacity, strengthen border, remove blur |
+| Is this a long manager table? | Table-owned scroll with sticky header |
+| Is this an ordinary manager filter? | Paper or Ceramic |
+| Is this an edit form? | Dirty tracking, disabled Save until changed |
+| Is order based on points, dates, or another visible number? | Auto-order from the data |
 
 ## Current System Map
 
