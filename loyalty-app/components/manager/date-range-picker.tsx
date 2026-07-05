@@ -5,6 +5,21 @@ import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { clsx } from "clsx";
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
+const DATE_DISPLAY_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric"
+});
+const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric"
+});
+const DAY_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+  year: "numeric"
+});
 
 function parseIsoDate(value?: string) {
   if (!value) return null;
@@ -57,11 +72,7 @@ function buildMonthDays(month: Date) {
 
 function formatDisplay(date: Date | null) {
   if (!date) return "";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(date);
+  return DATE_DISPLAY_FORMATTER.format(date);
 }
 
 export function DateRangePicker({
@@ -84,7 +95,7 @@ export function DateRangePicker({
   const [visibleMonth, setVisibleMonth] = useState(() => monthStart(initialFrom ?? initialTo ?? new Date()));
   const [open, setOpen] = useState(false);
   const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
-  const monthLabel = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(visibleMonth);
+  const monthLabel = MONTH_LABEL_FORMATTER.format(visibleMonth);
 
   useEffect(() => {
     if (!open) return;
@@ -171,6 +182,9 @@ export function DateRangePicker({
       {open ? (
         <div
           id={panelId}
+          // .surface-glass-strong sets position:relative / overflow:hidden for cards.
+          // This panel must float above the filter bar instead of resizing the grid row.
+          style={{ position: "absolute", overflow: "visible" }}
           className="surface-glass-strong absolute left-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-3rem))] rounded-lg p-3"
         >
           <div className="flex items-center justify-between gap-2">
@@ -225,12 +239,7 @@ export function DateRangePicker({
                     !inVisibleMonth && !selected && "text-ink-faint",
                     today && !selected && "ring-1 ring-sage-tint"
                   )}
-                  aria-label={new Intl.DateTimeFormat("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric"
-                  }).format(day)}
+                  aria-label={DAY_LABEL_FORMATTER.format(day)}
                 >
                   {day.getDate()}
                 </button>

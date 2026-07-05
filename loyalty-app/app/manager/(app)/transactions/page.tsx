@@ -42,7 +42,7 @@ export default async function ManagerTransactionsPage({
   return (
     <div className="flex min-h-0 flex-col gap-5 lg:h-full">
       <SectionTitle title="Transactions" />
-      <form className="surface-paper grid gap-x-4 gap-y-3 rounded-lg bg-cream p-4 md:grid-cols-2 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,0.95fr)_minmax(0,1.05fr)_minmax(20rem,1.55fr)_minmax(9.75rem,0.7fr)]">
+      <form className="surface-paper grid items-end gap-x-4 gap-y-3 rounded-lg bg-cream p-4 md:grid-cols-2 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,0.95fr)_minmax(0,1.05fr)_minmax(20rem,1.55fr)_minmax(9.75rem,0.7fr)]">
         <label htmlFor="transactions-type" className="grid min-w-0 gap-1 text-xs font-medium text-ink-muted">
           Type
           <Select
