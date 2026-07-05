@@ -17,6 +17,7 @@ import {
   type TextareaHTMLAttributes
 } from "react";
 import type { ButtonSize } from "@/components/shared/button";
+import { PinInput } from "@/components/shared/pin-input";
 import { Select } from "@/components/shared/select";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { getToastErrorMessage, useToast } from "@/components/shared/toast-provider";
@@ -290,6 +291,37 @@ export function TrackedSelect({ defaultValue, className, onValueChange, ...rest 
 
   return (
     <Select
+      defaultValue={defaultValue}
+      onValueChange={handleValueChange}
+      className={clsx(className, showChanged && FIELD_CHANGED_CLASS)}
+      {...rest}
+    />
+  );
+}
+
+type TrackedPinInputProps = {
+  id?: string;
+  name: string;
+  label: string;
+  hint?: string;
+  defaultValue?: string;
+  className?: string;
+  disabled?: boolean;
+};
+
+export function TrackedPinInput({ defaultValue = "", className, ...rest }: TrackedPinInputProps) {
+  const valueRef = useRef<string | null>(null);
+  if (valueRef.current === null) valueRef.current = toComparable(defaultValue);
+  const getCurrentValue = useCallback(() => valueRef.current ?? "", []);
+  const { setValue, showChanged } = useTrackedField(defaultValue, getCurrentValue);
+
+  function handleValueChange(value: string) {
+    valueRef.current = toComparable(value);
+    setValue(valueRef.current);
+  }
+
+  return (
+    <PinInput
       defaultValue={defaultValue}
       onValueChange={handleValueChange}
       className={clsx(className, showChanged && FIELD_CHANGED_CLASS)}

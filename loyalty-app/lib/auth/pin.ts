@@ -7,5 +7,5 @@ export function hashDemoPin(pin: string) {
 }
 
 export function isValidPin(pin: string) {
-  return /^\d{4,8}$/.test(pin);
+  return /^\d{4}$/.test(pin);
 }

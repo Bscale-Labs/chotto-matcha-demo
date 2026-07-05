@@ -5,6 +5,7 @@ import {
   DirtyForm,
   DirtySaveButton,
   TrackedInput,
+  TrackedPinInput,
   TrackedSelect
 } from "@/components/shared/dirty-form";
 import { StaffStatusToggle } from "@/components/manager/staff-edit-controls";
@@ -72,17 +73,12 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
             ]}
           />
         </label>
-        <label htmlFor="staff-pin" className="grid gap-2 text-sm font-medium text-charcoal">
-          Cashier / branch manager PIN
-          <TrackedInput
-            id="staff-pin"
-            name="pin"
-            inputMode="numeric"
-            defaultValue=""
-            placeholder="New PIN; leave blank to keep current"
-            className={inputClass}
-          />
-        </label>
+        <TrackedPinInput
+          id="staff-pin"
+          name="pin"
+          label="Cashier / branch manager PIN"
+          hint="Enter exactly 4 digits. Leave empty to keep current."
+        />
         <div className="flex justify-end gap-3">
           <Button href="/manager/staff" variant="secondary">Cancel</Button>
           <DirtySaveButton pendingLabel="Saving…">Save staff</DirtySaveButton>

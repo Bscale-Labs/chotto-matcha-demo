@@ -5,6 +5,7 @@ import { ArrowRight, Delete, KeyRound } from "lucide-react";
 import { startCashierShift } from "@/app/cashier/actions";
 import { Button } from "@/components/shared/button";
 import { CustomerAvatar } from "@/components/cashier/cashier-visuals";
+import { PinInput } from "@/components/shared/pin-input";
 import { staffRoleLabel } from "@/lib/roles/staff";
 
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -43,7 +44,7 @@ export function StartShiftForm({
   }
 
   function appendDigit(digit: string) {
-    setPin((current) => (current.length >= 6 ? current : `${current}${digit}`));
+    setPin((current) => (current.length >= 4 ? current : `${current}${digit}`));
   }
 
   return (
@@ -77,20 +78,14 @@ export function StartShiftForm({
       </div>
 
       <div className="surface-paper rounded-md p-3.5">
-        <label className="grid gap-2 text-xs font-semibold uppercase tracking-eyebrow text-ink-muted">
-          Enter PIN
-          <input
-            name="pin"
-            type="password"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoComplete="off"
-            value={pin}
-            onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
-            className="h-12 w-full min-w-0 rounded-md border border-line bg-cream px-4 text-center text-lg tracking-[0.4em] text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
-            placeholder="••••"
-          />
-        </label>
+        <PinInput
+          name="pin"
+          label="Enter PIN"
+          hint="4 digits"
+          value={pin}
+          onValueChange={setPin}
+          className="[&>span:first-of-type]:text-xs [&>span:first-of-type]:font-semibold [&>span:first-of-type]:uppercase [&>span:first-of-type]:tracking-eyebrow [&>span:first-of-type]:text-ink-muted"
+        />
         <div className="mt-3 grid grid-cols-3 gap-2">
           {DIGITS.map((digit) => (
             <button
@@ -127,7 +122,7 @@ export function StartShiftForm({
         <Button
           type="submit"
           icon={selectedCashier ? ArrowRight : KeyRound}
-          disabled={!selectedCashier || pin.length === 0}
+          disabled={!selectedCashier || pin.length !== 4}
           className="mt-3 w-full px-4"
         >
           Enter
@@ -135,7 +130,7 @@ export function StartShiftForm({
       </div>
 
       {cashiers.length === 0 ? <p className="text-sm text-error-text">No active cashier accounts are available.</p> : null}
-      {showPinError ? <p className="text-sm text-error-text lg:col-span-2">Select a cashier and enter a valid PIN.</p> : null}
+      {showPinError ? <p className="text-sm text-error-text lg:col-span-2">Select a cashier and enter a valid 4-digit PIN.</p> : null}
     </form>
   );
 }

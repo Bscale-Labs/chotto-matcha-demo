@@ -6,6 +6,7 @@ import { createStaffAccount, type CreateAccountState } from "@/app/manager/actio
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
 import { Pill } from "@/components/shared/pill";
+import { PinInput } from "@/components/shared/pin-input";
 import { Select } from "@/components/shared/select";
 
 const initialState: CreateAccountState = {};
@@ -42,12 +43,10 @@ export function StaffCreateForm({ branches }: { branches: { id: string; name: st
           ]}
         />
       </label>
-      <Input
+      <PinInput
         label="Cashier / branch manager PIN"
         name="pin"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        hint="Required for cashiers and branch managers."
+        hint="4 digits. Required for cashiers and branch managers."
       />
       {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
       {state.temporaryPassword ? (

@@ -469,7 +469,7 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
     if (!isStaffRole(role)) throw new Error("Invalid staff role");
     const branchScoped = isBranchShiftRole(role);
     if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
-    if (branchScoped && !isValidPin(pin)) throw new Error("PIN must be 4 to 8 digits");
+    if (branchScoped && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 
     const password = temporaryPassword();
     await auth.api.signUpEmail({ body: { email, password, name } });
@@ -522,7 +522,7 @@ export async function updateStaff(formData: FormData) {
   if (!isStaffRole(role)) throw new Error("Invalid staff role");
   const branchScoped = isBranchShiftRole(role);
   if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
-  if (pin && !isValidPin(pin)) throw new Error("PIN must be 4 to 8 digits");
+  if (pin && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 
   await db.transaction(async (tx) => {
     const [profile] = await tx
@@ -565,7 +565,7 @@ export async function resetStaffPin(formData: FormData) {
   await requireManagerSession();
   const id = nonEmpty(formData, "id");
   const pin = nonEmpty(formData, "pin");
-  if (!isValidPin(pin)) throw new Error("Cashier PIN must be 4 to 8 digits");
+  if (!isValidPin(pin)) throw new Error("Cashier PIN must be exactly 4 digits");
   await db
     .update(staffRoleDetails)
     .set({ pinHash: hashDemoPin(pin), updatedAt: new Date() })
