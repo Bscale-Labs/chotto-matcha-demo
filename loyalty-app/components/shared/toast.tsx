@@ -27,7 +27,8 @@ export function Toast({
     <div
       role={isError ? "alert" : "status"}
       className={clsx(
-        "flex items-start gap-3 rounded-md p-4",
+        "flex gap-3 rounded-md p-4",
+        message ? "items-start" : "items-center",
         // Feedback layer: quiet sage wash (default) or light glass when floating over content
         tone === "glass" && "surface-glass",
         tone === "sage" && "border border-sage-tint bg-sage-wash shadow-sm",
@@ -57,7 +58,10 @@ export function Toast({
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss"
-            className="-mr-1 -mt-1 grid h-8 w-8 place-items-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-tint hover:text-matcha-deep"
+            className={clsx(
+              "-mr-1 grid h-8 w-8 place-items-center rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-sage-tint hover:text-matcha-deep",
+              message && "-mt-1"
+            )}
           >
             <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           </button>
