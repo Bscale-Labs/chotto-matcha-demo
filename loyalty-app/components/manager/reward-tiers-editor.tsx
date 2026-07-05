@@ -316,12 +316,12 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line-soft bg-cream p-4">
-        <SubmitButton variant={dirty ? "primary" : "secondary"} disabled={!dirty} pendingLabel="Saving…">
-          Save tiers
-        </SubmitButton>
         <Button type="button" variant="secondary" icon={Plus} onClick={addRow}>
           Add tier
         </Button>
+        <SubmitButton variant={dirty ? "primary" : "secondary"} disabled={!dirty} pendingLabel="Saving…">
+          Save tiers
+        </SubmitButton>
       </div>
     </ToastActionForm>
   );
