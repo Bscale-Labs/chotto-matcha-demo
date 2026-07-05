@@ -35,6 +35,20 @@ function formatRange(rows: Row[], index: number) {
   return `${formatPoints(min)}+`;
 }
 
+function sortedRows(rows: Row[]) {
+  return [...rows].sort((left, right) => {
+    const leftMin = left.min.trim() === "" ? Number.POSITIVE_INFINITY : Number(left.min);
+    const rightMin = right.min.trim() === "" ? Number.POSITIVE_INFINITY : Number(right.min);
+    if (Number.isFinite(leftMin) && Number.isFinite(rightMin) && leftMin !== rightMin) {
+      return leftMin - rightMin;
+    }
+    if (Number.isFinite(leftMin) !== Number.isFinite(rightMin)) {
+      return Number.isFinite(leftMin) ? -1 : 1;
+    }
+    return rows.indexOf(left) - rows.indexOf(right);
+  });
+}
+
 const editorGrid =
   "lg:grid-cols-[180px_minmax(160px,0.9fr)_150px_minmax(260px,1.3fr)_48px]";
 
@@ -75,6 +89,8 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
     });
   }, [rows, initialTiers.length, baselineById]);
 
+  const displayRows = useMemo(() => sortedRows(rows), [rows]);
+
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)));
   }
@@ -108,7 +124,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
       </div>
 
       <div>
-        {rows.map((row, index) => {
+        {displayRows.map((row, index) => {
           const Icon = tierIcon(row.id, index);
           return (
             <section
@@ -119,7 +135,6 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
               )}
             >
               <input type="hidden" name="tierId" value={row.id} />
-              <input type="hidden" name={`sortOrder-${row.id}`} value={index + 1} />
 
               <div className="flex min-w-0 items-center justify-between gap-3 lg:block">
                 <div className="min-w-0">
@@ -130,7 +145,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                     </span>
                   </span>
                   <p className="counter mt-2 text-sm font-medium text-ink-muted">
-                    {formatRange(rows, index)} pts
+                    {formatRange(displayRows, index)} pts
                   </p>
                 </div>
                 <span className="counter shrink-0 text-xs font-medium text-ink-faint lg:mt-2 lg:block">

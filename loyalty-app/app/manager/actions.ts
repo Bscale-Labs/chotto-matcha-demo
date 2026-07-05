@@ -275,17 +275,15 @@ export async function updateRewardTiers(formData: FormData) {
     const name = nonEmpty(formData, `name-${id}`);
     const description = nonEmpty(formData, `description-${id}`);
     const minPoints = Number(nonEmpty(formData, `minPoints-${id}`));
-    const sortOrder = Number(nonEmpty(formData, `sortOrder-${id}`));
 
     if (!Number.isInteger(minPoints) || minPoints < 0) {
       throw new Error(`${name} minimum points must be a non-negative integer`);
     }
-    if (!Number.isInteger(sortOrder) || sortOrder <= 0) {
-      throw new Error(`${name} sort order must be a positive integer`);
-    }
 
-    return { id, name, description, minPoints, sortOrder };
-  }).sort((left, right) => left.sortOrder - right.sortOrder);
+    return { id, name, description, minPoints };
+  })
+    .sort((left, right) => left.minPoints - right.minPoints)
+    .map((tier, index) => ({ ...tier, sortOrder: index + 1 }));
 
   if (nextTiers[0]?.minPoints !== 0) {
     throw new Error("The first reward tier must start at 0 points");
