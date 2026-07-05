@@ -84,40 +84,61 @@ export function RewardAllocationTable({
   const allocationsByBranch = new Map(
     allocations.map((allocation) => [allocation.branchId, allocation])
   );
+  const columnTemplate = "minmax(10rem,0.8fr) minmax(20rem,1.2fr)";
 
   return (
-    <div className="max-h-none overflow-auto overscroll-none rounded-lg border border-line-soft lg:max-h-[calc(100vh-18rem)]">
-      <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-        <thead>
-          <tr className="bg-matcha-deep text-cream">
-            <th className="sticky top-0 z-10 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
-              Branch
-            </th>
-            <th className="sticky top-0 z-10 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85">
-              Stock
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {branches.map((branch) => {
-            const allocation = allocationsByBranch.get(branch.id);
-            return (
-              <tr key={branch.id} className="border-t border-line-soft first:border-t-0">
-                <td className="px-4 py-3.5 align-middle font-medium text-charcoal">
-                  {branch.name}
-                </td>
-                <td className="px-4 py-3.5 align-middle">
-                  <StockCell
-                    rewardId={rewardId}
-                    branch={branch}
-                    initialStock={allocation?.stockCount ?? null}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="overflow-hidden rounded-lg border border-line-soft">
+      <div className="overflow-x-auto overscroll-x-none">
+        <div className="min-w-[520px] text-left text-sm" role="table">
+          <div className="bg-matcha-deep text-cream" role="rowgroup">
+            <div
+              className="grid"
+              role="row"
+              style={{ gridTemplateColumns: columnTemplate }}
+            >
+              <div
+                className="min-w-0 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85"
+                role="columnheader"
+              >
+                Branch
+              </div>
+              <div
+                className="min-w-0 bg-matcha-deep px-4 py-3 text-[11px] font-semibold uppercase tracking-eyebrow text-cream/85"
+                role="columnheader"
+              >
+                Stock
+              </div>
+            </div>
+          </div>
+          <div
+            className="max-h-none overflow-y-auto overscroll-none lg:max-h-[calc(100vh-21rem)]"
+            role="rowgroup"
+          >
+            {branches.map((branch) => {
+              const allocation = allocationsByBranch.get(branch.id);
+              return (
+                <div
+                  key={branch.id}
+                  className="grid border-t border-line-soft first:border-t-0"
+                  role="row"
+                  style={{ gridTemplateColumns: columnTemplate }}
+                >
+                  <div className="min-w-0 px-4 py-3.5 font-medium text-charcoal" role="cell">
+                    {branch.name}
+                  </div>
+                  <div className="min-w-0 px-4 py-3.5" role="cell">
+                    <StockCell
+                      rewardId={rewardId}
+                      branch={branch}
+                      initialStock={allocation?.stockCount ?? null}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

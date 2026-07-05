@@ -112,7 +112,7 @@ Avoid these qualities:
    Motion may make a control feel alive, but it must never delay cashier or manager work.
 
 8. Scroll has one owner.
-   Each screen should have a clear scroll container. Sticky titles, sticky controls, and sticky table headers must attach to that container deliberately, not accidentally through page overflow.
+   Each screen should have a clear scroll container. Sticky titles, sticky controls, and locked table headers must attach to that container deliberately, not accidentally through page overflow.
 
 9. State must be explicit.
    Saves, uploads, filters, row changes, loading, errors, and success confirmation need visible states. Users should never have to infer whether an action happened.
@@ -150,7 +150,7 @@ These rules apply across customer, cashier, manager, and shared UI unless a role
 
 - Sticky elements must remain visually stable at scroll boundaries.
 - Scroll containers that own sticky children should contain overscroll when edge bounce would move the sticky layer.
-- Long operational tables own their row scroll; their headers stay pinned inside the table scrollport.
+- Long operational tables own their row scroll; the header strip is locked outside the row scroller.
 - Tables size to their rows by default; do not stretch a table to fill empty page space when there are only a few rows.
 - Apply a max-height scroll cap only once table content is long enough to overflow.
 - Full-page scroll is appropriate for narrative, short forms, customer reward browsing, and cashier flows that do not contain dense tables.
@@ -643,8 +643,8 @@ Rules:
 - Long operational tables should own their own scrollport; the page title and surrounding controls should not scroll with table rows.
 - Short tables should stop after their last row instead of filling the available page height.
 - Use a capped table scroll area for long datasets, not a permanent full-height table shell for every dataset.
-- Sticky table headers must stay pinned inside the table scrollport.
-- Table scrollports must contain overscroll so hitting the top or bottom does not bounce the page or move sticky headers.
+- Table headers must be structurally locked above the row scroller; only rows should move on vertical scroll.
+- Table scrollports must contain overscroll so hitting the top or bottom does not bounce the page or move locked headers.
 - Numeric cells use tabular numbers.
 - Row hover should be subtle and should not shift layout.
 - Empty states should include the next action.
@@ -821,7 +821,7 @@ Manager screen checklist:
 - Are empty states actionable?
 - Is the primary create/save action obvious but not oversized?
 - Does the sticky title remain stable while table rows scroll?
-- Does the table header stay pinned at the top of its own scroll area without bounce at the edges?
+- Does the table header remain locked while only rows scroll, with no bounce at the edges?
 - Does an edit screen clearly show what changed and whether Save is available?
 
 ## Screen Pattern Rules
@@ -937,7 +937,7 @@ Avoid:
 - Page-level scrolling for long table bodies on desktop manager pages
 - Stretching short tables to fill the viewport with empty surface area
 - Sticky headers that depend on the page scroll instead of the table scroll
-- Scroll bounce that moves a sticky table header at the top or bottom edge
+- Scroll bounce that moves a locked table header at the top or bottom edge
 
 ### Operational CRUD Lists
 
@@ -1187,7 +1187,7 @@ Run this before shipping UI changes.
 - Edit saves are disabled until something is dirty.
 - Pending saves show a pending label and prevent duplicate submits.
 - Save success or failure is visible through toast or inline feedback.
-- Sticky titles and table headers remain stable while scrolling.
+- Sticky titles and locked table headers remain stable while scrolling.
 - Table scroll containers do not bounce or chain scroll into the page at their edges.
 
 ### Role Fit
