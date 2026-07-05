@@ -52,7 +52,7 @@ export function Select({
   const [activeIndex, setActiveIndex] = useState(selectedIndex >= 0 ? selectedIndex : 0);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -99,7 +99,7 @@ export function Select({
     }
   }
 
-  function onListKeyDown(event: KeyboardEvent<HTMLUListElement>) {
+  function onListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -171,7 +171,7 @@ export function Select({
         />
       </button>
       {open ? (
-        <ul
+        <div
           ref={listRef}
           id={listboxId}
           role="listbox"
@@ -180,22 +180,24 @@ export function Select({
           onKeyDown={onListKeyDown}
           // position/overflow set inline so they win over the unlayered
           // .surface-glass-strong rule (which forces position:relative / overflow:hidden)
-          style={{ position: "absolute", overflowY: "auto" }}
-          className="surface-glass-strong z-40 mt-2 max-h-64 w-full rounded-lg p-1.5 focus:outline-none"
+          style={{ position: "absolute", minWidth: "100%", overflowY: "auto" }}
+          className="surface-glass-strong z-40 mt-2 max-h-64 w-max max-w-[min(22rem,calc(100vw-2rem))] rounded-lg p-1.5 focus:outline-none"
         >
           {options.map((option, index) => {
             const isSelected = option.value === value;
             const isActive = index === activeIndex;
             return (
-              <li
+              <button
                 key={option.value}
+                type="button"
                 id={`${baseId}-opt-${index}`}
                 role="option"
+                tabIndex={-1}
                 aria-selected={isSelected}
                 onClick={() => commit(index)}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={clsx(
-                  "flex min-h-tap cursor-pointer items-center justify-between gap-2 rounded-md px-3 text-sm font-medium transition-colors duration-fast ease-out-soft",
+                  "flex min-h-tap w-full cursor-pointer items-center justify-between gap-2 rounded-md px-3 text-left text-sm font-medium transition-colors duration-fast ease-out-soft",
                   isSelected
                     ? "action-lacquer"
                     : isActive
@@ -207,10 +209,10 @@ export function Select({
                 {isSelected ? (
                   <Check className="h-4 w-4 shrink-0 text-cream" strokeWidth={2} aria-hidden="true" />
                 ) : null}
-              </li>
+              </button>
             );
           })}
-        </ul>
+        </div>
       ) : null}
     </div>
   );
