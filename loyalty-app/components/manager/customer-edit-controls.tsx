@@ -118,8 +118,8 @@ export function CustomerStatusToggle({
       >
         <span
           className={clsx(
-            "absolute top-1 h-6 w-6 rounded-pill bg-cream shadow-sm transition-transform duration-fast ease-out-soft",
-            active ? "translate-x-7" : "translate-x-1"
+            "absolute left-1 top-1 h-6 w-6 rounded-pill bg-cream shadow-sm transition-transform duration-fast ease-out-soft",
+            active && "translate-x-6"
           )}
         />
       </button>

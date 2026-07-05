@@ -14,7 +14,7 @@ export default async function ManagerLoginPage() {
           <Brand href="/" size="md" />
         </div>
         <section className="surface-paper rounded-lg p-8">
-          <p className="eyebrow text-matcha-deep">Manager</p>
+          <p className="eyebrow text-matcha-deep">Admin</p>
           <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
             Welcome back.
           </h1>

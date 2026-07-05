@@ -68,7 +68,7 @@ export function ManagerProfileMenu({ name }: { name: string }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium text-charcoal">{name}</span>
-          <span className="mt-0.5 block text-xs text-ink-muted">Manager</span>
+          <span className="mt-0.5 block text-xs text-ink-muted">Admin</span>
         </span>
       </button>
     </div>

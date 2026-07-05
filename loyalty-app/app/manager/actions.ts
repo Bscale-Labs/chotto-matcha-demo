@@ -468,6 +468,7 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
     const pin = text(formData, "pin");
     if (!isStaffRole(role)) throw new Error("Invalid staff role");
     const branchScoped = isBranchShiftRole(role);
+    if (role === "manager" && branchId) throw new Error("Admin must use all branches");
     if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
     if (branchScoped && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 
@@ -521,6 +522,7 @@ export async function updateStaff(formData: FormData) {
   const pin = text(formData, "pin");
   if (!isStaffRole(role)) throw new Error("Invalid staff role");
   const branchScoped = isBranchShiftRole(role);
+  if (role === "manager" && branchId) throw new Error("Admin must use all branches");
   if (branchScoped && !branchId) throw new Error("Cashier and branch manager roles require a branch");
   if (pin && !isValidPin(pin)) throw new Error("PIN must be exactly 4 digits");
 

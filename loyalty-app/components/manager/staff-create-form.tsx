@@ -7,7 +7,7 @@ import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
 import { Pill } from "@/components/shared/pill";
 import { PinInput } from "@/components/shared/pin-input";
-import { Select } from "@/components/shared/select";
+import { StaffCreateAssignmentFields } from "@/components/manager/staff-assignment-fields";
 
 const initialState: CreateAccountState = {};
 
@@ -18,31 +18,7 @@ export function StaffCreateForm({ branches }: { branches: { id: string; name: st
     <form action={formAction} className="grid gap-4">
       <Input label="Name" name="name" required />
       <Input label="Email" name="email" type="email" required />
-      <label htmlFor="staff-create-role" className="grid gap-2 text-sm font-medium text-charcoal">
-        Role
-        <Select
-          id="staff-create-role"
-          name="role"
-          defaultValue="cashier"
-          options={[
-            { value: "cashier", label: "Cashier" },
-            { value: "branch_manager", label: "Branch Manager" },
-            { value: "manager", label: "Manager" }
-          ]}
-        />
-      </label>
-      <label htmlFor="staff-create-branch" className="grid gap-2 text-sm font-medium text-charcoal">
-        Branch
-        <Select
-          id="staff-create-branch"
-          name="branchId"
-          defaultValue=""
-          options={[
-            { value: "", label: "All branches / global manager" },
-            ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
-          ]}
-        />
-      </label>
+      <StaffCreateAssignmentFields branches={branches} />
       <PinInput
         label="Cashier / branch manager PIN"
         name="pin"

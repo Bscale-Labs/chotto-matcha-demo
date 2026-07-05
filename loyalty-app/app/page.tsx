@@ -1,4 +1,5 @@
 import { ArrowUpRight, BadgeCheck, Coffee, MonitorCog, Palette } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/shared/button";
 import { Brand } from "@/components/shared/brand";
 import { Pill } from "@/components/shared/pill";
@@ -22,7 +23,7 @@ const surfaces = [
     href: "/manager",
     icon: MonitorCog,
     eyebrow: "Studio",
-    title: "Manager console",
+    title: "Admin console",
     detail: "Tend the catalog, branches, staff, and ledger."
   }
 ];
@@ -34,7 +35,7 @@ export default function Home() {
         <header className="flex items-center justify-between">
           <Brand size="md" />
           <Pill tone="default" icon={Palette}>
-            <a href="/design-system">Design system</a>
+            <Link href="/design-system">Design system</Link>
           </Pill>
         </header>
 
@@ -53,14 +54,14 @@ export default function Home() {
                 Open the member app
               </Button>
               <Button href="/manager" variant="secondary">
-                Manager console
+                Admin console
               </Button>
             </div>
           </div>
 
           <div className="grid gap-3">
             {surfaces.map((surface) => (
-              <a
+              <Link
                 key={surface.href}
                 href={surface.href}
                 className="surface-paper group flex items-center gap-5 rounded-lg p-5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep"
@@ -82,7 +83,7 @@ export default function Home() {
                   strokeWidth={1.5}
                   aria-hidden="true"
                 />
-              </a>
+              </Link>
             ))}
           </div>
         </section>

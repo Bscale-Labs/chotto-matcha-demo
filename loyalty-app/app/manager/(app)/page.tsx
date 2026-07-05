@@ -9,7 +9,7 @@ export default async function ManagerPage() {
 
   return (
     <div className="flex min-h-0 flex-col gap-5 lg:h-full">
-        <SectionTitle title="Manager dashboard" />
+        <SectionTitle title="Admin dashboard" />
 
         <section className="flex min-h-[360px] flex-1 flex-col lg:min-h-0">
           <h2 className="mb-3 font-sans text-[17px] font-bold leading-6 tracking-tight text-charcoal">
@@ -23,7 +23,7 @@ export default async function ManagerPage() {
               </span>,
               <span key={`${transaction.id}-branch`} className="inline-flex items-center gap-2 text-sm text-charcoal">
                 <Building2 className="h-3.5 w-3.5 text-ink-muted" strokeWidth={1.75} aria-hidden="true" />
-                {branchName ?? "Manager"}
+                {branchName ?? "Admin"}
               </span>,
               <span key={`${transaction.id}-type`} className="capitalize text-sm text-ink-muted">
                 {transaction.type}

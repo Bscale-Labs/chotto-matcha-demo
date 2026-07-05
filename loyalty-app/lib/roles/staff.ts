@@ -19,7 +19,7 @@ export function staffRoleLabel(role: StaffRole | string) {
     case "cashier":
       return "Cashier";
     case "manager":
-      return "Manager";
+      return "Admin";
     default:
       return role;
   }

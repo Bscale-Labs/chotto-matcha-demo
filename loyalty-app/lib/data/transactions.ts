@@ -223,12 +223,12 @@ export async function manualAdjustPoints(input: ManualAdjustPointsInput) {
         eq(staffRoleDetails.role, "manager")
       )
     });
-    if (!managerRole) throw new Error("Manager staff profile is missing");
+    if (!managerRole) throw new Error("Admin staff profile is missing");
 
     const manager = await tx.query.staffProfiles.findFirst({
       where: and(eq(staffProfiles.id, input.managerStaffProfileId), eq(staffProfiles.active, true))
     });
-    if (!manager) throw new Error("Manager staff profile is inactive");
+    if (!manager) throw new Error("Admin staff profile is inactive");
 
     const [updatedCustomer] = await tx
       .update(customers)

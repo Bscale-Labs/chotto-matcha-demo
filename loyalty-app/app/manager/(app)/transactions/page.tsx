@@ -120,7 +120,7 @@ export default async function ManagerTransactionsPage({
               {staffName}
             </span>,
             <span key={`${transaction.id}-branch`} className="text-sm text-ink-muted">
-              {branchName ?? "Manager"}
+              {branchName ?? "Admin"}
             </span>,
             <span key={`${transaction.id}-type`} className="text-sm text-ink-muted">
               {rewardName ?? transaction.type}

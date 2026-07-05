@@ -5,13 +5,14 @@ import {
   DirtyForm,
   DirtySaveButton,
   TrackedInput,
-  TrackedPinInput,
-  TrackedSelect
+  TrackedPinInput
 } from "@/components/shared/dirty-form";
 import { StaffStatusToggle } from "@/components/manager/staff-edit-controls";
+import { StaffEditAssignmentFields } from "@/components/manager/staff-assignment-fields";
 import { updateStaff } from "@/app/manager/actions";
 import { listActiveBranches } from "@/lib/data/branches";
 import { getManagerStaffProfile } from "@/lib/data/manager";
+import { isStaffRole } from "@/lib/roles/staff";
 
 const inputClass =
   "rounded-md border border-line bg-cream px-4 py-3 focus:border-matcha-deep focus:outline-none focus:shadow-focus";
@@ -22,6 +23,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const [staff, branches] = await Promise.all([getManagerStaffProfile(id), listActiveBranches()]);
   if (!staff) notFound();
+  const initialRole = isStaffRole(staff.detail.role) ? staff.detail.role : "cashier";
 
   return (
     <div className="space-y-7">
@@ -48,31 +50,11 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
             Bound to this staff member&apos;s login.
           </span>
         </label>
-        <label htmlFor="staff-role" className="grid gap-2 text-sm font-medium text-charcoal">
-          Role
-          <TrackedSelect
-            id="staff-role"
-            name="role"
-            defaultValue={staff.detail.role}
-            options={[
-              { value: "cashier", label: "Cashier" },
-              { value: "branch_manager", label: "Branch Manager" },
-              { value: "manager", label: "Manager" }
-            ]}
-          />
-        </label>
-        <label htmlFor="staff-branch" className="grid gap-2 text-sm font-medium text-charcoal">
-          Branch
-          <TrackedSelect
-            id="staff-branch"
-            name="branchId"
-            defaultValue={staff.detail.branchId ?? ""}
-            options={[
-              { value: "", label: "All branches / global manager" },
-              ...branches.map((branch) => ({ value: branch.id, label: branch.name }))
-            ]}
-          />
-        </label>
+        <StaffEditAssignmentFields
+          branches={branches}
+          initialBranchId={staff.detail.branchId ?? ""}
+          initialRole={initialRole}
+        />
         <TrackedPinInput
           id="staff-pin"
           name="pin"
