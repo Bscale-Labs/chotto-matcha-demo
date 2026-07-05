@@ -26,7 +26,7 @@ export default async function ManagerTransactionsPage({
   return (
     <div className="flex min-h-0 flex-col gap-5 lg:h-full">
         <SectionTitle title="Transactions" />
-        <form className="surface-glass z-20 grid gap-3 rounded-lg p-4 md:grid-cols-5">
+        <form className="surface-paper grid gap-3 rounded-lg bg-cream p-4 md:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_180px]">
           <label className="grid gap-1 text-xs font-medium text-ink-muted">
             Type
             <Select
@@ -71,7 +71,7 @@ export default async function ManagerTransactionsPage({
               className="h-11 min-h-tap rounded-md border border-line bg-cream px-3 text-sm text-charcoal focus:border-matcha-deep focus:outline-none"
             />
           </label>
-          <button className="min-h-tap self-end rounded-md action-lacquer px-4 text-sm font-semibold">
+          <button className="min-h-tap self-end rounded-md action-lacquer px-4 text-sm font-semibold md:col-span-2 lg:col-span-1">
             Filter
           </button>
         </form>

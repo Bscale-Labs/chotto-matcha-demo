@@ -94,36 +94,38 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
           return (
             <section
               key={row.id}
-              className="grid gap-4 rounded-md border border-line-soft bg-cream p-4 lg:grid-cols-[180px_minmax(0,1fr)_180px]"
+              className="grid gap-4 rounded-md border border-line-soft bg-cream p-4 lg:grid-cols-[minmax(0,1fr)_180px]"
             >
               <input type="hidden" name="tierId" value={row.id} />
               <input type="hidden" name={`sortOrder-${row.id}`} value={index + 1} />
 
-              <div className="flex items-start justify-between gap-3 lg:block">
-                <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-3 lg:col-span-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-3">
                   <span className="inline-flex max-w-full items-center gap-1.5 rounded-pill bg-sage-wash px-3 py-1.5 text-sm text-matcha-deep">
                     <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                     <span className="min-w-0 truncate font-medium tracking-tight">
                       {row.name.trim() || "New tier"}
                     </span>
                   </span>
-                  <p className="counter mt-3 text-sm font-medium text-ink-muted">
+                  <span className="counter text-sm font-medium text-ink-muted">
                     {formatRange(rows, index)} pts
-                  </p>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
                   {rows.length > 1 ? (
                     <button
                       type="button"
                       onClick={() => removeRow(row.id)}
-                      className="mt-3 inline-flex min-h-tap items-center gap-1.5 rounded-pill px-2.5 py-1.5 text-sm font-medium text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
+                      className="inline-flex min-h-tap items-center gap-1.5 rounded-pill px-2.5 py-1.5 text-sm font-medium text-ink-muted transition-colors duration-fast ease-out-soft hover:bg-warn-fill hover:text-error-text"
                     >
                       <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                       Remove
                     </button>
                   ) : null}
+                  <span className="counter text-xs font-medium text-ink-faint">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
-                <span className="counter text-xs font-medium text-ink-faint lg:mt-5 lg:block">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
               </div>
 
               <label className="grid gap-2 text-sm font-medium text-charcoal">
@@ -159,7 +161,7 @@ export function RewardTiersEditor({ initialTiers }: { initialTiers: EditorTier[]
                 />
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-charcoal lg:col-span-2 lg:col-start-2">
+              <label className="grid gap-2 text-sm font-medium text-charcoal lg:col-span-2">
                 Badge copy
                 <input
                   name={`description-${row.id}`}
