@@ -6,19 +6,12 @@ import { startCashierShift } from "@/app/cashier/actions";
 import { Button } from "@/components/shared/button";
 import { CustomerAvatar } from "@/components/cashier/cashier-visuals";
 import { PinInput } from "@/components/shared/pin-input";
-import { staffRoleLabel } from "@/lib/roles/staff";
 
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 type CashierOption = {
   profile: {
     id: string;
-    name: string;
-  };
-  detail: {
-    role: string;
-  };
-  branch: {
     name: string;
   };
 };
@@ -48,9 +41,9 @@ export function StartShiftForm({
   }
 
   return (
-    <form action={startCashierShift} className="mt-7 grid gap-5 lg:grid-cols-[1fr_184px]">
+    <form action={startCashierShift} className="mt-7 grid items-start gap-5 lg:grid-cols-[1fr_184px]">
       <div className="grid gap-3">
-        {orderedCashiers.map(({ profile, detail, branch }) => {
+        {orderedCashiers.map(({ profile }) => {
           const selected = selectedCashierId === profile.id;
           return (
             <label
@@ -60,9 +53,6 @@ export function StartShiftForm({
               <CustomerAvatar name={profile.name} className="h-12 w-12" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium text-charcoal">{profile.name}</span>
-                <span className="mt-1 block truncate text-xs text-ink-muted">
-                  {staffRoleLabel(detail.role)} · {branch.name}
-                </span>
               </span>
               <input
                 type="radio"

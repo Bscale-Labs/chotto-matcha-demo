@@ -47,7 +47,7 @@ export default async function CashierCustomerPage({
           variant="tertiary"
           icon={ArrowLeft}
         >
-          {context.mode === "manager" ? "Back to ledger" : "Back to lookup"}
+          {context.mode === "manager" ? "Back to ledger" : "Back to scanner"}
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">

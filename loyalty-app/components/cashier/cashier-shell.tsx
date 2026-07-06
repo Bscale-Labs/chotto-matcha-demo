@@ -48,10 +48,10 @@ export function CashierShell({
             ) : null}
           </div>
         </header>
-        <div className="grid gap-4 lg:h-[calc(100%-4.25rem)] lg:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="surface-paper flex flex-col rounded-lg p-2 lg:h-full lg:min-h-0">
-            <CashierNav mode={mode} />
-            {isManagerMode ? (
+        {isManagerMode ? (
+          <div className="grid gap-4 lg:h-[calc(100%-4.25rem)] lg:grid-cols-[240px_minmax(0,1fr)]">
+            <aside className="surface-paper flex flex-col rounded-lg p-2 lg:h-full lg:min-h-0">
+              <CashierNav mode={mode} />
               <div className="mt-4 border-t border-line-soft pt-2 lg:mt-auto">
                 <form action="/cashier/logout" method="post">
                   <Button type="submit" variant="secondary" icon={LogOut} className="!min-h-10 w-full !px-3 !py-2 text-sm">
@@ -59,10 +59,12 @@ export function CashierShell({
                   </Button>
                 </form>
               </div>
-            ) : null}
-          </aside>
-          <section className="min-w-0 lg:h-full lg:overflow-y-auto lg:pr-2">{children}</section>
-        </div>
+            </aside>
+            <section className="min-w-0 lg:h-full lg:overflow-y-auto lg:pr-2">{children}</section>
+          </div>
+        ) : (
+          <section className="min-w-0">{children}</section>
+        )}
       </div>
     </main>
   );

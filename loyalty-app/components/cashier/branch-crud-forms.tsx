@@ -271,7 +271,7 @@ export function BranchCustomerEditFields({
           aria-describedby="branch-customer-code-lock"
         />
         <span id="branch-customer-code-lock" className="text-xs font-normal text-ink-muted">
-          Used for QR lookup and transaction search.
+          Used for QR scans and transaction search.
         </span>
       </label>
       <label htmlFor="branch-customer-email" className="grid gap-2 text-sm font-medium text-charcoal">
