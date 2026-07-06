@@ -15,7 +15,7 @@ export default async function CashierIdentifyPage() {
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <div className="mb-4">
-        <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
+        <Button href="/cashier/start" variant="tertiary" icon={ArrowLeft}>
           Back to dashboard
         </Button>
       </div>

@@ -18,7 +18,7 @@ export default async function CashierAccountsPage() {
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode="manager">
       <div className="mb-4">
         <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
-          Back to cashier
+          Back to manager
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">
@@ -42,7 +42,7 @@ export default async function CashierAccountsPage() {
             accounts.map((account) => (
               <Link
                 key={account.id}
-                href={`/cashier/customer/${account.id}`}
+                href={`/cashier/customer/${account.id}?mode=manager`}
                 className="gloss group grid gap-4 rounded-lg border border-line-soft bg-milk p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash sm:grid-cols-[1fr_auto] sm:items-center"
               >
                 <span className="flex min-w-0 items-center gap-3">
@@ -84,8 +84,8 @@ export default async function CashierAccountsPage() {
       </section>
 
       <div className="mt-4">
-        <Button href="/cashier/identify" variant="secondary" className="px-5">
-          Open member lookup
+        <Button href="/cashier/start" variant="secondary" className="px-5">
+          Enter cashier mode
         </Button>
       </div>
     </CashierShell>

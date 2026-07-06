@@ -30,11 +30,17 @@ export function EmailLoginForm({
     setSentTo(null);
     const normalizedEmail = email.trim().toLowerCase();
     setPasswordPending(true);
-    const result = await signIn.email({ email: normalizedEmail, password, callbackURL });
-    setPasswordPending(false);
-    if (result.error) {
-      setError(result.error.message ?? "Sign in failed");
+    try {
+      const result = await signIn.email({ email: normalizedEmail, password, callbackURL });
+      if (result.error) {
+        setError(result.error.message ?? "Sign in failed");
+        return;
+      }
+    } catch {
+      setError("Sign in failed. Check your connection and try again.");
       return;
+    } finally {
+      setPasswordPending(false);
     }
     router.push(callbackURL);
     router.refresh();
@@ -49,16 +55,22 @@ export function EmailLoginForm({
       return;
     }
     setLinkPending(true);
-    const result = await signIn.magicLink({
-      email: normalizedEmail,
-      callbackURL,
-      errorCallbackURL: callbackURL,
-      metadata: { intent: "login", role: authRole }
-    });
-    setLinkPending(false);
-    if (result.error) {
-      setError(result.error.message ?? "Could not send sign-in link");
+    try {
+      const result = await signIn.magicLink({
+        email: normalizedEmail,
+        callbackURL,
+        errorCallbackURL: callbackURL,
+        metadata: { intent: "login", role: authRole }
+      });
+      if (result.error) {
+        setError(result.error.message ?? "Could not send sign-in link");
+        return;
+      }
+    } catch {
+      setError("Could not send sign-in link. Check your connection and try again.");
       return;
+    } finally {
+      setLinkPending(false);
     }
     setSentTo(normalizedEmail);
   }

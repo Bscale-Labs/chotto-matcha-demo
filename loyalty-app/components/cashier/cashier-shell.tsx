@@ -21,7 +21,7 @@ export function CashierShell({
     <main className="cashier-surface min-h-screen py-4">
       <div className="mx-auto max-w-[1180px] px-4">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <Brand href="/cashier" size="sm" />
+          <Brand href={isManagerMode ? "/cashier" : "/cashier/start"} size="sm" />
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm font-medium text-charcoal">
               <Sparkles className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
@@ -56,7 +56,7 @@ export function CashierShell({
         </header>
         <div className="grid gap-4 lg:grid-cols-[116px_1fr]">
           <aside className="cashier-rail rounded-lg p-3 lg:sticky lg:top-4 lg:h-[calc(100vh-6.5rem)] lg:min-h-[620px]">
-            <CashierNav canManageAccounts={isManagerMode} />
+            <CashierNav mode={mode} />
           </aside>
           <section className="min-w-0">{children}</section>
         </div>

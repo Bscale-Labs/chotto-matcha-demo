@@ -98,10 +98,10 @@ export async function requireCashierTerminalSession() {
 export async function requireCashierShiftSession() {
   const terminal = await requireCashierTerminalSession();
   const shift = await getCashierShiftCookie();
-  if (!shift) redirect("/cashier");
+  if (!shift) redirect("/cashier/start");
   if (shift.branchId !== terminal.branch.id) {
     await clearCashierShiftCookie();
-    redirect("/cashier");
+    redirect("/cashier/start");
   }
 
   const [profile, roleDetail] = await Promise.all([

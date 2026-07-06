@@ -16,7 +16,7 @@ export default async function CashierStockPage() {
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode="manager">
       <div className="mb-4">
         <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
-          Back to cashier
+          Back to manager
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">

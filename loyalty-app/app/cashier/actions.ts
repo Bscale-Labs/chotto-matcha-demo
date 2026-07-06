@@ -66,10 +66,10 @@ export async function startCashierShift(formData: FormData) {
       )
     })
   ]);
-  if (!profile || !detail?.branchId) redirect("/cashier?pin=invalid");
+  if (!profile || !detail?.branchId) redirect("/cashier/start?pin=invalid");
 
   if (!detail.pinHash || detail.pinHash !== hashDemoPin(pin)) {
-    redirect("/cashier?pin=invalid");
+    redirect("/cashier/start?pin=invalid");
   }
 
   await setCashierShiftCookie({
@@ -83,7 +83,7 @@ export async function startCashierShift(formData: FormData) {
 
 export async function endCashierShift() {
   await clearCashierShiftCookie();
-  redirect("/cashier");
+  redirect("/cashier/start");
 }
 
 export async function unlockCashierManagerMode(formData: FormData) {

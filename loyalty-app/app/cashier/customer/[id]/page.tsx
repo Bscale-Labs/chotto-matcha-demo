@@ -16,11 +16,18 @@ import { formatDate, formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
 
-export default async function CashierCustomerPage({ params }: { params: Promise<{ id: string }> }) {
-  const [{ id }, shift] = await Promise.all([params, getCashierShiftCookie()]);
-  const context = shift
-    ? { mode: "service" as const, session: await requireCashierShiftSession() }
-    : { mode: "manager" as const, session: await requireCashierManagerSession(`/cashier/customer/${id}`) };
+export default async function CashierCustomerPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const [{ id }, shift, query] = await Promise.all([params, getCashierShiftCookie(), searchParams]);
+  const useManagerMode = query.mode === "manager" || !shift;
+  const context = useManagerMode
+    ? { mode: "manager" as const, session: await requireCashierManagerSession(`/cashier/customer/${id}?mode=manager`) }
+    : { mode: "service" as const, session: await requireCashierShiftSession() };
   const { profile, branch } = context.session;
   const [customer, recentTransactions, rewardTiers] = await Promise.all([
     getCustomerById(id),

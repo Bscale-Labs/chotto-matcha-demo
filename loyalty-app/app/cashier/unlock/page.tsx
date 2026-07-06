@@ -60,7 +60,7 @@ export default async function CashierUnlockPage({
               Unlock manager mode
             </SubmitButton>
             <Button href="/cashier" variant="secondary" className="w-full">
-              Back to cashier
+              Back to manager
             </Button>
           </form>
         </section>

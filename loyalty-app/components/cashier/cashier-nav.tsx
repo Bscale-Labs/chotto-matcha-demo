@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { LayoutDashboard, Package, ScanLine, Settings, UsersRound } from "lucide-react";
+import { LayoutDashboard, Package, ScanLine, Settings, Store, UsersRound } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -13,19 +13,23 @@ type NavItem = {
   icon: ComponentType<LucideProps>;
 };
 
-const baseItems: NavItem[] = [
-  { href: "/cashier", label: "Dashboard", icon: LayoutDashboard },
+type CashierNavMode = "service" | "manager";
+
+const serviceItems: NavItem[] = [
+  { href: "/cashier/start", label: "Dashboard", icon: LayoutDashboard },
   { href: "/cashier/identify", label: "Identify", icon: ScanLine }
 ];
 
 const managerItems: NavItem[] = [
+  { href: "/cashier", label: "Branch", icon: Store },
   { href: "/cashier/stock", label: "Stock", icon: Package },
-  { href: "/cashier/accounts", label: "Accounts", icon: UsersRound }
+  { href: "/cashier/accounts", label: "Accounts", icon: UsersRound },
+  { href: "/cashier/start", label: "Cashier", icon: ScanLine }
 ];
 
-export function CashierNav({ canManageAccounts = false }: { canManageAccounts?: boolean }) {
+export function CashierNav({ mode = "service" }: { mode?: CashierNavMode }) {
   const pathname = usePathname() ?? "/cashier";
-  const items = canManageAccounts ? [...baseItems, ...managerItems] : baseItems;
+  const items = mode === "manager" ? managerItems : serviceItems;
 
   return (
     <nav className="relative z-10 flex h-full flex-col">
