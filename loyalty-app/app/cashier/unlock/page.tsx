@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import { unlockCashierManagerMode } from "@/app/cashier/actions";
 import { Button } from "@/components/shared/button";
 import { Brand } from "@/components/shared/brand";
 import { Input } from "@/components/shared/input";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { getCashierManagerUnlockCookie } from "@/lib/auth/cashier-manager";
 import { requireCashierTerminalSession } from "@/lib/auth/session";
 
 function safeCashierNext(value?: string) {
@@ -16,7 +14,7 @@ function safeCashierNext(value?: string) {
     value.startsWith("/cashier/logout") ||
     value.startsWith("/cashier/unlock")
   ) {
-    return "/cashier/stock";
+    return "/cashier/accounts";
   }
   return value;
 }
@@ -28,8 +26,6 @@ export default async function CashierUnlockPage({
 }) {
   const [terminal, params] = await Promise.all([requireCashierTerminalSession(), searchParams]);
   const next = safeCashierNext(params.next);
-  const unlock = await getCashierManagerUnlockCookie();
-  if (unlock?.staffProfileId === terminal.profile.id && unlock.branchId === terminal.branch.id) redirect(next);
 
   return (
     <main className="cashier-surface min-h-screen py-12">
@@ -43,7 +39,7 @@ export default async function CashierUnlockPage({
             Re-enter password.
           </h1>
           <p className="mt-2 text-sm leading-6 text-ink-muted">
-            {terminal.branch.name} management is locked. Confirm {terminal.profile.name}&apos;s password to manage stock and accounts.
+            {terminal.branch.name} management is locked. Confirm {terminal.profile.name}&apos;s password to manage accounts, stock, and the customer ledger.
           </p>
           <form action={unlockCashierManagerMode} className="mt-6 grid gap-4">
             <input type="hidden" name="next" value={next} />
@@ -59,8 +55,8 @@ export default async function CashierUnlockPage({
             <SubmitButton pendingLabel="Unlocking..." className="mt-2 w-full">
               Unlock manager mode
             </SubmitButton>
-            <Button href="/cashier" variant="secondary" className="w-full">
-              Back to manager
+            <Button href="/cashier/start" variant="secondary" className="w-full">
+              Back to cashier mode
             </Button>
           </form>
         </section>

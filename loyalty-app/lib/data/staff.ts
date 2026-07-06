@@ -43,6 +43,46 @@ export async function listCashiersForBranch(branchId: string) {
     .orderBy(asc(staffProfiles.name));
 }
 
+export async function listBranchStaffAccounts(branchId: string) {
+  return db
+    .select({ profile: staffProfiles, detail: staffRoleDetails })
+    .from(staffProfiles)
+    .innerJoin(staffRoleDetails, eq(staffProfiles.id, staffRoleDetails.staffProfileId))
+    .innerJoin(
+      userRoles,
+      and(eq(staffProfiles.authUserId, userRoles.authUserId), eq(userRoles.role, staffRoleDetails.role))
+    )
+    .where(
+      and(
+        inArray(userRoles.role, ["cashier", "branch_manager"]),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
+        eq(staffRoleDetails.branchId, branchId)
+      )
+    )
+    .orderBy(asc(staffProfiles.name));
+}
+
+export async function getBranchStaffAccount(staffProfileId: string, branchId: string) {
+  const [row] = await db
+    .select({ profile: staffProfiles, detail: staffRoleDetails })
+    .from(staffProfiles)
+    .innerJoin(staffRoleDetails, eq(staffProfiles.id, staffRoleDetails.staffProfileId))
+    .innerJoin(
+      userRoles,
+      and(eq(staffProfiles.authUserId, userRoles.authUserId), eq(userRoles.role, staffRoleDetails.role))
+    )
+    .where(
+      and(
+        eq(staffProfiles.id, staffProfileId),
+        inArray(userRoles.role, ["cashier", "branch_manager"]),
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
+        eq(staffRoleDetails.branchId, branchId)
+      )
+    )
+    .limit(1);
+  return row ?? null;
+}
+
 export async function listActiveCashiersWithBranches() {
   return db
     .select({

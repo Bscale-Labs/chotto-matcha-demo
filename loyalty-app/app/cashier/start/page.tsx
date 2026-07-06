@@ -28,18 +28,24 @@ export default async function CashierStartPage({
     return (
       <main className="cashier-surface min-h-screen py-5">
         <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4">
-          <header className="flex items-center justify-between gap-3">
-            <Brand href="/cashier" size="sm" />
-            <div className="flex flex-wrap justify-end gap-2">
-              <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm text-ink-muted">
-                <ShieldCheck className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
-                {terminal.branch.name}
+          <header className="grid items-center gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <Brand href="/cashier" size="sm" className="shrink-0" />
+              <span className="shrink-0 text-sm text-ink-faint" aria-hidden="true">
+                |
               </span>
-              <Button href="/cashier" variant="secondary" icon={ArrowLeft} className="px-4">
+              <span className="truncate text-sm font-medium text-charcoal">{terminal.branch.name}</span>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-eyebrow text-matcha-deep md:justify-self-center">
+              <Clock3 className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              Cashier mode
+            </span>
+            <div className="flex flex-wrap gap-2 md:justify-self-end">
+              <Button href="/cashier/unlock?next=%2Fcashier" variant="secondary" icon={ArrowLeft} className="!min-h-10 !px-3 !py-2 text-sm">
                 Back to manager
               </Button>
               <form action="/cashier/logout" method="post">
-                <Button type="submit" variant="secondary" icon={LogOut} className="px-4">
+                <Button type="submit" variant="secondary" icon={LogOut} className="!min-h-10 !px-3 !py-2 text-sm">
                   Sign out terminal
                 </Button>
               </form>

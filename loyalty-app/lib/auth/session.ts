@@ -6,7 +6,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/db/client";
 import { branches, customers, staffProfiles, staffRoleDetails, userRoles } from "@/db/schema";
-import { getCashierManagerUnlockCookie } from "@/lib/auth/cashier-manager";
 import { clearCashierShiftCookie, getCashierShiftCookie } from "@/lib/auth/shift";
 import type { Role } from "@/lib/types";
 
@@ -59,10 +58,6 @@ export async function requireCustomerSession() {
   if (!customer) redirect("/customer/access-denied");
 
   return { user: session.user, customer };
-}
-
-function unlockRedirect(nextPath: string) {
-  redirect(`/cashier/unlock?next=${encodeURIComponent(nextPath)}`);
 }
 
 export async function requireCashierTerminalSession() {
@@ -124,16 +119,9 @@ export async function requireCashierShiftSession() {
   return { user: terminal.user, terminalProfile: terminal.profile, profile, roleDetail, shift, branch: terminal.branch };
 }
 
-export async function requireCashierManagerSession(nextPath = "/cashier/stock") {
+export async function requireCashierManagerPageSession(nextPath = "/cashier/accounts") {
   const terminal = await requireCashierTerminalSession();
-  const unlock = await getCashierManagerUnlockCookie();
-  if (
-    !unlock ||
-    unlock.staffProfileId !== terminal.profile.id ||
-    unlock.branchId !== terminal.branch.id
-  ) {
-    unlockRedirect(nextPath);
-  }
-
+  const shift = await getCashierShiftCookie();
+  if (shift) redirect(`/cashier/unlock?next=${encodeURIComponent(nextPath)}`);
   return terminal;
 }

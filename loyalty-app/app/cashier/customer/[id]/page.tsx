@@ -5,7 +5,7 @@ import { CashierShell } from "@/components/cashier/cashier-shell";
 import { CustomerAvatar, TeaStillLife } from "@/components/cashier/cashier-visuals";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { getCashierShiftCookie } from "@/lib/auth/shift";
-import { requireCashierManagerSession, requireCashierShiftSession } from "@/lib/auth/session";
+import { requireCashierManagerPageSession, requireCashierShiftSession } from "@/lib/auth/session";
 import {
   getCustomerById,
   getCustomerRecentTransactions,
@@ -26,7 +26,7 @@ export default async function CashierCustomerPage({
   const [{ id }, shift, query] = await Promise.all([params, getCashierShiftCookie(), searchParams]);
   const useManagerMode = query.mode === "manager" || !shift;
   const context = useManagerMode
-    ? { mode: "manager" as const, session: await requireCashierManagerSession(`/cashier/customer/${id}?mode=manager`) }
+    ? { mode: "manager" as const, session: await requireCashierManagerPageSession(`/cashier/customer/${id}?mode=manager`) }
     : { mode: "service" as const, session: await requireCashierShiftSession() };
   const { profile, branch } = context.session;
   const [customer, recentTransactions, rewardTiers] = await Promise.all([
@@ -43,15 +43,15 @@ export default async function CashierCustomerPage({
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode={context.mode}>
       <div className="mb-4">
         <Button
-          href={context.mode === "manager" ? "/cashier/accounts" : "/cashier/identify"}
+          href={context.mode === "manager" ? "/cashier/ledger" : "/cashier/identify"}
           variant="tertiary"
           icon={ArrowLeft}
         >
-          {context.mode === "manager" ? "Back to accounts" : "Back to lookup"}
+          {context.mode === "manager" ? "Back to ledger" : "Back to lookup"}
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">
-        <Eyebrow className="text-matcha-deep">{context.mode === "manager" ? "Branch account" : "Member found"}</Eyebrow>
+        <Eyebrow className="text-matcha-deep">{context.mode === "manager" ? "Customer ledger" : "Member found"}</Eyebrow>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <CustomerAvatar name={customer.name} className="h-16 w-16 text-lg" />
