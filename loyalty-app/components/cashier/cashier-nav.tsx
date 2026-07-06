@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { LayoutDashboard, ScanLine, Settings, UsersRound } from "lucide-react";
+import { LayoutDashboard, Package, ScanLine, Settings, UsersRound } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -19,6 +19,7 @@ const baseItems: NavItem[] = [
 ];
 
 const managerItems: NavItem[] = [
+  { href: "/cashier/stock", label: "Stock", icon: Package },
   { href: "/cashier/accounts", label: "Accounts", icon: UsersRound }
 ];
 

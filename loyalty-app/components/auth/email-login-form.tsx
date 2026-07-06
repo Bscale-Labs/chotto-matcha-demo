@@ -10,11 +10,11 @@ import type { Role } from "@/lib/types";
 export function EmailLoginForm({
   callbackURL,
   placeholder = "you@example.com",
-  role = "customer"
+  authRole = "customer"
 }: {
   callbackURL: string;
   placeholder?: string;
-  role?: Role;
+  authRole?: Role;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -53,7 +53,7 @@ export function EmailLoginForm({
       email: normalizedEmail,
       callbackURL,
       errorCallbackURL: callbackURL,
-      metadata: { intent: "login", role }
+      metadata: { intent: "login", role: authRole }
     });
     setLinkPending(false);
     if (result.error) {

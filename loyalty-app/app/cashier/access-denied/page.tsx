@@ -1,4 +1,5 @@
 import { Brand } from "@/components/shared/brand";
+import { Button } from "@/components/shared/button";
 
 export default function CashierAccessDeniedPage() {
   return (
@@ -10,11 +11,16 @@ export default function CashierAccessDeniedPage() {
         <section className="cashier-panel rounded-lg p-8">
           <p className="eyebrow text-matcha-deep">Hold on</p>
           <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
-            No active cashier profile.
+            Branch manager access required.
           </h1>
           <p className="mt-3 text-sm leading-6 text-ink-muted">
-            This account is signed in, but it cannot start a cashier shift.
+            This account is signed in, but it is not an active branch manager account with an assigned branch.
           </p>
+          <form action="/cashier/logout" method="post" className="mt-6">
+            <Button type="submit" variant="secondary">
+              Sign in with another account
+            </Button>
+          </form>
         </section>
       </div>
     </main>

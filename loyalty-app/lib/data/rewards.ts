@@ -135,6 +135,31 @@ export async function listRewardsForManager(branchId?: string) {
   }));
 }
 
+export async function listBranchRewardStock(branchId: string) {
+  const rows = await db
+    .select({
+      ...rewardSelect(),
+      branchId: rewardBranchAllocations.branchId,
+      branchStockCount: rewardBranchAllocations.stockCount,
+      branchActive: rewardBranchAllocations.active
+    })
+    .from(rewards)
+    .leftJoin(assets, eq(rewards.imageAssetId, assets.id))
+    .leftJoin(
+      rewardBranchAllocations,
+      and(eq(rewardBranchAllocations.rewardId, rewards.id), eq(rewardBranchAllocations.branchId, branchId))
+    )
+    .where(eq(rewards.active, true))
+    .orderBy(asc(rewards.name));
+
+  return rows.map((row) => ({
+    ...withImageUrl(row),
+    branchId: row.branchId,
+    branchStockCount: row.branchStockCount,
+    branchActive: row.branchActive ?? false
+  }));
+}
+
 export async function listActiveRewards() {
   const rows = await db
     .select(rewardSelect())

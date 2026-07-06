@@ -6,7 +6,8 @@ import { and, eq, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/db/client";
 import { branches, customers, staffProfiles, staffRoleDetails, userRoles } from "@/db/schema";
-import { getCashierShiftCookie } from "@/lib/auth/shift";
+import { getCashierManagerUnlockCookie } from "@/lib/auth/cashier-manager";
+import { clearCashierShiftCookie, getCashierShiftCookie } from "@/lib/auth/shift";
 import type { Role } from "@/lib/types";
 
 export async function getSession() {
@@ -60,12 +61,16 @@ export async function requireCustomerSession() {
   return { user: session.user, customer };
 }
 
-export async function requireCashierSession() {
+function unlockRedirect(nextPath: string) {
+  redirect(`/cashier/unlock?next=${encodeURIComponent(nextPath)}`);
+}
+
+export async function requireCashierTerminalSession() {
   const session = await requireAuthenticatedSession("/cashier/login");
 
   const [userRole, profile] = await Promise.all([
     db.query.userRoles.findFirst({
-      where: and(eq(userRoles.authUserId, session.user.id), inArray(userRoles.role, ["cashier", "branch_manager"]))
+      where: and(eq(userRoles.authUserId, session.user.id), eq(userRoles.role, "branch_manager"))
     }),
     db.query.staffProfiles.findFirst({
       where: and(eq(staffProfiles.authUserId, session.user.id), eq(staffProfiles.active, true))
@@ -77,19 +82,29 @@ export async function requireCashierSession() {
   const roleDetail = await db.query.staffRoleDetails.findFirst({
     where: and(
       eq(staffRoleDetails.staffProfileId, profile.id),
-      inArray(staffRoleDetails.role, ["cashier", "branch_manager"])
+      eq(staffRoleDetails.role, "branch_manager")
     )
   });
   if (!roleDetail?.branchId) redirect("/cashier/access-denied");
 
-  return { user: session.user, profile, roleDetail };
+  const branch = await db.query.branches.findFirst({
+    where: and(eq(branches.id, roleDetail.branchId), eq(branches.active, true))
+  });
+  if (!branch) redirect("/cashier/access-denied");
+
+  return { user: session.user, profile, roleDetail, branch };
 }
 
 export async function requireCashierShiftSession() {
+  const terminal = await requireCashierTerminalSession();
   const shift = await getCashierShiftCookie();
   if (!shift) redirect("/cashier");
+  if (shift.branchId !== terminal.branch.id) {
+    await clearCashierShiftCookie();
+    redirect("/cashier");
+  }
 
-  const [profile, roleDetail, branch] = await Promise.all([
+  const [profile, roleDetail] = await Promise.all([
     db.query.staffProfiles.findFirst({
       where: and(eq(staffProfiles.id, shift.staffProfileId), eq(staffProfiles.active, true))
     }),
@@ -99,9 +114,6 @@ export async function requireCashierShiftSession() {
         inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
         eq(staffRoleDetails.branchId, shift.branchId)
       )
-    }),
-    db.query.branches.findFirst({
-      where: and(eq(branches.id, shift.branchId), eq(branches.active, true))
     })
   ]);
   if (!profile) redirect("/cashier/access-denied");
@@ -109,7 +121,19 @@ export async function requireCashierShiftSession() {
     redirect("/cashier/access-denied");
   }
 
-  if (!branch) redirect("/cashier/access-denied");
+  return { user: terminal.user, terminalProfile: terminal.profile, profile, roleDetail, shift, branch: terminal.branch };
+}
 
-  return { user: null, profile, roleDetail, shift, branch };
+export async function requireCashierManagerSession(nextPath = "/cashier/stock") {
+  const terminal = await requireCashierTerminalSession();
+  const unlock = await getCashierManagerUnlockCookie();
+  if (
+    !unlock ||
+    unlock.staffProfileId !== terminal.profile.id ||
+    unlock.branchId !== terminal.branch.id
+  ) {
+    unlockRedirect(nextPath);
+  }
+
+  return terminal;
 }

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, desc, eq, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { customers, transactions } from "@/db/schema";
 import { normalizeCustomerCode } from "@/lib/customers/code";
@@ -45,6 +45,14 @@ export async function getCustomerBalance(customerId: string) {
 export async function getCustomerRecentTransactions(customerId: string, limit = 10) {
   return db.query.transactions.findMany({
     where: eq(transactions.customerId, customerId),
+    orderBy: [desc(transactions.createdAt)],
+    limit
+  });
+}
+
+export async function getCustomerRecentTransactionsForBranch(customerId: string, branchId: string, limit = 10) {
+  return db.query.transactions.findMany({
+    where: and(eq(transactions.customerId, customerId), eq(transactions.branchId, branchId)),
     orderBy: [desc(transactions.createdAt)],
     limit
   });

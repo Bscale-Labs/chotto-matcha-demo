@@ -4,33 +4,47 @@ import { Eyebrow } from "@/components/shared/eyebrow";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { CustomerAvatar, TeaStillLife } from "@/components/cashier/cashier-visuals";
 import { TierBadge } from "@/components/customer/tier-badge";
-import { requireCashierShiftSession } from "@/lib/auth/session";
-import { getCustomerById, getCustomerRecentTransactions } from "@/lib/data/customers";
+import { getCashierShiftCookie } from "@/lib/auth/shift";
+import { requireCashierManagerSession, requireCashierShiftSession } from "@/lib/auth/session";
+import {
+  getCustomerById,
+  getCustomerRecentTransactions,
+  getCustomerRecentTransactionsForBranch
+} from "@/lib/data/customers";
 import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatDate, formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
 
 export default async function CashierCustomerPage({ params }: { params: Promise<{ id: string }> }) {
-  const [{ profile, branch, roleDetail }, { id }] = await Promise.all([requireCashierShiftSession(), params]);
+  const [{ id }, shift] = await Promise.all([params, getCashierShiftCookie()]);
+  const context = shift
+    ? { mode: "service" as const, session: await requireCashierShiftSession() }
+    : { mode: "manager" as const, session: await requireCashierManagerSession(`/cashier/customer/${id}`) };
+  const { profile, branch } = context.session;
   const [customer, recentTransactions, rewardTiers] = await Promise.all([
     getCustomerById(id),
-    getCustomerRecentTransactions(id, 2),
+    context.mode === "manager"
+      ? getCustomerRecentTransactionsForBranch(id, branch.id, 2)
+      : getCustomerRecentTransactions(id, 2),
     listConfiguredRewardTiers()
   ]);
   if (!customer?.active) notFound();
   const tier = getTier(customer.pointsBalance, rewardTiers);
-  const canManageAccounts = roleDetail.role === "branch_manager";
 
   return (
-    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} canManageAccounts={canManageAccounts}>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode={context.mode}>
       <div className="mb-4">
-        <Button href="/cashier/identify" variant="tertiary" icon={ArrowLeft}>
-          Back to lookup
+        <Button
+          href={context.mode === "manager" ? "/cashier/accounts" : "/cashier/identify"}
+          variant="tertiary"
+          icon={ArrowLeft}
+        >
+          {context.mode === "manager" ? "Back to accounts" : "Back to lookup"}
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">
-        <Eyebrow className="text-matcha-deep">Member found</Eyebrow>
+        <Eyebrow className="text-matcha-deep">{context.mode === "manager" ? "Branch account" : "Member found"}</Eyebrow>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <CustomerAvatar name={customer.name} className="h-16 w-16 text-lg" />
@@ -57,14 +71,16 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
           <TeaStillLife className="pointer-events-none absolute bottom-0 right-0 h-full w-[42%] opacity-70 [mask-image:linear-gradient(90deg,transparent,black_32%)]" />
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <Button href={`/cashier/award?customerId=${customer.id}`} icon={PlusCircle}>
-            Award points
-          </Button>
-          <Button href={`/cashier/redeem?customerId=${customer.id}`} variant="secondary" icon={Gift}>
-            Redeem reward
-          </Button>
-        </div>
+        {context.mode === "service" ? (
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <Button href={`/cashier/award?customerId=${customer.id}`} icon={PlusCircle}>
+              Award points
+            </Button>
+            <Button href={`/cashier/redeem?customerId=${customer.id}`} variant="secondary" icon={Gift}>
+              Redeem reward
+            </Button>
+          </div>
+        ) : null}
 
         <div className="mt-6 border-t border-line-soft pt-5">
           <div className="flex items-center justify-between gap-3">

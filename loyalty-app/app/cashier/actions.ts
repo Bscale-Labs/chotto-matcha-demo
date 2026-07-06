@@ -1,13 +1,22 @@
 "use server";
 
+import { verifyPassword } from "better-auth/crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
-import { branches, staffProfiles, staffRoleDetails } from "@/db/schema";
+import { account, rewardBranchAllocations, staffProfiles, staffRoleDetails } from "@/db/schema";
+import {
+  clearCashierManagerUnlockCookie,
+  setCashierManagerUnlockCookie
+} from "@/lib/auth/cashier-manager";
 import { hashDemoPin } from "@/lib/auth/pin";
 import { clearCashierShiftCookie, setCashierShiftCookie } from "@/lib/auth/shift";
-import { requireCashierShiftSession } from "@/lib/auth/session";
+import {
+  requireCashierManagerSession,
+  requireCashierShiftSession,
+  requireCashierTerminalSession
+} from "@/lib/auth/session";
 import { awardPoints, redeemReward } from "@/lib/data/transactions";
 
 function text(formData: FormData, key: string) {
@@ -20,7 +29,28 @@ function nonEmpty(formData: FormData, key: string) {
   return value;
 }
 
+function optionalStock(formData: FormData) {
+  const raw = text(formData, "stockCount");
+  if (!raw) return null;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0) throw new Error("Stock must be a non-negative integer");
+  return value;
+}
+
+function safeCashierNext(value: string) {
+  if (
+    (value !== "/cashier" && !value.startsWith("/cashier/")) ||
+    value.startsWith("/cashier/login") ||
+    value.startsWith("/cashier/logout") ||
+    value.startsWith("/cashier/unlock")
+  ) {
+    return "/cashier/stock";
+  }
+  return value;
+}
+
 export async function startCashierShift(formData: FormData) {
+  const terminal = await requireCashierTerminalSession();
   const staffProfileId = nonEmpty(formData, "staffProfileId");
   const pin = nonEmpty(formData, "pin");
 
@@ -31,25 +61,20 @@ export async function startCashierShift(formData: FormData) {
     db.query.staffRoleDetails.findFirst({
       where: and(
         eq(staffRoleDetails.staffProfileId, staffProfileId),
-        inArray(staffRoleDetails.role, ["cashier", "branch_manager"])
+        inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
+        eq(staffRoleDetails.branchId, terminal.branch.id)
       )
     })
   ]);
   if (!profile || !detail?.branchId) redirect("/cashier?pin=invalid");
 
-  const branch = await db.query.branches.findFirst({
-    where: and(
-      eq(branches.id, detail.branchId),
-      eq(branches.active, true)
-    )
-  });
-  if (!detail?.pinHash || detail.pinHash !== hashDemoPin(pin) || !branch) {
+  if (!detail.pinHash || detail.pinHash !== hashDemoPin(pin)) {
     redirect("/cashier?pin=invalid");
   }
 
   await setCashierShiftCookie({
     staffProfileId: profile.id,
-    branchId: detail.branchId,
+    branchId: terminal.branch.id,
     issuedAt: Date.now()
   });
   revalidatePath("/cashier");
@@ -59,6 +84,58 @@ export async function startCashierShift(formData: FormData) {
 export async function endCashierShift() {
   await clearCashierShiftCookie();
   redirect("/cashier");
+}
+
+export async function unlockCashierManagerMode(formData: FormData) {
+  const terminal = await requireCashierTerminalSession();
+  const password = nonEmpty(formData, "password");
+  const next = safeCashierNext(text(formData, "next") || "/cashier/stock");
+  const credential = await db.query.account.findFirst({
+    where: and(eq(account.userId, terminal.user.id), eq(account.providerId, "credential"))
+  });
+
+  const valid = credential?.password
+    ? await verifyPassword({ hash: credential.password, password })
+    : false;
+  if (!valid) redirect(`/cashier/unlock?next=${encodeURIComponent(next)}&error=invalid`);
+
+  await setCashierManagerUnlockCookie({
+    staffProfileId: terminal.profile.id,
+    branchId: terminal.branch.id,
+    issuedAt: Date.now()
+  });
+  redirect(next);
+}
+
+export async function lockCashierManagerMode() {
+  await clearCashierManagerUnlockCookie();
+  redirect("/cashier");
+}
+
+export async function updateBranchRewardStock(formData: FormData) {
+  const { branch } = await requireCashierManagerSession("/cashier/stock");
+  const rewardId = nonEmpty(formData, "rewardId");
+  const stockCount = optionalStock(formData);
+  const active = text(formData, "active") === "true";
+  await db
+    .insert(rewardBranchAllocations)
+    .values({
+      rewardId,
+      branchId: branch.id,
+      stockCount,
+      active
+    })
+    .onConflictDoUpdate({
+      target: [rewardBranchAllocations.rewardId, rewardBranchAllocations.branchId],
+      set: {
+        stockCount,
+        active,
+        updatedAt: new Date()
+      }
+    });
+  revalidatePath("/cashier/stock");
+  revalidatePath("/cashier/redeem");
+  revalidatePath(`/manager/rewards/${rewardId}/edit`);
 }
 
 export async function awardCustomerPoints(formData: FormData) {

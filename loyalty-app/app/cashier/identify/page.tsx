@@ -9,12 +9,11 @@ import { listCustomers } from "@/lib/data/customers";
 import { formatPoints } from "@/lib/formatters";
 
 export default async function CashierIdentifyPage() {
-  const { profile, branch, roleDetail } = await requireCashierShiftSession();
+  const { profile, branch } = await requireCashierShiftSession();
   const customers = (await listCustomers()).filter((customer) => customer.active);
-  const canManageAccounts = roleDetail.role === "branch_manager";
 
   return (
-    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} canManageAccounts={canManageAccounts}>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <div className="mb-4">
         <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
           Back to dashboard

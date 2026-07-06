@@ -22,14 +22,22 @@ export async function listStaffRoleDetails() {
 
 export async function listCashiersForBranch(branchId: string) {
   return db
-    .select({ profile: staffProfiles, detail: staffRoleDetails })
+    .select({ profile: staffProfiles, detail: staffRoleDetails, branch: branches })
     .from(staffProfiles)
     .innerJoin(staffRoleDetails, eq(staffProfiles.id, staffRoleDetails.staffProfileId))
+    .innerJoin(
+      userRoles,
+      and(eq(staffProfiles.authUserId, userRoles.authUserId), eq(userRoles.role, staffRoleDetails.role))
+    )
+    .innerJoin(branches, eq(staffRoleDetails.branchId, branches.id))
     .where(
       and(
         eq(staffProfiles.active, true),
+        inArray(userRoles.role, ["cashier", "branch_manager"]),
         inArray(staffRoleDetails.role, ["cashier", "branch_manager"]),
-        eq(staffRoleDetails.branchId, branchId)
+        eq(staffRoleDetails.branchId, branchId),
+        eq(branches.active, true),
+        isNotNull(staffRoleDetails.pinHash)
       )
     )
     .orderBy(asc(staffProfiles.name));

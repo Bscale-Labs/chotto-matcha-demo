@@ -1,23 +1,26 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { ChevronRight, ReceiptText, UsersRound } from "lucide-react";
+import { ArrowLeft, ChevronRight, ReceiptText, UsersRound } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { Pill } from "@/components/shared/pill";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { CustomerAvatar } from "@/components/cashier/cashier-visuals";
-import { requireCashierShiftSession } from "@/lib/auth/session";
+import { requireCashierManagerSession } from "@/lib/auth/session";
 import { listBranchCustomerAccounts } from "@/lib/data/staff";
 import { formatDate, formatPoints } from "@/lib/formatters";
 
 export default async function CashierAccountsPage() {
-  const { profile, branch, roleDetail } = await requireCashierShiftSession();
-  if (roleDetail.role !== "branch_manager") redirect("/cashier/access-denied");
+  const { profile, branch } = await requireCashierManagerSession("/cashier/accounts");
 
   const accounts = await listBranchCustomerAccounts(branch.id);
 
   return (
-    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} canManageAccounts>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode="manager">
+      <div className="mb-4">
+        <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
+          Back to cashier
+        </Button>
+      </div>
       <section className="cashier-panel rounded-lg p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>

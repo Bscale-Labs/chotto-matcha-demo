@@ -1,15 +1,14 @@
-import { ArrowRight, Clock3, LogOut, ScanLine, ShieldCheck, UserRoundCheck } from "lucide-react";
+import { ArrowRight, Clock3, LogOut, Package, ScanLine, ShieldCheck, UserRoundCheck, UsersRound } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { getCashierShiftCookie } from "@/lib/auth/shift";
-import { getBranchById } from "@/lib/data/branches";
-import { getStaffProfileById, listActiveCashiersWithBranches } from "@/lib/data/staff";
+import { listCashiersForBranch } from "@/lib/data/staff";
 import { Brand } from "@/components/shared/brand";
 import { StartShiftForm } from "@/components/cashier/start-shift-form";
 import { endCashierShift } from "@/app/cashier/actions";
 import { CustomerAvatar, StartShiftStillLife, StorefrontSketch } from "@/components/cashier/cashier-visuals";
-import { requireCashierShiftSession } from "@/lib/auth/session";
+import { requireCashierShiftSession, requireCashierTerminalSession } from "@/lib/auth/session";
 import { staffRoleLabel } from "@/lib/roles/staff";
 
 export default async function CashierPage({
@@ -17,27 +16,31 @@ export default async function CashierPage({
 }: {
   searchParams: Promise<{ pin?: string }>;
 }) {
-  const [shift, params, cashiers] = await Promise.all([
+  const [terminal, shift, params] = await Promise.all([
+    requireCashierTerminalSession(),
     getCashierShiftCookie(),
-    searchParams,
-    listActiveCashiersWithBranches()
+    searchParams
   ]);
-  const [activeProfile, activeBranch] = shift
-    ? await Promise.all([getStaffProfileById(shift.staffProfileId), getBranchById(shift.branchId)])
-    : [null, null];
-  const activeShift = Boolean(activeProfile?.active && activeBranch?.active);
-  const activeSession = activeShift ? await requireCashierShiftSession() : null;
+  const activeSession = shift ? await requireCashierShiftSession() : null;
 
-  if (!activeShift) {
+  if (!activeSession) {
+    const cashiers = await listCashiersForBranch(terminal.branch.id);
     return (
       <main className="cashier-surface min-h-screen py-5">
         <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4">
           <header className="flex items-center justify-between gap-3">
             <Brand href="/" size="sm" />
-            <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm text-ink-muted">
-              <ShieldCheck className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
-              Cashier device
-            </span>
+            <div className="flex flex-wrap justify-end gap-2">
+              <span className="surface-glass inline-flex min-h-tap items-center gap-2 rounded-pill px-3.5 text-sm text-ink-muted">
+                <ShieldCheck className="h-3.5 w-3.5 text-matcha-deep" strokeWidth={1.75} aria-hidden="true" />
+                {terminal.branch.name}
+              </span>
+              <form action="/cashier/logout" method="post">
+                <Button type="submit" variant="secondary" icon={LogOut} className="px-4">
+                  Sign out terminal
+                </Button>
+              </form>
+            </div>
           </header>
 
           <section className="cashier-panel overflow-hidden rounded-lg">
@@ -56,13 +59,21 @@ export default async function CashierPage({
               <div className="p-6 sm:p-8">
                 <Eyebrow className="text-matcha-deep">Start shift</Eyebrow>
                 <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
-                  Welcome back.
+                  {terminal.branch.name}
                 </h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-ink-muted">
-                  Select your name and enter your PIN to unlock the cashier station.
+                  {terminal.profile.name} has unlocked this terminal. Select assigned staff and enter a PIN to start serving.
                 </p>
 
                 <StartShiftForm cashiers={cashiers} showPinError={params.pin === "invalid"} />
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Button href="/cashier/stock" variant="secondary" icon={Package}>
+                    Manage stock
+                  </Button>
+                  <Button href="/cashier/accounts" variant="secondary" icon={UsersRound}>
+                    Branch accounts
+                  </Button>
+                </div>
               </div>
             </div>
           </section>
@@ -71,14 +82,12 @@ export default async function CashierPage({
     );
   }
 
-  if (!activeProfile || !activeBranch) {
-    throw new Error("Active cashier shift is missing profile or branch data");
-  }
-  const activeRole = activeSession?.roleDetail.role ?? "cashier";
-  const canManageAccounts = activeRole === "branch_manager";
+  const activeProfile = activeSession.profile;
+  const activeBranch = activeSession.branch;
+  const activeRole = activeSession.roleDetail.role;
 
   return (
-    <CashierShell sessionLabel={`${activeBranch.name} · ${activeProfile.name}`} canManageAccounts={canManageAccounts}>
+    <CashierShell sessionLabel={`${activeBranch.name} · ${activeProfile.name}`}>
       <div className="grid items-start gap-4 lg:grid-cols-[0.74fr_1.26fr]">
         <section className="cashier-panel rounded-lg p-6">
           <Eyebrow className="text-matcha-deep">Your shift</Eyebrow>
