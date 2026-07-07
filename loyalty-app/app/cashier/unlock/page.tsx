@@ -14,9 +14,9 @@ function safeCashierNext(value?: string) {
     value.startsWith("/cashier/logout") ||
     value.startsWith("/cashier/unlock")
   ) {
-    return "/cashier/accounts";
+    return "/cashier/ledger";
   }
-  return value === "/cashier" ? "/cashier/accounts" : value;
+  return value === "/cashier" ? "/cashier/ledger" : value;
 }
 
 export default async function CashierUnlockPage({

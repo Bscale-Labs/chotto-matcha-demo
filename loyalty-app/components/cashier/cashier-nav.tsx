@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { LayoutDashboard, Package, ReceiptText, ScanLine, UsersRound } from "lucide-react";
+import { LayoutDashboard, Package, ReceiptText, ScanLine, UserRound, UsersRound } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -21,9 +21,10 @@ const serviceItems: NavItem[] = [
 ];
 
 const managerItems: NavItem[] = [
-  { href: "/cashier/accounts", label: "Accounts", icon: UsersRound },
   { href: "/cashier/ledger", label: "Ledger", icon: ReceiptText },
-  { href: "/cashier/stock", label: "Stock", icon: Package }
+  { href: "/cashier/customers", label: "Customers", icon: UserRound },
+  { href: "/cashier/stock", label: "Stock", icon: Package },
+  { href: "/cashier/accounts", label: "Accounts", icon: UsersRound }
 ];
 
 export function CashierNav({ mode = "service" }: { mode?: CashierNavMode }) {

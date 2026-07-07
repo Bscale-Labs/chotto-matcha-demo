@@ -43,15 +43,15 @@ export default async function CashierCustomerPage({
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode={context.mode}>
       <div className="mb-4">
         <Button
-          href={context.mode === "manager" ? "/cashier/ledger" : "/cashier/identify"}
+          href={context.mode === "manager" ? "/cashier/customers" : "/cashier/identify"}
           variant="tertiary"
           icon={ArrowLeft}
         >
-          {context.mode === "manager" ? "Back to ledger" : "Back to scanner"}
+          {context.mode === "manager" ? "Back to customers" : "Back to scanner"}
         </Button>
       </div>
       <section className="cashier-panel rounded-lg p-6">
-        <Eyebrow className="text-matcha-deep">{context.mode === "manager" ? "Customer ledger" : "Member found"}</Eyebrow>
+        <Eyebrow className="text-matcha-deep">{context.mode === "manager" ? "Customer profile" : "Member found"}</Eyebrow>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <CustomerAvatar name={customer.name} className="h-16 w-16 text-lg" />

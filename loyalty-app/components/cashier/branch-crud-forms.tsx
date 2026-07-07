@@ -225,7 +225,7 @@ export function BranchCustomerCreateForm() {
       <Input label="Phone" name="phone" type="tel" required />
       <AccountCreateResult state={state} />
       <div className="flex justify-end gap-3">
-        <Button href="/cashier/ledger" variant="secondary">Cancel</Button>
+        <Button href="/cashier/customers" variant="secondary">Cancel</Button>
         <Button type="submit" disabled={pending}>
           {pending ? "Creating..." : "Create customer"}
         </Button>
@@ -301,7 +301,7 @@ export function BranchCustomerEditFields({
         />
       </label>
       <div className="flex justify-end gap-3">
-        <Button href="/cashier/ledger" variant="secondary">Cancel</Button>
+        <Button href="/cashier/customers" variant="secondary">Cancel</Button>
         <DirtySaveButton pendingLabel="Saving...">Save customer</DirtySaveButton>
       </div>
     </DirtyForm>

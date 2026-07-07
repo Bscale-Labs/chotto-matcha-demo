@@ -84,9 +84,9 @@ function safeCashierNext(value: string) {
     value.startsWith("/cashier/logout") ||
     value.startsWith("/cashier/unlock")
   ) {
-    return "/cashier/accounts";
+    return "/cashier/ledger";
   }
-  return value === "/cashier" ? "/cashier/accounts" : value;
+  return value === "/cashier" ? "/cashier/ledger" : value;
 }
 
 export async function startCashierShift(formData: FormData) {
@@ -129,7 +129,7 @@ export async function endCashierShift() {
 export async function unlockCashierManagerMode(formData: FormData) {
   const terminal = await requireCashierTerminalSession();
   const password = nonEmpty(formData, "password");
-  const next = safeCashierNext(text(formData, "next") || "/cashier/accounts");
+  const next = safeCashierNext(text(formData, "next") || "/cashier/ledger");
   const credential = await db.query.account.findFirst({
     where: and(eq(account.userId, terminal.user.id), eq(account.providerId, "credential"))
   });
@@ -296,7 +296,7 @@ export async function createBranchCustomerAccount(
   _: CreateAccountState,
   formData: FormData
 ): Promise<CreateAccountState> {
-  await requireCashierManagerPageSession("/cashier/ledger/new");
+  await requireCashierManagerPageSession("/cashier/customers/new");
   try {
     const name = nonEmpty(formData, "name");
     const email = nonEmpty(formData, "email").toLowerCase();
@@ -327,7 +327,7 @@ export async function createBranchCustomerAccount(
     } catch {
       invitationFailed = true;
     }
-    revalidatePath("/cashier/ledger");
+    revalidatePath("/cashier/customers");
     return {
       temporaryPassword: password,
       invitationSent: !invitationFailed,
@@ -342,7 +342,7 @@ export async function createBranchCustomerAccount(
 }
 
 export async function updateBranchCustomer(formData: FormData) {
-  await requireCashierManagerPageSession("/cashier/ledger");
+  await requireCashierManagerPageSession("/cashier/customers");
   const id = nonEmpty(formData, "id");
   const name = nonEmpty(formData, "name");
   const phone = nonEmpty(formData, "phone");
@@ -357,21 +357,21 @@ export async function updateBranchCustomer(formData: FormData) {
     await tx.update(user).set({ name, updatedAt: new Date() }).where(eq(user.id, customer.authUserId));
   });
 
-  revalidatePath("/cashier/ledger");
-  redirect(`/cashier/ledger?changed=${id}&toast=customer-updated`);
+  revalidatePath("/cashier/customers");
+  redirect(`/cashier/customers?changed=${id}&toast=customer-updated`);
 }
 
 export async function setBranchCustomerActive(formData: FormData) {
-  await requireCashierManagerPageSession("/cashier/ledger");
+  await requireCashierManagerPageSession("/cashier/customers");
   const id = nonEmpty(formData, "id");
   const active = text(formData, "active") === "true";
   await db.update(customers).set({ active, updatedAt: new Date() }).where(eq(customers.id, id));
-  revalidatePath("/cashier/ledger");
-  revalidatePath(`/cashier/ledger/${id}/edit`);
+  revalidatePath("/cashier/customers");
+  revalidatePath(`/cashier/customers/${id}/edit`);
 }
 
 export async function adjustBranchCustomerPoints(formData: FormData) {
-  const { profile, branch } = await requireCashierManagerPageSession("/cashier/ledger");
+  const { profile, branch } = await requireCashierManagerPageSession("/cashier/customers");
   const customerId = nonEmpty(formData, "id");
   const pointsDelta = cleanPointDelta(formData);
   const reason = nonEmpty(formData, "reason");
@@ -414,7 +414,8 @@ export async function adjustBranchCustomerPoints(formData: FormData) {
   });
 
   revalidatePath("/cashier/ledger");
-  revalidatePath(`/cashier/ledger/${customerId}/edit`);
+  revalidatePath("/cashier/customers");
+  revalidatePath(`/cashier/customers/${customerId}/edit`);
 }
 
 export async function awardCustomerPoints(formData: FormData) {

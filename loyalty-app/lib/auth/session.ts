@@ -119,7 +119,7 @@ export async function requireCashierShiftSession() {
   return { user: terminal.user, terminalProfile: terminal.profile, profile, roleDetail, shift, branch: terminal.branch };
 }
 
-export async function requireCashierManagerPageSession(nextPath = "/cashier/accounts") {
+export async function requireCashierManagerPageSession(nextPath = "/cashier/ledger") {
   const terminal = await requireCashierTerminalSession();
   const shift = await getCashierShiftCookie();
   if (shift) redirect(`/cashier/unlock?next=${encodeURIComponent(nextPath)}`);

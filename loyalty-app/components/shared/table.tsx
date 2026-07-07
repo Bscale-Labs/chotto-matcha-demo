@@ -18,6 +18,8 @@ function getColumnTemplate(headers: string[]) {
       return "minmax(12rem,1.15fr) minmax(9rem,0.75fr) minmax(12rem,1.15fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr)";
     case "Date|Member|Staff|Branch|Type|Bill|Points":
       return "minmax(10rem,1.05fr) minmax(11rem,1.05fr) minmax(10rem,1fr) minmax(12rem,1.05fr) minmax(11rem,1.05fr) minmax(7rem,0.65fr) minmax(8rem,0.7fr)";
+    case "Date|Customer|Staff|Type|Bill|Points":
+      return "minmax(10rem,1fr) minmax(13rem,1.2fr) minmax(11rem,1fr) minmax(12rem,1.05fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr)";
     default:
       return `repeat(${headers.length}, minmax(0, 1fr))`;
   }

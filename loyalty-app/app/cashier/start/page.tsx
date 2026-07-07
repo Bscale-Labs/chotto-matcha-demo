@@ -40,7 +40,7 @@ export default async function CashierStartPage({
             Cashier mode
           </span>
           <div className="flex flex-wrap gap-2 md:justify-self-end">
-            <Button href="/cashier/unlock?next=%2Fcashier%2Faccounts" variant="secondary" icon={ArrowLeft} className="!min-h-10 !px-3 !py-2 text-sm">
+            <Button href="/cashier/unlock?next=%2Fcashier%2Fledger" variant="secondary" icon={ArrowLeft} className="!min-h-10 !px-3 !py-2 text-sm">
               Back to manager
             </Button>
           </div>
