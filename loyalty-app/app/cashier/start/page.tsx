@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { Button } from "@/components/shared/button";
-import { Eyebrow } from "@/components/shared/eyebrow";
 import { getCashierShiftCookie } from "@/lib/auth/shift";
 import { listCashiersForBranch } from "@/lib/data/staff";
 import { Brand } from "@/components/shared/brand";
@@ -25,8 +24,8 @@ export default async function CashierStartPage({
 
   const cashiers = await listCashiersForBranch(terminal.branch.id);
   return (
-    <main className="cashier-surface min-h-screen py-5">
-      <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4">
+    <main className="cashier-surface min-h-screen py-5 lg:flex lg:items-center lg:py-8">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4">
         <header className="grid items-center gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <div className="flex min-w-0 items-center gap-2.5">
             <Brand href="/cashier" size="sm" className="shrink-0" />
@@ -48,21 +47,11 @@ export default async function CashierStartPage({
 
         <section className="cashier-panel overflow-hidden rounded-lg">
           <div className="grid lg:grid-cols-[300px_1fr]">
-            <aside className="relative hidden min-h-[520px] overflow-hidden border-r border-line-soft bg-cream lg:block">
+            <aside className="relative hidden overflow-hidden border-r border-line-soft bg-cream lg:block lg:min-h-[clamp(560px,72vh,660px)]">
               <StartShiftStillLife className="absolute inset-0 h-full w-full object-[50%_50%]" />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(250,247,242,0.08),rgba(24,56,31,0.12))]" />
             </aside>
-            <div className="p-6 sm:p-8">
-              <Eyebrow className="text-matcha-deep">Start shift</Eyebrow>
-              <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
-                {terminal.branch.name}
-              </h1>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-ink-muted">
-                Select assigned staff and enter a PIN to start serving.
-              </p>
-
-              <StartShiftForm cashiers={cashiers} showPinError={params.pin === "invalid"} />
-            </div>
+            <StartShiftForm branchName={terminal.branch.name} cashiers={cashiers} showPinError={params.pin === "invalid"} />
           </div>
         </section>
       </div>
