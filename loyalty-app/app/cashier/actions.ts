@@ -86,7 +86,7 @@ function safeCashierNext(value: string) {
   ) {
     return "/cashier/accounts";
   }
-  return value;
+  return value === "/cashier" ? "/cashier/accounts" : value;
 }
 
 export async function startCashierShift(formData: FormData) {

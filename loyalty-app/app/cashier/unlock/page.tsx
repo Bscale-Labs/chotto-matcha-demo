@@ -16,7 +16,7 @@ function safeCashierNext(value?: string) {
   ) {
     return "/cashier/accounts";
   }
-  return value;
+  return value === "/cashier" ? "/cashier/accounts" : value;
 }
 
 export default async function CashierUnlockPage({
