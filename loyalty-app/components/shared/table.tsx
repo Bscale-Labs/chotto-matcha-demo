@@ -19,7 +19,9 @@ function getColumnTemplate(headers: string[]) {
     case "Date|Member|Staff|Branch|Type|Bill|Points":
       return "minmax(10rem,1.05fr) minmax(11rem,1.05fr) minmax(10rem,1fr) minmax(12rem,1.05fr) minmax(11rem,1.05fr) minmax(7rem,0.65fr) minmax(8rem,0.7fr)";
     case "Date|Customer|Staff|Type|Bill|Points":
-      return "minmax(10rem,1fr) minmax(13rem,1.2fr) minmax(11rem,1fr) minmax(12rem,1.05fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr)";
+      return "minmax(7.75rem,0.9fr) minmax(9.5rem,1.1fr) minmax(8.5rem,1fr) minmax(8rem,1fr) minmax(5.5rem,0.65fr) minmax(5.75rem,0.65fr)";
+    case "Date|Customer|Staff|Type|Claim|Bill|Points":
+      return "minmax(6.75rem,0.95fr) minmax(7.5rem,1.05fr) minmax(6.5rem,0.95fr) minmax(4.5rem,0.65fr) minmax(6.75rem,1fr) minmax(4rem,0.55fr) minmax(4rem,0.6fr)";
     default:
       return `repeat(${headers.length}, minmax(0, 1fr))`;
   }
@@ -46,9 +48,9 @@ export function DataTable({
 
   return (
     <div className={clsx("surface-paper overflow-hidden rounded-lg", className)}>
-      <div className="overflow-x-auto overscroll-x-none">
-        <table className="min-w-[640px] w-full table-fixed text-left text-sm">
-          <thead className="block bg-matcha-deep text-cream">
+      <div className="max-h-none overflow-auto overscroll-none lg:max-h-[calc(100vh-21rem)]">
+        <table className="w-full min-w-[640px] table-fixed text-left text-sm">
+          <thead className="sticky top-0 z-10 block bg-matcha-deep text-cream">
             <tr className="grid" style={{ gridTemplateColumns: columnTemplate }}>
               {headers.map((header) => (
                 <th
@@ -61,7 +63,7 @@ export function DataTable({
               ))}
             </tr>
           </thead>
-          <tbody className="block max-h-none overflow-y-auto overscroll-none lg:max-h-[calc(100vh-21rem)]">
+          <tbody className="block">
             {rows.map((row, rowIndex) => (
               <tr
                 key={rowKeys?.[rowIndex] ?? rowIndex}

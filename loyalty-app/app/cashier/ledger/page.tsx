@@ -5,10 +5,9 @@ import { requireCashierManagerPageSession } from "@/lib/auth/session";
 import { listTransactionsWithLabels } from "@/lib/data/manager";
 import { formatDate, formatPeso, formatPoints } from "@/lib/formatters";
 
-function transactionLabel(type: "earn" | "redeem" | "manual", rewardName: string | null) {
-  if (rewardName) return rewardName;
+function transactionLabel(type: "earn" | "redeem" | "manual") {
   if (type === "earn") return "Earn";
-  if (type === "redeem") return "Redeem";
+  if (type === "redeem") return "Claim";
   return "Manual";
 }
 
@@ -26,7 +25,8 @@ export default async function CashierLedgerPage() {
       <section className="cashier-panel mt-4 rounded-lg p-5">
         {transactionRows.length > 0 ? (
           <DataTable
-            headers={["Date", "Customer", "Staff", "Type", "Bill", "Points"]}
+            headers={["Date", "Customer", "Staff", "Type", "Claim", "Bill", "Points"]}
+            className="[&_td]:px-3 [&_td]:py-3.5 [&_th]:px-3 [&_th]:py-3.5"
             rows={transactionRows.map(({ transaction, customerName, staffName, rewardName }) => [
               <span key={`${transaction.id}-date`} className="whitespace-nowrap text-sm text-charcoal">
                 {formatDate(transaction.createdAt)}
@@ -38,7 +38,10 @@ export default async function CashierLedgerPage() {
                 {staffName}
               </span>,
               <span key={`${transaction.id}-type`} className="text-sm text-ink-muted">
-                {transactionLabel(transaction.type, rewardName)}
+                {transactionLabel(transaction.type)}
+              </span>,
+              <span key={`${transaction.id}-claim`} className="block truncate text-sm text-ink-muted">
+                {transaction.type === "redeem" ? rewardName ?? "Reward" : "-"}
               </span>,
               <span key={`${transaction.id}-bill`} className="counter text-sm text-ink-muted">
                 {transaction.billTotalCents ? formatPeso(transaction.billTotalCents / 100) : "-"}
