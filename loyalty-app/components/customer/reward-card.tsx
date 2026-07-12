@@ -1,5 +1,10 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
+import { ChevronDown, MapPin } from "lucide-react";
 import { RewardImage } from "@/components/customer/reward-image";
+import { PointsPill } from "@/components/customer/points-pill";
 import { formatPoints } from "@/lib/formatters";
 import { pointsNeeded } from "@/lib/points";
 import type { Customer, Reward } from "@/lib/types";
@@ -9,40 +14,66 @@ export function RewardCard({
   customer,
   className
 }: {
-  reward: Reward;
+  reward: Reward & { availableBranchNames?: string[] };
   customer: Customer;
   className?: string;
 }) {
+  const [showLocations, setShowLocations] = useState(false);
+  const locationsRef = useRef<HTMLDivElement>(null);
+  const branches = reward.availableBranchNames;
+  const hasAvailabilityData = Array.isArray(branches);
+  const branchCount = branches?.length ?? 0;
+  const available = hasAvailabilityData ? branchCount > 0 : true;
+
   const needed = pointsNeeded(customer, reward);
-  const hasStock = reward.stockCount === null || reward.stockCount > 0;
-  const ready = needed === 0 && hasStock;
+  const ready = needed === 0 && available;
   const progress = Math.min(1, customer.pointsBalance / reward.pointCost);
-  const visualProgress = ready ? 0.48 : !hasStock ? 0.54 : progress;
-  const stockLabel =
-    reward.stockCount === null
-      ? "Always available"
-      : reward.stockCount === 0
-      ? "Out for now"
-      : `${reward.stockCount} left`;
+  // The bar tracks real progress toward the cost: full once redeemable,
+  // otherwise how far the current balance has come.
+  const fillRatio = ready ? 1 : progress;
+
+  useEffect(() => {
+    if (!showLocations) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (locationsRef.current && !locationsRef.current.contains(event.target as Node)) {
+        setShowLocations(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowLocations(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [showLocations]);
+
+  const availabilityLabel = !hasAvailabilityData
+    ? null
+    : branchCount === 0
+      ? "Unavailable for now"
+      : branchCount === 1
+        ? "Available at 1 location"
+        : `Available at ${branchCount} locations`;
 
   return (
     <article
       className={clsx(
-        "h-24 rounded-sm border border-line-soft bg-milk p-2 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
+        "rounded-sm border border-line-soft bg-milk p-2 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
         className
       )}
     >
-      <div className="flex h-full gap-5">
+      <div className="flex min-h-20 gap-5">
         <RewardImage imageUrl={reward.imageUrl} name={reward.name} type={reward.type} />
-        <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+        <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 py-0.5">
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <h3 className="min-w-0 font-display text-base leading-[19px] text-charcoal">
                 {reward.name}
               </h3>
-              <span className="counter shrink-0 rounded-pill border border-sage-tint bg-sage-wash px-2.5 py-1 text-xs font-medium leading-none text-matcha-deep">
-                {formatPoints(reward.pointCost)}
-              </span>
+              <PointsPill points={reward.pointCost} tone={ready ? "solid" : "soft"} />
             </div>
             <p className="line-clamp-2 text-xs leading-[15px] text-ink-muted">
               {reward.description}
@@ -52,25 +83,68 @@ export function RewardCard({
             <div className="h-1 w-full overflow-hidden rounded-pill bg-line-soft">
               <div
                 className="h-full rounded-pill bg-matcha-deep transition-[width] duration-base ease-out-soft"
-                style={{ width: `${Math.round(visualProgress * 100)}%` }}
+                style={{ width: `${Math.round(fillRatio * 100)}%` }}
               />
             </div>
-            <div className="mt-0.5 flex items-center justify-between gap-3 text-xs leading-4">
-              <span className="truncate text-ink-muted">{stockLabel}</span>
+            <div className="mt-1 flex items-center justify-between gap-3 text-xs leading-4">
+              {availabilityLabel && branchCount > 0 && branches ? (
+                <div ref={locationsRef} className="relative min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowLocations((value) => !value)}
+                    aria-expanded={showLocations}
+                    aria-haspopup="true"
+                    className="group flex min-w-0 items-center gap-1 rounded-pill text-ink-muted transition-colors duration-fast ease-out-soft hover:text-matcha-deep"
+                  >
+                    <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                    <span className="truncate">{availabilityLabel}</span>
+                    <ChevronDown
+                      className={clsx(
+                        "h-3.5 w-3.5 shrink-0 opacity-70 transition-transform duration-fast ease-out-soft",
+                        showLocations && "rotate-180"
+                      )}
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                  </button>
+                  {showLocations ? (
+                    <div
+                      role="menu"
+                      className="absolute left-0 top-full z-40 mt-1.5 w-max min-w-[190px] max-w-[240px] rounded-md border border-line bg-milk p-1.5 shadow-lg"
+                    >
+                      <p className="px-2 pb-1 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-ink-muted">
+                        Available at
+                      </p>
+                      <ul className="flex flex-col">
+                        {branches.map((branch) => (
+                          <li key={branch} role="menuitem">
+                            <div className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm leading-tight text-charcoal">
+                              <MapPin
+                                className="h-4 w-4 shrink-0 text-matcha-deep"
+                                strokeWidth={1.75}
+                                aria-hidden="true"
+                              />
+                              <span className="truncate">{branch}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <span className="truncate text-ink-muted">{availabilityLabel ?? ""}</span>
+              )}
               <span
                 className={clsx(
                   "counter shrink-0 font-medium",
-                  ready
-                    ? "text-matcha-deep"
-                    : !hasStock
-                      ? "text-error-text"
-                      : "text-ink-muted"
+                  ready ? "text-matcha-deep" : !available ? "text-error-text" : "text-ink-muted"
                 )}
               >
                 {ready
                   ? "Ready"
-                  : !hasStock
-                    ? "Out"
+                  : !available
+                    ? "Unavailable"
                     : `${formatPoints(customer.pointsBalance)} / ${formatPoints(reward.pointCost)}`}
               </span>
             </div>

@@ -52,6 +52,10 @@ export type Reward = {
   active: boolean;
 };
 
+export type RewardWithAvailability = Reward & {
+  availableBranchNames: string[];
+};
+
 export type Transaction = {
   id: string;
   customerId: string;

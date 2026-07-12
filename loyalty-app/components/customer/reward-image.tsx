@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Gift, Leaf } from "lucide-react";
 import type { Reward } from "@/lib/types";
 
 const fallbackImages: Record<string, string> = {
@@ -12,19 +13,32 @@ const fallbackImages: Record<string, string> = {
 export function RewardImage({
   imageUrl,
   name,
-  type
+  type,
+  variant = "thumb"
 }: {
   imageUrl?: string | null;
   name: string;
   type: Reward["type"];
+  variant?: "thumb" | "cover";
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [fallbackFailed, setFallbackFailed] = useState(false);
   const isMerch = type === "merch";
   const fallbackSrc = fallbackImages[name.toLowerCase()];
+  const cover = variant === "cover";
+  const coverSizes = "(max-width: 480px) 45vw, 200px";
 
   if (fallbackSrc && !fallbackFailed) {
-    return (
+    return cover ? (
+      <Image
+        src={fallbackSrc}
+        alt=""
+        fill
+        sizes={coverSizes}
+        className="object-cover"
+        onError={() => setFallbackFailed(true)}
+      />
+    ) : (
       <Image
         src={fallbackSrc}
         alt=""
@@ -37,7 +51,17 @@ export function RewardImage({
   }
 
   if (imageUrl && !imageFailed) {
-    return (
+    return cover ? (
+      <Image
+        src={imageUrl}
+        alt=""
+        fill
+        unoptimized
+        sizes={coverSizes}
+        className="object-cover"
+        onError={() => setImageFailed(true)}
+      />
+    ) : (
       <Image
         src={imageUrl}
         alt=""
@@ -47,6 +71,23 @@ export function RewardImage({
         className="h-20 w-20 shrink-0 rounded-sm border border-line-soft object-cover"
         onError={() => setImageFailed(true)}
       />
+    );
+  }
+
+  if (cover) {
+    const PlaceholderIcon = isMerch ? Gift : Leaf;
+    return (
+      <div
+        className="absolute inset-0 grid place-items-center bg-gradient-to-br from-sage-wash via-rice to-milk"
+        aria-hidden="true"
+      >
+        <PlaceholderIcon
+          className="h-11 w-11 text-matcha-deep/30"
+          strokeWidth={1.25}
+          fill="currentColor"
+          fillOpacity={0.1}
+        />
+      </div>
     );
   }
 

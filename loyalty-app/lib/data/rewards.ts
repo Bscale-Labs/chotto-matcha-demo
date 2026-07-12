@@ -170,6 +170,50 @@ export async function listActiveRewards() {
   return rows.map(withImageUrl);
 }
 
+export async function listActiveRewardsWithBranches() {
+  const rewardRows = await db
+    .select(rewardSelect())
+    .from(rewards)
+    .leftJoin(assets, eq(rewards.imageAssetId, assets.id))
+    .where(eq(rewards.active, true))
+    .orderBy(asc(rewards.name));
+
+  const rewardIds = rewardRows.map((row) => row.id);
+  const allocationRows = rewardIds.length
+    ? await db
+        .select({
+          rewardId: rewardBranchAllocations.rewardId,
+          branchName: branches.name
+        })
+        .from(rewardBranchAllocations)
+        .innerJoin(branches, eq(rewardBranchAllocations.branchId, branches.id))
+        .where(
+          and(
+            inArray(rewardBranchAllocations.rewardId, rewardIds),
+            eq(rewardBranchAllocations.active, true),
+            eq(branches.active, true),
+            or(
+              sql`${rewardBranchAllocations.stockCount} is null`,
+              gt(rewardBranchAllocations.stockCount, 0)
+            )
+          )
+        )
+        .orderBy(asc(branches.name))
+    : [];
+
+  const branchesByReward = new Map<string, string[]>();
+  for (const allocation of allocationRows) {
+    const existing = branchesByReward.get(allocation.rewardId) ?? [];
+    existing.push(allocation.branchName);
+    branchesByReward.set(allocation.rewardId, existing);
+  }
+
+  return rewardRows.map((row) => ({
+    ...withImageUrl(row),
+    availableBranchNames: branchesByReward.get(row.id) ?? []
+  }));
+}
+
 export async function listActiveRewardsForBranch(branchId: string) {
   const rows = await db
     .select({

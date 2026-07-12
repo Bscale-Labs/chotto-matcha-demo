@@ -1,10 +1,7 @@
-import { Sparkles } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
-import { TierBadge } from "@/components/customer/tier-badge";
+import { SendQrButton } from "@/components/customer/send-qr-button";
 import { requireCustomerSession } from "@/lib/auth/session";
-import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatPoints } from "@/lib/formatters";
-import { getTier } from "@/lib/loyalty";
 
 const SIZE = 25;
 
@@ -40,29 +37,22 @@ function buildPattern(seed: string) {
 
 export default async function CustomerQrPage() {
   const { customer } = await requireCustomerSession();
-  const rewardTiers = await listConfiguredRewardTiers();
-  const tier = getTier(customer.pointsBalance, rewardTiers);
-  const cells = buildPattern(customer.code);
+  const cells = buildPattern(customer.id);
 
   return (
-    <CustomerShell>
+    <CustomerShell surfaceClassName="scan-surface" inverseHeader>
       <section>
-        <p className="eyebrow text-matcha-deep">Counter scan</p>
-        <h1 className="mt-2 font-display text-[40px] font-medium leading-[44px] text-charcoal">
+        <h1 className="font-display text-[40px] font-medium leading-[44px] text-cream">
           Show this at the bar
         </h1>
-        <p className="mt-2 text-sm leading-5 text-ink-muted">
-          Just a moment — the barista taps your code to add today&apos;s points.
-        </p>
       </section>
 
       <div className="surface-glass-strong mt-7 rounded-xl p-6 text-center">
-        <div className="mx-auto inline-flex items-center gap-2 rounded-pill bg-sage-wash px-3 py-1 text-xs font-medium text-matcha-deep">
-          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+        <p className="font-medium text-charcoal">
           {customer.name.split(" ")[0]} · {formatPoints(customer.pointsBalance)} points
-        </div>
+        </p>
         <div
-          className="mx-auto mt-5 grid aspect-square w-full max-w-[18rem] gap-px rounded-lg border border-line-soft bg-cream p-4 shadow-sm"
+          className="mx-auto mt-5 grid aspect-square w-full max-w-[18rem] gap-px"
           style={{ gridTemplateColumns: `repeat(${SIZE}, minmax(0, 1fr))` }}
           aria-label="QR placeholder"
           role="img"
@@ -74,17 +64,7 @@ export default async function CustomerQrPage() {
             />
           ))}
         </div>
-        <p className="mt-4 font-mono text-[11px] uppercase tracking-eyebrow text-ink-muted">
-          {customer.code}
-        </p>
-      </div>
-
-      <div className="surface-paper mt-6 flex items-center justify-between rounded-md p-4">
-        <div>
-          <p className="text-xs uppercase tracking-eyebrow text-ink-muted">Status</p>
-          <p className="mt-1 font-medium text-charcoal">{tier.name}</p>
-        </div>
-        <TierBadge tier={tier} />
+        <SendQrButton name={customer.name.split(" ")[0]} />
       </div>
     </CustomerShell>
   );

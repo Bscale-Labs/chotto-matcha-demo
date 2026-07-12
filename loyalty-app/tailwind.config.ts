@@ -21,6 +21,10 @@ const config: Config = {
         ceramic: "var(--ceramic)",
         rice: "var(--rice)",
         "warn-fill": "var(--warn-fill)",
+        honey: "var(--honey)",
+        "honey-wash": "var(--honey-wash)",
+        "gold-deep": "var(--gold-deep)",
+        "gold-wash": "var(--gold-wash)",
         "error-border": "var(--error-border)",
         "error-text": "var(--error-text)"
       },

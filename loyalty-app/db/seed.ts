@@ -121,6 +121,38 @@ const demoBranches = [
     address: "Legazpi Village, Makati",
     googleMapsUrl: "https://maps.google.com/?q=Legazpi%20Village%20Makati",
     active: true
+  },
+  {
+    id: "branch-pasig",
+    code: "PSG",
+    name: "Pasig Corner",
+    address: "Kapitolyo, Pasig",
+    googleMapsUrl: "https://maps.google.com/?q=Kapitolyo%20Pasig",
+    active: true
+  },
+  {
+    id: "branch-qc",
+    code: "QC",
+    name: "Quezon City Studio",
+    address: "Tomas Morato, Quezon City",
+    googleMapsUrl: "https://maps.google.com/?q=Tomas%20Morato%20Quezon%20City",
+    active: true
+  },
+  {
+    id: "branch-paranaque",
+    code: "PRQ",
+    name: "Paranaque Garden",
+    address: "BF Homes, Paranaque City",
+    googleMapsUrl: "https://maps.google.com/?q=BF%20Homes%20Paranaque%20City",
+    active: true
+  },
+  {
+    id: "branch-asakusa",
+    code: "ASK",
+    name: "Asakusa Tokyo Teahouse",
+    address: "Asakusa, Taito City, Tokyo",
+    googleMapsUrl: "https://maps.google.com/?q=Asakusa%20Tokyo",
+    active: true
   }
 ];
 
@@ -258,7 +290,22 @@ const demoRewardAllocations = [
     branchId: "branch-makati",
     stockCount: 0,
     active: false
-  }
+  },
+  // Iced Matcha Latte — poured at every branch
+  { rewardId: "reward-latte", branchId: "branch-pasig", stockCount: null, active: true },
+  { rewardId: "reward-latte", branchId: "branch-qc", stockCount: null, active: true },
+  { rewardId: "reward-latte", branchId: "branch-paranaque", stockCount: null, active: true },
+  { rewardId: "reward-latte", branchId: "branch-asakusa", stockCount: null, active: true },
+  // White Choco Cookie — metro branches
+  { rewardId: "reward-cookie", branchId: "branch-pasig", stockCount: 12, active: true },
+  { rewardId: "reward-cookie", branchId: "branch-qc", stockCount: 9, active: true },
+  // Ceremonial Tin — flagship + Tokyo
+  { rewardId: "reward-tin", branchId: "branch-asakusa", stockCount: 5, active: true },
+  // Canvas Market Tote — south metro
+  { rewardId: "reward-tote", branchId: "branch-paranaque", stockCount: 7, active: true },
+  // Bamboo Whisk — select teahouses
+  { rewardId: "reward-whisk", branchId: "branch-pasig", stockCount: 3, active: true },
+  { rewardId: "reward-whisk", branchId: "branch-asakusa", stockCount: 6, active: true }
 ];
 
 const demoTransactions = [

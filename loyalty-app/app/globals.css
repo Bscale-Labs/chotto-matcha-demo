@@ -18,6 +18,10 @@
   --line:        #E4E1D9;
   --line-soft:   #ECE9E2;
   --warn-fill:   #F5E2DA;
+  --honey:       #8F6410;
+  --honey-wash:  #F4ECD5;
+  --gold-deep:   #C6931F;
+  --gold-wash:   #FBF1D6;
   --error-border: #C56B53;
   --error-text:  #8C3D2A;
   --cashier-rail: #18381F;
@@ -244,6 +248,21 @@ input:focus-visible {
   box-shadow: none;
 }
 
+/* Resting variant of the lacquer — the Scan leaf wears this while it is *not* the
+   active tab, so the signature action sits back in the same muted tone as the
+   other inactive nav icons rather than reading permanently-on. Matcha green
+   returns the moment it's selected. Same gloss recipe, ink-faint fill. */
+.action-lacquer-mute {
+  border: 1px solid rgba(255, 253, 248, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.14), transparent 44%),
+    var(--ink-faint);
+  color: var(--cream);
+  box-shadow:
+    0 8px 18px rgba(156, 160, 149, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
 /* Tactile top-edge highlight — the shared "gloss" cue for interactive controls.
    Compose onto light rows/nav so they read raised like the lacquer buttons. */
 .gloss {
@@ -292,6 +311,7 @@ input:focus-visible {
     box-shadow: 0 0 0 3px rgba(168, 180, 138, 0.48);
   }
 }
+
 
 /* Scroll edge diffusion — placed under sticky glass so content doesn't collide */
 .scroll-edge-diffuse {
@@ -342,6 +362,16 @@ input:focus-visible {
   background:
     linear-gradient(180deg, rgba(168, 180, 138, 0.16) 0, rgba(168, 180, 138, 0) 320px),
     linear-gradient(180deg, var(--rice), var(--cream));
+}
+
+/* Scan page — opens on the same deep matcha (#2f4f31) as the home greeting card,
+   then settles into the usual rice/cream beige, so showing the QR feels like a
+   distinct, on-brand moment. */
+.scan-surface {
+  background:
+    linear-gradient(180deg, #2f4f31 0, rgba(47, 79, 49, 0.5) 24%, rgba(47, 79, 49, 0) 58vh),
+    linear-gradient(180deg, var(--rice), var(--cream));
+  background-attachment: fixed, fixed;
 }
 
 .matcha-panel {

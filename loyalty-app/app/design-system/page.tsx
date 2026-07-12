@@ -425,7 +425,7 @@ export default function DesignSystemPage() {
                     { label: "Home", active: true },
                     { label: "Rewards", active: false },
                     { label: "Scan", active: false },
-                    { label: "Journal", active: false },
+                    { label: "History", active: false },
                     { label: "Profile", active: false }
                   ].map((tab) => (
                     <span
