@@ -3,7 +3,6 @@ import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { CustomerAvatar, TeaStillLife } from "@/components/cashier/cashier-visuals";
-import { TierBadge } from "@/components/customer/tier-badge";
 import { getCashierShiftCookie } from "@/lib/auth/shift";
 import { requireCashierManagerPageSession, requireCashierShiftSession } from "@/lib/auth/session";
 import {
@@ -11,9 +10,7 @@ import {
   getCustomerRecentTransactions,
   getCustomerRecentTransactionsForBranch
 } from "@/lib/data/customers";
-import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { formatDate, formatPoints } from "@/lib/formatters";
-import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
 
 export default async function CashierCustomerPage({
@@ -29,15 +26,13 @@ export default async function CashierCustomerPage({
     ? { mode: "manager" as const, session: await requireCashierManagerPageSession(`/cashier/customer/${id}?mode=manager`) }
     : { mode: "service" as const, session: await requireCashierShiftSession() };
   const { profile, branch } = context.session;
-  const [customer, recentTransactions, rewardTiers] = await Promise.all([
+  const [customer, recentTransactions] = await Promise.all([
     getCustomerById(id),
     context.mode === "manager"
       ? getCustomerRecentTransactionsForBranch(id, branch.id, 2)
-      : getCustomerRecentTransactions(id, 2),
-    listConfiguredRewardTiers()
+      : getCustomerRecentTransactions(id, 2)
   ]);
   if (!customer?.active) notFound();
-  const tier = getTier(customer.pointsBalance, rewardTiers);
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`} mode={context.mode}>
@@ -66,7 +61,6 @@ export default async function CashierCustomerPage({
               </p>
             </div>
           </div>
-          <TierBadge tier={tier} />
         </div>
 
         <div className="cashier-points-panel mt-7 rounded-lg p-7 shadow-md">

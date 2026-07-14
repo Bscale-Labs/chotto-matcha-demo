@@ -61,13 +61,13 @@ export function RewardCard({
   return (
     <article
       className={clsx(
-        "rounded-sm border border-line-soft bg-milk p-2 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
+        "rounded-sm border border-line-soft bg-milk p-3 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
         className
       )}
     >
-      <div className="flex min-h-20 gap-5">
+      <div className="flex min-h-20 gap-4">
         <RewardImage imageUrl={reward.imageUrl} name={reward.name} type={reward.type} />
-        <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 py-0.5">
+        <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 py-1">
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <h3 className="min-w-0 font-display text-base leading-[19px] text-charcoal">
@@ -75,7 +75,7 @@ export function RewardCard({
               </h3>
               <PointsPill points={reward.pointCost} tone={ready ? "solid" : "soft"} />
             </div>
-            <p className="line-clamp-2 text-xs leading-[15px] text-ink-muted">
+            <p className="mt-1.5 line-clamp-2 text-xs leading-[16px] text-ink-muted">
               {reward.description}
             </p>
           </div>
@@ -86,7 +86,7 @@ export function RewardCard({
                 style={{ width: `${Math.round(fillRatio * 100)}%` }}
               />
             </div>
-            <div className="mt-1 flex items-center justify-between gap-3 text-xs leading-4">
+            <div className="mt-2 flex items-center justify-between gap-3 text-xs leading-4">
               {availabilityLabel && branchCount > 0 && branches ? (
                 <div ref={locationsRef} className="relative min-w-0">
                   <button

@@ -9,8 +9,8 @@ function getColumnTemplate(headers: string[]) {
       return "minmax(8rem,1.05fr) minmax(12rem,1.25fr) minmax(8rem,0.8fr) minmax(8rem,0.75fr)";
     case "Branch|Address|Google Maps|Status":
       return "minmax(13rem,1.15fr) minmax(18rem,1.65fr) minmax(12rem,1fr) minmax(8rem,0.7fr)";
-    case "Name|Contact|Tier|Points|Status":
-      return "minmax(12rem,1.15fr) minmax(16rem,1.45fr) minmax(9rem,0.85fr) minmax(8rem,0.7fr) minmax(8rem,0.65fr)";
+    case "Name|Contact|Points|Status":
+      return "minmax(12rem,1.15fr) minmax(16rem,1.45fr) minmax(8rem,0.7fr) minmax(8rem,0.65fr)";
     case "Reward|Type|Cost|Branches|Status":
     case "Reward|Type|Cost|Branch stock|Branch status":
       return "minmax(15rem,1.45fr) minmax(8rem,0.7fr) minmax(8rem,0.7fr) minmax(12rem,1.05fr) minmax(9rem,0.8fr)";

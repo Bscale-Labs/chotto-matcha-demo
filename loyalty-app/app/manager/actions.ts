@@ -11,7 +11,6 @@ import {
   customers,
   orgConfig,
   rewardBranchAllocations,
-  rewardTiers,
   rewards,
   staffProfiles,
   staffRoleDetails,
@@ -25,7 +24,6 @@ import { requireManagerSession } from "@/lib/auth/session";
 import { generateCustomerCode } from "@/lib/customers/code";
 import { manualAdjustPoints } from "@/lib/data/transactions";
 import { listCustomersForManager } from "@/lib/data/manager";
-import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 import { isBranchShiftRole, type BranchShiftRole, type StaffRole } from "@/lib/roles/staff";
 import { deleteAssetObject, getAssetUrl, putAssetObject } from "@/lib/storage";
 
@@ -294,89 +292,6 @@ export async function updateRewardAllocation(formData: FormData) {
   revalidatePath("/manager/rewards");
   revalidatePath(`/manager/rewards/${rewardId}/edit`);
   revalidatePath(`/manager/rewards/${rewardId}/edit?branchId=${branchId}`);
-}
-
-export async function updateRewardTiers(formData: FormData) {
-  await requireManagerSession();
-  const tierIds = formData.getAll("tierId").map((value) => String(value));
-  if (tierIds.length === 0) throw new Error("At least one reward tier is required");
-
-  const nextTiers = tierIds.map((id) => {
-    const name = nonEmpty(formData, `name-${id}`);
-    const description = nonEmpty(formData, `description-${id}`);
-    const minPoints = Number(nonEmpty(formData, `minPoints-${id}`));
-
-    if (!Number.isInteger(minPoints) || minPoints < 0) {
-      throw new Error(`${name} minimum points must be a non-negative integer`);
-    }
-
-    return { id, name, description, minPoints };
-  })
-    .sort((left, right) => left.minPoints - right.minPoints)
-    .map((tier, index) => ({ ...tier, sortOrder: index + 1 }));
-
-  if (nextTiers[0]?.minPoints !== 0) {
-    throw new Error("The first reward tier must start at 0 points");
-  }
-  for (let index = 1; index < nextTiers.length; index += 1) {
-    if (nextTiers[index].minPoints <= nextTiers[index - 1].minPoints) {
-      throw new Error("Reward tier minimum points must increase from one tier to the next");
-    }
-  }
-
-  await db.transaction(async (tx) => {
-    const existing = await tx.select({ id: rewardTiers.id }).from(rewardTiers);
-    const existingIds = new Set(existing.map((row) => row.id));
-    const submittedIds = new Set(nextTiers.map((tier) => tier.id));
-
-    // Delete tiers the manager removed in the editor.
-    const removedIds = existing.filter((row) => !submittedIds.has(row.id)).map((row) => row.id);
-    if (removedIds.length > 0) {
-      await tx.delete(rewardTiers).where(inArray(rewardTiers.id, removedIds));
-    }
-
-    // Park surviving rows above the live sort range so the renumber below can't
-    // transiently violate the unique reward_tiers_sort_order_idx.
-    const survivingIds = nextTiers.filter((tier) => existingIds.has(tier.id)).map((tier) => tier.id);
-    if (survivingIds.length > 0) {
-      await tx
-        .update(rewardTiers)
-        .set({ sortOrder: sql`${rewardTiers.sortOrder} + 100000` })
-        .where(inArray(rewardTiers.id, survivingIds));
-    }
-
-    // Insert new tiers and update surviving ones in a single round trip.
-    await tx
-      .insert(rewardTiers)
-      .values(
-        nextTiers.map((tier) => ({
-          id: tier.id,
-          name: tier.name,
-          description: tier.description,
-          minPoints: tier.minPoints,
-          sortOrder: tier.sortOrder,
-          active: true
-        }))
-      )
-      .onConflictDoUpdate({
-        target: rewardTiers.id,
-        set: {
-          name: sql`excluded.name`,
-          description: sql`excluded.description`,
-          minPoints: sql`excluded.min_points`,
-          sortOrder: sql`excluded.sort_order`,
-          active: true,
-          updatedAt: new Date()
-        }
-      });
-  });
-
-  revalidatePath("/manager/reward-tiers");
-  revalidatePath("/manager/customers");
-  revalidatePath("/customer");
-  revalidatePath("/customer/profile");
-  revalidatePath("/customer/qr");
-  revalidatePath("/cashier/customer/[id]", "page");
 }
 
 /**
@@ -714,10 +629,7 @@ export async function setCustomerActive(formData: FormData) {
 
 export async function searchManagerCustomers(query: string) {
   await requireManagerSession();
-  const [customerRows, tierRows] = await Promise.all([
-    listCustomersForManager(query),
-    listConfiguredRewardTiers()
-  ]);
+  const customerRows = await listCustomersForManager(query);
 
   return {
     customers: customerRows.map((customer) => ({
@@ -728,13 +640,6 @@ export async function searchManagerCustomers(query: string) {
       phone: customer.phone,
       pointsBalance: customer.pointsBalance,
       active: customer.active
-    })),
-    rewardTiers: tierRows.map((tier) => ({
-      id: tier.id,
-      name: tier.name,
-      min: tier.min,
-      max: tier.max,
-      vibe: tier.vibe
     }))
   };
 }

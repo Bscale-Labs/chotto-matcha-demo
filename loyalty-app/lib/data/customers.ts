@@ -1,12 +1,31 @@
 import "server-only";
 
-import { and, asc, desc, eq, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { customers, transactions } from "@/db/schema";
 import { normalizeCustomerCode } from "@/lib/customers/code";
 
 export async function listCustomers() {
   return db.query.customers.findMany({ orderBy: [asc(customers.name)] });
+}
+
+export async function searchActiveCustomers(query: string, limit = 8) {
+  const value = query.trim();
+  if (!value) return [];
+
+  return db.query.customers.findMany({
+    where: and(
+      eq(customers.active, true),
+      or(
+        ilike(customers.name, `%${value}%`),
+        ilike(customers.code, `%${value}%`),
+        ilike(customers.email, `%${value}%`),
+        ilike(customers.phone, `%${value}%`)
+      )
+    ),
+    orderBy: [asc(customers.name)],
+    limit
+  });
 }
 
 export async function getCustomerById(id: string) {

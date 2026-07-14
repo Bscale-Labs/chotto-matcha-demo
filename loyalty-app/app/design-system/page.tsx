@@ -6,11 +6,9 @@ import { Pill } from "@/components/shared/pill";
 import { Input } from "@/components/shared/input";
 import { Toast } from "@/components/shared/toast";
 import { Tooltip } from "@/components/shared/tooltip";
-import { TierBadge } from "@/components/customer/tier-badge";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
 import { RewardCard } from "@/components/customer/reward-card";
 import { customers, rewards } from "@/lib/mock-data";
-import { getNextTier, getTier, pointsToNextTier, tierProgress, tiers } from "@/lib/loyalty";
 
 const colorTokens = [
   { token: "--matcha-deep", hex: "#2F4B2E", role: "Primary actions · headlines" },
@@ -58,16 +56,11 @@ const sections = [
   { id: "pills", label: "Pills" },
   { id: "forms", label: "Forms" },
   { id: "components", label: "Components" },
-  { id: "tiers", label: "Tiers" },
   { id: "voice", label: "Voice" }
 ];
 
 export default function DesignSystemPage() {
   const customer = customers[0];
-  const tier = getTier(customer.pointsBalance);
-  const nextTier = getNextTier(customer.pointsBalance);
-  const toNext = pointsToNextTier(customer.pointsBalance);
-  const progress = tierProgress(customer.pointsBalance);
 
   return (
     <main className="min-h-screen bg-cream pb-24">
@@ -357,9 +350,6 @@ export default function DesignSystemPage() {
               <Pill tone="soft">Resting</Pill>
               <Pill tone="muted">Closed</Pill>
               <Pill tone="warn">Out of stock</Pill>
-              <TierBadge tier={tiers[0]} />
-              <TierBadge tier={tiers[1]} />
-              <TierBadge tier={tiers[2]} />
             </div>
           </section>
 
@@ -389,13 +379,7 @@ export default function DesignSystemPage() {
           <section id="components" className="scroll-mt-6">
             <SectionHeader eyebrow="09" title="Components" />
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              <PointsBalanceCard
-                points={customer.pointsBalance}
-                tier={tier}
-                nextTier={nextTier}
-                pointsToNext={toNext}
-                progress={progress}
-              />
+              <PointsBalanceCard points={customer.pointsBalance} />
               <RewardCard reward={rewards[0]} customer={customer} />
               <RewardCard reward={rewards[2]} customer={customer} />
               <Toast
@@ -444,38 +428,8 @@ export default function DesignSystemPage() {
             </div>
           </section>
 
-          <section id="tiers" className="scroll-mt-6">
-            <SectionHeader eyebrow="10" title="Tiers" hint="Status grows with cumulative points earned." />
-            <ul className="mt-6 grid gap-3 sm:grid-cols-3">
-              {tiers.map((row) => {
-                const TierIcon = row.icon;
-                return (
-                  <li
-                    key={row.id}
-                    className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-5"
-                  >
-                    <span className="grid h-10 w-10 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
-                      <TierIcon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="font-display text-[20px] font-medium leading-7 text-charcoal">
-                        {row.name}
-                      </p>
-                      <p className="counter text-xs text-ink-muted">
-                        {row.max === null
-                          ? `${row.min}+ points`
-                          : `${row.min}–${row.max} points`}
-                      </p>
-                      <p className="mt-1 text-xs text-ink-muted">{row.vibe}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-
           <section id="voice" className="scroll-mt-6">
-            <SectionHeader eyebrow="11" title="Voice" hint="Warm. Thoughtful. Quietly celebratory." />
+            <SectionHeader eyebrow="10" title="Voice" hint="Warm. Thoughtful. Quietly celebratory." />
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border border-sage-tint bg-sage-wash p-5">
                 <p className="eyebrow text-matcha-deep">Do</p>

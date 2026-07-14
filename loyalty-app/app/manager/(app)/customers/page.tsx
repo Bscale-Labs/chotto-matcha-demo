@@ -3,7 +3,6 @@ import { SectionTitle } from "@/components/shared/section-title";
 import { Button } from "@/components/shared/button";
 import { CustomerSearchTable } from "@/components/manager/customer-search-table";
 import { listCustomersForManager } from "@/lib/data/manager";
-import { listConfiguredRewardTiers } from "@/lib/data/reward-tiers";
 
 export default async function ManagerCustomersPage({
   searchParams
@@ -11,10 +10,7 @@ export default async function ManagerCustomersPage({
   searchParams: Promise<{ q?: string; changed?: string }>;
 }) {
   const { q, changed } = await searchParams;
-  const [customers, rewardTiers] = await Promise.all([
-    listCustomersForManager(q),
-    listConfiguredRewardTiers()
-  ]);
+  const customers = await listCustomersForManager(q);
   const customerRows = customers.map((customer) => ({
     id: customer.id,
     code: customer.code,
@@ -23,13 +19,6 @@ export default async function ManagerCustomersPage({
     phone: customer.phone,
     pointsBalance: customer.pointsBalance,
     active: customer.active
-  }));
-  const tierRows = rewardTiers.map((tier) => ({
-    id: tier.id,
-    name: tier.name,
-    min: tier.min,
-    max: tier.max,
-    vibe: tier.vibe
   }));
 
   return (
@@ -40,7 +29,6 @@ export default async function ManagerCustomersPage({
         </div>
         <CustomerSearchTable
           initialCustomers={customerRows}
-          initialRewardTiers={tierRows}
           initialQuery={q}
           highlightKey={changed}
         />
