@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db/client";
 import { customers, user, userRoles } from "@/db/schema";
 import { auth } from "@/lib/auth/server";
+import { requireCustomerSession } from "@/lib/auth/session";
 import { sendSignInLink } from "@/lib/auth/magic-link";
 import { generateCustomerCode } from "@/lib/customers/code";
 
@@ -13,8 +14,27 @@ export type SignupState = {
   error?: string;
 };
 
+export type ProfileState = {
+  error?: string;
+};
+
 function text(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
+}
+
+export async function updateCustomerProfile(_: ProfileState, formData: FormData): Promise<ProfileState> {
+  const { customer } = await requireCustomerSession();
+  const name = text(formData, "name");
+  const phone = text(formData, "phone");
+
+  if (!name || !phone) return { error: "Name and phone are required" };
+
+  await db
+    .update(customers)
+    .set({ name, phone, updatedAt: new Date() })
+    .where(eq(customers.id, customer.id));
+
+  redirect("/customer/profile");
 }
 
 export async function signUpCustomer(_: SignupState, formData: FormData): Promise<SignupState> {

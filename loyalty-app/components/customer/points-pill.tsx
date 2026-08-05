@@ -28,7 +28,7 @@ export function PointsPill({
     >
       {formatPoints(points)}
       <span className={clsx("text-[10px] font-medium", solid ? "text-cream/70" : "text-matcha-deep/55")}>
-        pts
+        leaves
       </span>
     </span>
   );

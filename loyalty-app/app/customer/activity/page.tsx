@@ -1,4 +1,5 @@
-import { ArrowDownRight, ArrowUpRight, Leaf } from "lucide-react";
+import Link from "next/link";
+import { ArrowDownRight, ArrowUpRight, ChevronLeft, Leaf } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { listBranches } from "@/lib/data/branches";
@@ -24,15 +25,22 @@ export default async function CustomerActivityPage() {
 
   return (
     <CustomerShell>
-      <section>
+      <Link
+        href="/customer/profile"
+        className="inline-flex min-h-tap items-center gap-1 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+      >
+        <ChevronLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+        Profile
+      </Link>
+      <section className="mt-3">
         <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal">
-          History
+          Transaction History
         </h1>
       </section>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <div className="surface-paper rounded-md p-4">
-          <p className="eyebrow text-ink-muted">Current points</p>
+          <p className="eyebrow text-ink-muted">Current leaves</p>
           <p className="counter mt-3 font-display text-[28px] font-medium leading-none text-charcoal">
             {formatPoints(customer.pointsBalance)}
           </p>
@@ -45,7 +53,14 @@ export default async function CustomerActivityPage() {
         </div>
       </div>
 
-      <ul className="mt-6 grid gap-2">
+      {activity.length === 0 ? (
+        <div className="mt-6 rounded-lg border border-dashed border-line p-6 text-center">
+          <p className="text-sm text-ink-muted">
+            No transactions yet — show your QR at the bar to start.
+          </p>
+        </div>
+      ) : (
+        <ul className="mt-6 grid gap-2">
         {activity.map((transaction) => {
           const earned = transaction.pointsDelta > 0;
           const meta = typeMeta[transaction.type] ?? typeMeta.manual;
@@ -98,7 +113,8 @@ export default async function CustomerActivityPage() {
             </li>
           );
         })}
-      </ul>
+        </ul>
+      )}
     </CustomerShell>
   );
 }

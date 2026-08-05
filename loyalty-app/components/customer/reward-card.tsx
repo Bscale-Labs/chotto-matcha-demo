@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { clsx } from "clsx";
 import { ChevronDown, MapPin } from "lucide-react";
 import { RewardImage } from "@/components/customer/reward-image";
@@ -71,7 +72,12 @@ export function RewardCard({
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <h3 className="min-w-0 font-display text-base leading-[19px] text-charcoal">
-                {reward.name}
+                <Link
+                  href={`/customer/rewards/${reward.id}`}
+                  className="transition-colors duration-fast ease-out-soft hover:text-matcha-deep"
+                >
+                  {reward.name}
+                </Link>
               </h3>
               <PointsPill points={reward.pointCost} tone={ready ? "solid" : "soft"} />
             </div>

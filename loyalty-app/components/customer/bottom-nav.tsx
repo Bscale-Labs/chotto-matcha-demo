@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gift, House, NotebookPen, QrCode, UserRound } from "lucide-react";
+import { Footprints, Gift, QrCode, Stamp, UserRound } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 import type { ComponentType } from "react";
 import { clsx } from "clsx";
@@ -16,10 +16,10 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { href: "/customer", label: "Home", icon: House, match: (p) => p === "/customer" },
+  { href: "/customer", label: "Journey", icon: Footprints, match: (p) => p === "/customer" },
   { href: "/customer/rewards", label: "Rewards", icon: Gift },
   { href: "/customer/qr", label: "Scan", icon: QrCode, feature: true },
-  { href: "/customer/activity", label: "History", icon: NotebookPen },
+  { href: "/customer/passport", label: "Passport", icon: Stamp },
   { href: "/customer/profile", label: "Profile", icon: UserRound }
 ];
 

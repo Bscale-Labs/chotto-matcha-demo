@@ -16,18 +16,21 @@ export default async function CustomerRewardsPage() {
     <CustomerShell>
       <section>
         <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal">
-          Your rewards
+          Rewards
         </h1>
       </section>
+
+      {rewards.length === 0 ? (
+        <div className="mt-7 rounded-lg border border-dashed border-line p-6 text-center">
+          <p className="text-sm text-ink-muted">No rewards yet — the menu is being whisked.</p>
+        </div>
+      ) : null}
 
       {ready.length > 0 ? (
         <section className="mt-7">
           <h2 className="font-display text-[20px] font-medium leading-7 text-charcoal">
             Ready for you
           </h2>
-          <p className="mt-1 text-sm text-ink-muted">
-            Go on, you've earned these
-          </p>
           <div className="mt-3 grid gap-3">
             {ready.map((reward) => (
               <RewardCard key={reward.id} reward={reward} customer={customer} />
@@ -39,7 +42,6 @@ export default async function CustomerRewardsPage() {
       {soon.length > 0 ? (
         <section className="mt-7">
           <h2 className="font-display text-[20px] font-medium leading-7 text-charcoal">Soon</h2>
-          <p className="mt-1 text-sm text-ink-muted">Just a little more to go.</p>
           <div className="mt-3 grid gap-3">
             {soon.map((reward) => (
               <RewardCard key={reward.id} reward={reward} customer={customer} />
